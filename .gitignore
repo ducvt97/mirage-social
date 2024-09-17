@@ -2,6 +2,13 @@
 /*/dist
 /*/node_modules
 
+# Nuxt dev/build outputs
+/*/.output
+/*/.data
+/*/.nuxt
+/*/.nitro
+/*/.cache
+
 # Logs
 /*/logs
 /*/*.log
@@ -33,3 +40,13 @@
 /*/!.vscode/tasks.json
 /*/!.vscode/launch.json
 /*/!.vscode/extensions.json
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+/*/.env
+/*/.env.*
+/*/!.env.example
