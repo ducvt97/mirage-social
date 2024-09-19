@@ -1,4 +1,10 @@
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+
 export class PostCreateDTO {
-    userId: string;
-    caption: string;
+  @IsMongoId()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  caption: string;
 }
