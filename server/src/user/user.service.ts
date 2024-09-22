@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { User } from 'src/schemas/user.schema';
 import { UserCreateDTO } from './dto/user-create-dto';
 import { UserUpdateDTO } from './dto/user-update-dto';
-import { handleResponse } from 'src/utils/response.util';
+import { handleError, handleResponse } from 'src/utils/response.util';
 
 @Injectable()
 export class UserService {
@@ -30,11 +30,18 @@ export class UserService {
 
   async createUser(userCreateDTO: UserCreateDTO) {
     try {
+      const userExist = await this.getUserByUsernameOrEmail(
+        userCreateDTO.userName,
+      );
+      if (userExist) {
+        return handleError('Username already in used.');
+      }
+
       const newUserModel = new this.userModel(userCreateDTO);
       const newUser = newUserModel.save();
       return handleResponse(newUser);
     } catch (error) {
-      console.log(error);
+      return handleError(error);
     }
   }
 
