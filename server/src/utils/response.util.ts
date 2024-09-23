@@ -6,7 +6,7 @@ export function handleResponse(data?: any, status?: number, message?: string) {
 }
 
 export function handleError(
-  error: string | string[] | Error[],
+  error: string | string[] | Error,
   status = 400,
   message = STATUS_CODES[400],
 ) {

@@ -4,7 +4,7 @@ export interface Error {
 
 export interface IResponse {
   success: boolean;
-  error: string | string[] | Error[] | null;
+  error: string | string[] | Error | null;
   message: string;
   data: any;
   status: number;
@@ -12,7 +12,7 @@ export interface IResponse {
 
 export class ServerResponse implements IResponse {
   success: boolean;
-  error: string | string[] | Error[] | null;
+  error: string | string[] | Error | null;
   message: string | null;
   data: any;
   status: number;

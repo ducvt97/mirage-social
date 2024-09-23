@@ -34,7 +34,7 @@ export class UserService {
         userCreateDTO.userName,
       );
       if (userExist) {
-        return handleError('Username already in used.');
+        return handleError({ userName: 'Username already in used.' });
       }
 
       const newUserModel = new this.userModel(userCreateDTO);

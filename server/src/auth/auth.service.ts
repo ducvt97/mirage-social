@@ -13,12 +13,8 @@ export class AuthService {
     try {
       const user = await this.userService.getUserByUsernameOrEmail(userName);
 
-      if (!user) {
-        return handleError('Incorrect username.');
-      }
-
-      if (password !== user.password) {
-        return handleError('Incorrect password.');
+      if (!user || password !== user.password) {
+        return handleError('Incorrect username or password.');
       }
 
       return handleResponse(user);
