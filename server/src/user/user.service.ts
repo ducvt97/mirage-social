@@ -38,7 +38,7 @@ export class UserService {
       }
 
       const newUserModel = new this.userModel(userCreateDTO);
-      const newUser = newUserModel.save();
+      const newUser = await newUserModel.save();
       return handleResponse(newUser);
     } catch (error) {
       return handleError(error);
