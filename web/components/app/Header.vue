@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-between items-center px-6 py-3">
-        <ULink to="/">
+        <ULink to="/" class="h-12">
             <AppIcon :name="Icons.logo" size="xl" />
         </ULink>
     </div>
