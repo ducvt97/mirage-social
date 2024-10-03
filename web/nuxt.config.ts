@@ -5,4 +5,7 @@ export default defineNuxtConfig({
     modules: ["@nuxt/ui"],
     css: ["~/assets/styles/main.scss"],
     dev: true,
+    runtimeConfig: {
+        serverEndpoint: "",
+    },
 });
