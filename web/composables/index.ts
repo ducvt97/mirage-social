@@ -1,3 +1,3 @@
-import { useGetApi, usePostApi } from "./common/fetch";
+import { useGetApi, usePostApi } from "./common/fetchApi";
 
 export { usePostApi, useGetApi };
