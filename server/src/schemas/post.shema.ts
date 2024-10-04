@@ -6,6 +6,10 @@ export type PostDocument = mongoose.HydratedDocument<Post>;
 
 @Schema()
 export class Post {
+  _id: mongoose.Schema.Types.ObjectId;
+
+  createdAt: Date;
+
   @Prop()
   caption: string;
 

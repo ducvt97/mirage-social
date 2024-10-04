@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+  <UForm :schema="schema" :state="state" class="space-y-4" @submit.prevent="onSubmit">
     <UFormGroup label="Email" name="email">
       <UInput v-model="state.email" />
     </UFormGroup>

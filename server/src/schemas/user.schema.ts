@@ -7,8 +7,12 @@ import { handleError } from 'src/utils/response.util';
 
 export type UserDocument = mongoose.HydratedDocument<User>;
 
-@Schema()
+@Schema(
+  // { timestamps: true }
+)
 export class User {
+  _id: mongoose.Schema.Types.ObjectId;
+
   @Prop({ required: true, unique: true })
   userName: string;
 
@@ -64,6 +68,8 @@ UserSchema.methods.toJSON = function () {
 
 UserSchema.pre('save', async function (next: Function) {
   try {
+    console.log('sdfbsfdb');
+    
     const user = this;
 
     const hashPassword = await bcrypt.hash(

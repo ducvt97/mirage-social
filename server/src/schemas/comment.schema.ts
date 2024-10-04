@@ -7,6 +7,10 @@ export type CommentDocument = mongoose.HydratedDocument<Comment>;
 
 @Schema()
 export class Comment {
+  _id: mongoose.Schema.Types.ObjectId;
+
+  createdAt: Date;
+
   @Prop({ required: true })
   caption: string;
 
