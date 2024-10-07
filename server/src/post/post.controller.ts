@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { SearchDTO } from 'src/common/dto/get-with-paging-dto';
 import { PostCreateDTO } from './dto/post-create-dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('post')
 export class PostController {
@@ -14,6 +15,7 @@ export class PostController {
         console.log(id);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     create(@Body() reqBody: PostCreateDTO) {
         console.log(reqBody);

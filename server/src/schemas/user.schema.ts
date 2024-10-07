@@ -3,13 +3,10 @@ import * as mongoose from 'mongoose';
 import { Post } from './post.shema';
 import { IsDateString, IsEmail, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcrypt';
-import { handleError } from 'src/utils/response.util';
 
 export type UserDocument = mongoose.HydratedDocument<User>;
 
-@Schema(
-  // { timestamps: true }
-)
+@Schema({ timestamps: true })
 export class User {
   _id: mongoose.Schema.Types.ObjectId;
 
@@ -66,22 +63,14 @@ UserSchema.methods.toJSON = function () {
   return userObject;
 };
 
-UserSchema.pre('save', async function (next: Function) {
-  try {
-    console.log('sdfbsfdb');
-    
-    const user = this;
+UserSchema.pre<User>('save', function (next: Function) {
+  const user = this;
 
-    const hashPassword = await bcrypt.hash(
-      user.password,
-      process.env.SALT || 10,
-    );
-    if (!hashPassword) {
-      throw 'Something went wrong. Please try again.';
+  bcrypt.hash(user.password, 10, (err, hash) => {
+    if (err) {
+      return next(err);
     }
-    user.password = hashPassword;
+    user.password = hash;
     next();
-  } catch (error) {
-    handleError({}, 404, error);
-  }
+  });
 });

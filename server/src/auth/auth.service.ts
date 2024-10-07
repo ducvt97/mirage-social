@@ -20,7 +20,6 @@ export class AuthService {
       if (!user) {
         return handleError('Incorrect username or password.', 401);
       }
-console.log(user);
 
       const isPasswordMatch = await bcrypt.compare(password, user.password);
       if (!isPasswordMatch) {
