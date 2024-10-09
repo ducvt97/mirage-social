@@ -5,5 +5,5 @@ export function handleResponse(data: any, message?: string) {
 }
 
 export function handleError(error: string | string[] | Error) {
-  throw new ServerError(error);
+  return new ServerError(error);
 }

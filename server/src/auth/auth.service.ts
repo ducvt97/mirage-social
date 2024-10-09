@@ -18,11 +18,14 @@ export class AuthService {
 
     try {
       const user = await this.userService.getUserByUsernameOrEmail(userName);
+      
       if (!user) {
         return handleError('Incorrect username or password.');
       }
 
       const isPasswordMatch = await bcrypt.compare(password, user.password);
+      console.log(isPasswordMatch);
+
       if (!isPasswordMatch) {
         return handleError('Incorrect username or password.');
       }

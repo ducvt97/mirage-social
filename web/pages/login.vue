@@ -48,7 +48,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       password: event.data.password,
     });
 
-    console.log(res.data.value);
+    console.log(res);
   } catch (error) {}
 }
 </script>

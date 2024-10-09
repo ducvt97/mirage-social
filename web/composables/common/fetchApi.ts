@@ -1,4 +1,5 @@
 import type { UseFetchOptions } from "nuxt/app";
+import { handleError } from "./handleError";
 
 export function useApi<T>(
   url: string | (() => string),
@@ -16,11 +17,24 @@ export function useApi<T>(
   });
 }
 
-export const usePostApi = async <T>(path: string, body?: object) => {
-  return useApi<T>(`/${path}`, {
+export const usePostApi = async <T>(
+  path: string,
+  body?: object
+): Promise<T | undefined> => {
+  const response = await useApi<T>(`/${path}`, {
     method: "POST",
     body,
   });
+  // debugger;
+  const { data, error } = response;
+
+  const isError = handleError(error.value);
+
+  if (isError) {
+    return undefined;
+  }
+
+  return data.value as T;
 };
 
 export const useGetApi = async <T>(path: string, params?: object) => {
