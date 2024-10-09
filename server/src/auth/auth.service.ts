@@ -33,7 +33,7 @@ export class AuthService {
       };
       const jwt = await this.jwtService.signAsync(payload);
 
-      return handleResponse({ token: jwt });
+      return handleResponse({ token: jwt, user });
     } catch (error) {
       console.log('error: ' + error);
       return handleError(error.message);

@@ -5,11 +5,11 @@ export interface IResponse {
 }
 
 export class ServerResponse implements IResponse {
-  message: string | null;
+  message: string;
   data: any;
   status: number;
 
-  constructor({ message = null, data = null, status = 200 }) {
+  constructor({ message = 'Success', data = null, status = 200 }) {
     this.message = message;
     this.data = data;
     this.status = status;

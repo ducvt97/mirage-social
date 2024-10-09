@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="state" class="space-y-4" @submit.prevent="onSubmit">
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="space-y-4"
+    @submit.prevent="onSubmit"
+  >
     <UFormGroup label="Email" name="email">
       <UInput v-model="state.email" />
     </UFormGroup>
@@ -28,6 +33,8 @@ const schema: ObjectSchema<LoginRequest> = object({
 
 type Schema = InferType<typeof schema>;
 
+const { login } = useAuth();
+
 const state = reactive({
   email: "",
   password: "",
@@ -41,7 +48,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       password: event.data.password,
     });
 
-    console.log(res);
+    console.log(res.data.value);
   } catch (error) {}
 }
 </script>
