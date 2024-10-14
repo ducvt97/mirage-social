@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { object, string, ObjectSchema, type InferType } from "yup";
 import type { FormSubmitEvent } from "#ui/types";
+import type { LoginResponse } from "~/common/interfaces";
 
 interface LoginRequest {
   email: string;
@@ -43,7 +44,7 @@ const state = reactive({
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   // Do something with event.data
   try {
-    const res = await useApiClient("auth/login", "post", {
+    const res = await useApiClient<LoginResponse>("auth/login", "post", {
       body: {
         userName: event.data.email,
         password: event.data.password,
@@ -51,6 +52,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     });
 
     console.log(res);
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>

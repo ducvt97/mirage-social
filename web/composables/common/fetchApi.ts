@@ -3,30 +3,22 @@ import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 import { handleError } from "./handleError";
 import type { ServerResponse } from "~/common/interfaces";
 
-export const useApiClient = async <T extends NitroFetchRequest>(
+export const useApiClient = async <T extends ServerResponse>(
   url: string,
   method: "get" | "post" | "patch" | "put" | "delete",
-  options?: NitroFetchOptions<T>
-) => {
+  options?: NitroFetchOptions<NitroFetchRequest>
+): Promise<T | undefined> => {
   const { $api } = useNuxtApp();
   try {
-    const response = await $api(url, { ...options, method });
-    console.log(response);
-    const error = handleError(response);
-    if (error) {
-      return Promise.reject(error);
+    const response = await $api<T>(url, { ...options, method });
+    const { success } = response;
+
+    if (!success) {
+      return Promise.reject(response);
     }
 
-    const serverResponse: ServerResponse = {
-      success: true,
-      status: 200,
-      message: "abc",
-    };
-  
-    return serverResponse;
+    return response;
   } catch (error) {
-    console.log(error);
-    
     return Promise.reject(error);
   }
 };
@@ -35,7 +27,7 @@ export const useApi = async <T>(
   path: string,
   method: "get" | "post" | "patch" | "put" | "delete",
   options?: UseFetchOptions<T>
-): Promise<ServerResponse | undefined> => {
+): Promise<T | undefined> => {
   const response = await useFetch(`/${path}`, {
     ...options,
     method,
@@ -44,19 +36,11 @@ export const useApi = async <T>(
 
   const error = handleError(response);
 
-  console.log(response);
   if (error) {
     return Promise.reject(error);
   }
 
   const { data } = response;
-  console.log(data);
 
-  const serverResponse: ServerResponse = {
-    success: true,
-    status: 200,
-    message: "abc",
-  };
-
-  return serverResponse;
+  return data.value as T;
 };

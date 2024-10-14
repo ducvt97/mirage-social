@@ -37,9 +37,4 @@ const handleError = (response: any): ServerResponse | undefined => {
   return undefined;
 };
 
-// const handleErrorClient = (response: any): ServerResponse | undefined => {
-//   const { logout } = useAuth();
-//   const { data, error } = response;
-// };
-
 export { handleError };

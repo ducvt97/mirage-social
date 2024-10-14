@@ -1,5 +1,3 @@
-import type { UserCommonInfo } from "./global";
-import type { Error, ServerResponse } from "./server-response";
-
-export type { UserCommonInfo };
-export type { Error, ServerResponse };
+export type { UserCommonInfo } from "./global";
+export type { Error, ServerResponse } from "./server-response";
+export type { LoginResponse } from "./response/login";
