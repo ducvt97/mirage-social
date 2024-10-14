@@ -1,45 +1,62 @@
 import type { UseFetchOptions } from "nuxt/app";
+import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 import { handleError } from "./handleError";
+import type { ServerResponse } from "~/common/interfaces";
 
-export function useApi<T>(
-  url: string | (() => string),
-  options?: UseFetchOptions<T>
-) {
-  const config = useRuntimeConfig();
+export const useApiClient = async <T extends NitroFetchRequest>(
+  url: string,
+  method: "get" | "post" | "patch" | "put" | "delete",
+  options?: NitroFetchOptions<T>
+) => {
+  const { $api } = useNuxtApp();
+  try {
+    const response = await $api(url, { ...options, method });
+    console.log(response);
+    const error = handleError(response);
+    if (error) {
+      return Promise.reject(error);
+    }
 
-  const fetch = $fetch.create({
-    baseURL: config.public.serverEndpoint,
-  });
-
-  return useFetch(url, {
-    ...options,
-    $fetch: fetch,
-  });
-}
-
-export const usePostApi = async <T>(
-  path: string,
-  body?: object
-): Promise<T | undefined> => {
-  const response = await useApi<T>(`/${path}`, {
-    method: "POST",
-    body,
-  });
-  // debugger;
-  const { data, error } = response;
-
-  const isError = handleError(error.value);
-
-  if (isError) {
-    return undefined;
+    const serverResponse: ServerResponse = {
+      success: true,
+      status: 200,
+      message: "abc",
+    };
+  
+    return serverResponse;
+  } catch (error) {
+    console.log(error);
+    
+    return Promise.reject(error);
   }
-
-  return data.value as T;
 };
 
-export const useGetApi = async <T>(path: string, params?: object) => {
-  return useApi<T>(`/${path}`, {
-    method: "GET",
-    params,
+export const useApi = async <T>(
+  path: string,
+  method: "get" | "post" | "patch" | "put" | "delete",
+  options?: UseFetchOptions<T>
+): Promise<ServerResponse | undefined> => {
+  const response = await useFetch(`/${path}`, {
+    ...options,
+    method,
+    $fetch: useNuxtApp().$api,
   });
+
+  const error = handleError(response);
+
+  console.log(response);
+  if (error) {
+    return Promise.reject(error);
+  }
+
+  const { data } = response;
+  console.log(data);
+
+  const serverResponse: ServerResponse = {
+    success: true,
+    status: 200,
+    message: "abc",
+  };
+
+  return serverResponse;
 };

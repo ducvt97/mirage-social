@@ -1,17 +1,17 @@
 export interface IResponse {
+  success: boolean;
   message: string;
-  data: any;
   status: number;
 }
 
 export class ServerResponse implements IResponse {
+  readonly success = true;
   message: string;
   data: any;
-  status: number;
+  readonly status = 200;
 
-  constructor({ message = 'Success', data = null, status = 200 }) {
+  constructor({ message = 'Success', data = null }) {
     this.message = message;
     this.data = data;
-    this.status = status;
   }
 }

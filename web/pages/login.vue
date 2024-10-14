@@ -43,9 +43,11 @@ const state = reactive({
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   // Do something with event.data
   try {
-    const res = await usePostApi("auth/login", {
-      userName: event.data.email,
-      password: event.data.password,
+    const res = await useApiClient("auth/login", "post", {
+      body: {
+        userName: event.data.email,
+        password: event.data.password,
+      },
     });
 
     console.log(res);
