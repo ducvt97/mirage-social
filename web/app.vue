@@ -3,6 +3,7 @@
     <NuxtLayout :name="layout">
       <NuxtPage />
     </NuxtLayout>
+    <UNotifications />
   </div>
 </template>
 

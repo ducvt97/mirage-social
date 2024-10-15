@@ -9,17 +9,14 @@ export const useApiClient = async <T extends ServerResponse>(
   options?: NitroFetchOptions<NitroFetchRequest>
 ): Promise<T | undefined> => {
   const { $api } = useNuxtApp();
+  const { showError } = useToastMessage();
+
   try {
     const response = await $api<T>(url, { ...options, method });
-    const { success } = response;
-
-    if (!success) {
-      return Promise.reject(response);
-    }
-
     return response;
   } catch (error) {
-    return Promise.reject(error);
+    showError("Internal Server Error");
+    return Promise.reject("Internal Server Error");
   }
 };
 

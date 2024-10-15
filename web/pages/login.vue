@@ -40,9 +40,9 @@ const state = reactive({
   email: "",
   password: "",
 });
+const showError = ref(false);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // Do something with event.data
   try {
     const res = await useApiClient<LoginResponse>("auth/login", "post", {
       body: {
@@ -51,7 +51,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       },
     });
 
-    console.log(res);
+    if (!res?.success) {
+      showError.value = true;
+      return;
+    }
+
+    const { token, user } = res.data;
+    login(token, user);
   } catch (error) {
     console.error(error);
   }
