@@ -34,6 +34,7 @@ const schema: ObjectSchema<LoginRequest> = object({
 
 type Schema = InferType<typeof schema>;
 
+const { startProgress, endProgress } = useLoading();
 const { login } = useAuth();
 
 const state = reactive({
@@ -44,6 +45,7 @@ const showError = ref(false);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
+    startProgress();
     const res = await useApiClient<LoginResponse>("auth/login", "post", {
       body: {
         userName: event.data.email,
@@ -58,8 +60,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     const { token, user } = res.data;
     login(token, user);
+    console.log(res);
   } catch (error) {
     console.error(error);
+  } finally {
+    endProgress();
   }
 }
 </script>
