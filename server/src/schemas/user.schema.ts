@@ -11,9 +11,6 @@ export class User {
   _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true, unique: true })
-  userName: string;
-
-  @Prop({ unique: true })
   @IsEmail()
   email: string;
 

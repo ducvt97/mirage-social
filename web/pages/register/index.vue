@@ -1,3 +1,93 @@
 <template>
-  <div>Register Page</div>
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="space-y-4"
+    @submit.prevent="onSubmit"
+  >
+    <AppAlertMessage v-if="isShowError" type="error" :message="errorMessage" />
+    <UFormGroup label="Email" name="email">
+      <UInput v-model="state.email" />
+    </UFormGroup>
+
+    <div class="flex w-full gap-x-5">
+      <UFormGroup label="First Name" name="firstName" class="flex-1">
+        <UInput v-model="state.firstName" />
+      </UFormGroup>
+
+      <UFormGroup label="Last Name" name="lastName" class="flex-1">
+        <UInput v-model="state.lastName" />
+      </UFormGroup>
+    </div>
+
+    <UFormGroup label="Password" name="password">
+      <UInput v-model="state.password" type="password" />
+    </UFormGroup>
+
+    <UButton type="submit">Register</UButton>
+  </UForm>
+  <ULink to="/register">Already have an account? Login now.</ULink>
 </template>
+
+<script setup lang="ts">
+import { object, string, ObjectSchema, type InferType } from "yup";
+import type { FormSubmitEvent } from "#ui/types";
+import type { LoginResponse } from "~/common/interfaces";
+
+interface LoginRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+const schema: ObjectSchema<LoginRequest> = object({
+  email: string().required().email(),
+  password: string().required(),
+  firstName: string().required(),
+  lastName: string().required(),
+});
+
+type Schema = InferType<typeof schema>;
+
+const { startProgress, endProgress } = useLoading();
+const { login } = useAuth();
+
+const state = reactive({
+  email: "",
+  password: "",
+  firstName: "",
+  lastName: "",
+});
+const isShowError = ref(false);
+const errorMessage = ref("");
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  try {
+    startProgress();
+    const res = await useApiClient<LoginResponse>("auth/register", "post", {
+      body: {
+        email: event.data.email,
+        password: event.data.password,
+        firstName: event.data.firstName,
+        lastName: event.data.lastName,
+      },
+    });
+
+    if (!res?.success) {
+      isShowError.value = true;
+      errorMessage.value = (res?.error as string) || "";
+      return;
+    }
+
+    isShowError.value = false;
+    const { token, user } = res.data;
+    login(token, user);
+    console.log(res);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    endProgress();
+  }
+}
+</script>

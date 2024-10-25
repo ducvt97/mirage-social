@@ -18,23 +18,21 @@ export class UserService {
     return this.userModel.findById(id).exec();
   }
 
-  async getUserByUsernameOrEmail(usernameEmail: string): Promise<User | null> {
-    if (!usernameEmail) {
+  async getUserByUsernameOrEmail(email: string): Promise<User | null> {
+    if (!email) {
       return null;
     }
 
-    return this.userModel
-      .findOne({ $or: [{ userName: usernameEmail }, { email: usernameEmail }] })
-      .exec();
+    return this.userModel.findOne({ email }).exec();
   }
 
   async createUser(userCreateDTO: UserCreateDTO) {
     try {
       const userExist = await this.getUserByUsernameOrEmail(
-        userCreateDTO.userName,
+        userCreateDTO.email,
       );
       if (userExist) {
-        return handleError({ userName: 'Username already in used.' });
+        return handleError({ email: 'Email already in used.' });
       }
 
       const newUserModel = new this.userModel(userCreateDTO);

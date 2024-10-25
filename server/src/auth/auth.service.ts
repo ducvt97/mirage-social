@@ -31,7 +31,7 @@ export class AuthService {
       }
 
       const payload: JWTPayload = {
-        username: user.userName,
+        username: user.email,
         sub: user._id.toString(),
       };
       const jwt = await this.jwtService.signAsync(payload);

@@ -5,6 +5,7 @@
     class="space-y-4"
     @submit.prevent="onSubmit"
   >
+    <AppAlertMessage v-if="isShowError" type="error" :message="errorMessage" />
     <UFormGroup label="Email" name="email">
       <UInput v-model="state.email" />
     </UFormGroup>
@@ -15,6 +16,7 @@
 
     <UButton type="submit">Login</UButton>
   </UForm>
+  <ULink to="/register">Don't have an account? Register one.</ULink>
 </template>
 
 <script setup lang="ts">
@@ -41,7 +43,8 @@ const state = reactive({
   email: "",
   password: "",
 });
-const showError = ref(false);
+const isShowError = ref(false);
+const errorMessage = ref("");
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
@@ -54,10 +57,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     });
 
     if (!res?.success) {
-      showError.value = true;
+      isShowError.value = true;
+      errorMessage.value = (res?.error as string) || "";
       return;
     }
 
+    isShowError.value = false;
     const { token, user } = res.data;
     login(token, user);
     console.log(res);
