@@ -14,10 +14,10 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDTO) {
-    const { userName, password } = loginDto;
+    const { email, password } = loginDto;
 
     try {
-      const user = await this.userService.getUserByUsernameOrEmail(userName);
+      const user = await this.userService.getUserByUsernameOrEmail(email);
       
       if (!user) {
         return handleError('Incorrect username or password.');

@@ -9,6 +9,6 @@
 </template>
 
 <script setup lang="ts">
-const isLoggedIn = false;
-const layout = computed(() => (isLoggedIn ? "default" : "anonymous"));
+const { user } = useAuth();
+const layout = computed(() => (user ? "default" : "anonymous"));
 </script>
