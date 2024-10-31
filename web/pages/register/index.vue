@@ -1,11 +1,11 @@
 <template>
   <UForm
+    ref="form"
     :schema="schema"
     :state="state"
     class="space-y-4"
     @submit.prevent="onSubmit"
   >
-    <AppAlertMessage v-if="isShowError" type="error" :message="errorMessage" />
     <UFormGroup label="Email" name="email">
       <UInput v-model="state.email" />
     </UFormGroup>
@@ -26,13 +26,14 @@
 
     <UButton type="submit">Register</UButton>
   </UForm>
-  <ULink to="/register">Already have an account? Login now.</ULink>
+  <ULink to="/login">Already have an account? Login now.</ULink>
 </template>
 
 <script setup lang="ts">
 import { object, string, ObjectSchema, type InferType } from "yup";
-import type { FormSubmitEvent } from "#ui/types";
-import type { LoginResponse } from "~/common/interfaces";
+import type { Form, FormSubmitEvent } from "#ui/types";
+import type { Error, LoginResponse } from "~/common/interfaces";
+import { transformErrorObject } from "~/common/utils";
 
 interface LoginRequest {
   email: string;
@@ -41,6 +42,7 @@ interface LoginRequest {
   lastName: string;
 }
 
+/* Validation */
 const schema: ObjectSchema<LoginRequest> = object({
   email: string().required().email(),
   password: string().required(),
@@ -50,18 +52,19 @@ const schema: ObjectSchema<LoginRequest> = object({
 
 type Schema = InferType<typeof schema>;
 
+/* Composables */
 const { startProgress, endProgress } = useLoading();
-const { login } = useAuth();
 
+/* State */
+const form = ref<Form<Schema>>();
 const state = reactive({
   email: "",
   password: "",
   firstName: "",
   lastName: "",
 });
-const isShowError = ref(false);
-const errorMessage = ref("");
 
+/* Methods */
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
     startProgress();
@@ -75,14 +78,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     });
 
     if (!res?.success) {
-      isShowError.value = true;
-      errorMessage.value = (res?.error as string) || "";
+      const errors = transformErrorObject(res?.error as Error);
+      form.value?.setErrors(errors);
       return;
     }
 
-    isShowError.value = false;
-    const { token, user } = res.data;
-    login(token, user);
+    form.value?.clear();
+
     console.log(res);
   } catch (error) {
     console.error(error);
