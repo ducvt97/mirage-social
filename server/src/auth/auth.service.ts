@@ -24,7 +24,6 @@ export class AuthService {
       }
 
       const isPasswordMatch = await bcrypt.compare(password, user.password);
-      console.log(isPasswordMatch);
 
       if (!isPasswordMatch) {
         return handleError('Incorrect username or password.');
@@ -38,7 +37,6 @@ export class AuthService {
 
       return handleResponse({ token: jwt, user });
     } catch (error) {
-      console.log('error: ' + error);
       return handleError(error.message);
     }
   }

@@ -51,7 +51,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     startProgress();
     const res = await useApiClient<LoginResponse>("auth/login", "post", {
       body: {
-        userName: event.data.email,
+        email: event.data.email,
         password: event.data.password,
       },
     });

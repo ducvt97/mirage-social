@@ -1,6 +1,6 @@
 import { ServerResponse, ServerError, Error } from 'src/common/interfaces';
 
-export function handleResponse(data: any, message?: string) {
+export function handleResponse(data?: any, message?: string) {
   return new ServerResponse({ data, message });
 }
 

@@ -10,11 +10,17 @@ export const useApiClient = async <T extends ServerResponse>(
 ): Promise<T | undefined> => {
   const { $api } = useNuxtApp();
   const { showError } = useToastMessage();
+  const { logout } = useAuth();
 
   try {
     const response = await $api<T>(url, { ...options, method });
     return response;
   } catch (error) {
+    if (error.statusCode === 401) {
+      logout();
+      navigateTo("/login");
+      return Promise.reject("Unauthorized");
+    }
     showError("Internal Server Error");
     return Promise.reject("Internal Server Error");
   }
