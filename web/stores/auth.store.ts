@@ -32,6 +32,8 @@ export const useAuth = defineStore(
     return { token, user, updateUser, login, logout };
   },
   {
-    persist: true,
+    persist: {
+      pick: ["token", "user"],
+    },
   }
 );

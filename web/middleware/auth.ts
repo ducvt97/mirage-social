@@ -6,8 +6,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/login");
   } else {
     try {
-      $api("auth/verifyToken", {
+      await $api("auth/verifyToken", {
         method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
     } catch (error) {
       if (error.statusCode === 401) {

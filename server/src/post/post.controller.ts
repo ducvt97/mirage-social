@@ -11,9 +11,13 @@ import { SearchDTO } from 'src/common/dto/get-with-paging-dto';
 import { PostCreateDTO } from './dto/post-create-dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
+import { PostService } from './post.service';
+import { PostUpdateDTO } from './dto/post-update-dto';
 
 @Controller('post')
 export class PostController {
+  constructor(private postService: PostService) {}
+
   @Get()
   getAll(@Param() params: SearchDTO) {
     console.log(params);
@@ -31,6 +35,12 @@ export class PostController {
     @Headers('Authorization') token: string = '',
   ) {
     const { sub: userId } = parseJWT(token);
-    console.log(userId);
+    return this.postService.createPost(userId, reqBody);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  update(@Body() reqBody: PostUpdateDTO) {
+    return this.postService.updatePost(reqBody);
   }
 }

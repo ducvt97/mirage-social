@@ -62,10 +62,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       return;
     }
 
-    isShowError.value = false;
     const { token, user } = res.data;
+
+    isShowError.value = false;
     login(token, user);
-    console.log(res);
+    navigateTo("/");
   } catch (error) {
     console.error(error);
   } finally {
