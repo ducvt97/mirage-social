@@ -79,13 +79,13 @@ export class PostService {
   async getPostByUser(
     userId: string,
     page: number = 0,
-    itemsPerPage: number = 10,
+    pageSize: number = 10,
   ) {
     try {
       const posts = await this.postModel.find({
         userId,
-        skip: page * itemsPerPage,
-        limit: itemsPerPage,
+        skip: page * pageSize,
+        limit: pageSize,
       });
       return handleResponse(posts);
     } catch (error) {

@@ -7,7 +7,10 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { SearchDTO } from 'src/common/dto/get-with-paging-dto';
+import {
+  GetWithPagingDTO,
+  SearchDTO,
+} from 'src/common/dto/get-with-paging-dto';
 import { PostCreateDTO } from './dto/post-create-dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
@@ -42,5 +45,19 @@ export class PostController {
   @Post()
   update(@Body() reqBody: PostUpdateDTO) {
     return this.postService.updatePost(reqBody);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  getByCurrentUser(
+    @Body() reqBody: GetWithPagingDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
+    return this.postService.getPostByUser(
+      userId,
+      reqBody.page,
+      reqBody.pageSize,
+    );
   }
 }

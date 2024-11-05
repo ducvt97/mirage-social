@@ -2,11 +2,10 @@ import { defineStore } from "pinia";
 import type { UserCommonInfo } from "~/common/interfaces";
 
 const USER_DEFAULT: UserCommonInfo = {
-  username: "",
-  firstname: "",
-  lastname: "",
+  firstName: "",
+  lastName: "",
   email: "",
-  avt: "",
+  avatar: "",
 };
 
 export const useAuth = defineStore(
