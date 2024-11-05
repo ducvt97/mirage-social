@@ -1,6 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 
+enum StatusType {
+  PUBLIC = 'Public',
+  PRIVATE = 'Private',
+}
+
 export type PostDocument = mongoose.HydratedDocument<Post>;
 
 @Schema({ timestamps: true })
@@ -9,6 +14,9 @@ export class Post {
 
   @Prop({ required: true })
   caption: string;
+
+  @Prop({ default: StatusType.PUBLIC, enum: StatusType })
+  status: string;
 
   @Prop()
   content: string[];
