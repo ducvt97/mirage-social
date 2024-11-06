@@ -62,8 +62,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       return;
     }
 
-    const { token, user } = res.data;
+    if (!res.data) {
+      return;
+    }
 
+    const { token, user } = res.data;
     isShowError.value = false;
     login(token, user);
     navigateTo("/");

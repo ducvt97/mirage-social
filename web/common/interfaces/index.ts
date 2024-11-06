@@ -8,6 +8,7 @@ export type { CreatePostRequest } from "./request";
 // Response
 export type {
   LoginResponse,
+  RegisterResponse,
   PostCreateResponse,
   GetPostsByUserResponse,
 } from "./response";
