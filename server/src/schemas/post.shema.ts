@@ -13,6 +13,9 @@ export class Post {
   _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
+  userId: string;
+
+  @Prop({ required: true })
   caption: string;
 
   @Prop({ default: StatusType.PUBLIC, enum: StatusType })
@@ -29,12 +32,6 @@ export class Post {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   tags: string[];
-
-  @Prop({
-    // required: true,
-    type: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  })
-  userId: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
   comments: string[];

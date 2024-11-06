@@ -14,82 +14,51 @@ export class PostService {
     try {
       const newPost = new this.postModel({ userId, ...postInfo });
       await newPost.save();
+
       return handleResponse(newPost);
     } catch (error) {
       handleError(error);
     }
   }
 
-  async deletePost(postId: string, userId: string) {
+  async deletePost(postId: string) {
     try {
-      const post = await this.postModel.findById(postId);
-
-      if (!post) {
-        return handleError('No post found.');
-      }
-
-      if (post.userId !== userId) {
-        handleError('Permission denied.');
-      }
-
-      await post.deleteOne({});
-
-      return handleResponse();
+      await this.postModel.findByIdAndDelete(postId);
+      return true;
     } catch (error) {
-      handleError(error);
+      return Promise.reject(error);
     }
   }
 
   async updatePost(postInfo: PostUpdateDTO) {
     try {
-      const post = await this.postModel.findById(postInfo.id);
-
-      if (!post) {
-        return handleError('No post found.');
-      }
-
-      if (post.userId !== postInfo.userId) {
-        handleError('Permission denied.');
-      }
-
-      for (const key in postInfo) {
-        post[key] = postInfo[key];
-      }
-
-      await post.save();
-
-      return handleResponse(post);
+      const post = await this.postModel.findByIdAndUpdate(postInfo);
+      return post;
     } catch (error) {
       handleError(error);
     }
   }
 
-  async getPostById(postId: string) {
+  async getPostById(postId: string): Promise<Post> {
     try {
       const post = await this.postModel.findById(postId);
-      if (!post) {
-        return handleError('No post found.');
-      }
-      return handleResponse(post);
+      return post;
     } catch (error) {
-      handleError(error);
+      return Promise.reject(error);
     }
   }
 
-  async getPostByUser(
-    userId: string,
-    page: number = 0,
-    pageSize: number = 10,
-  ) {
+  async getPostByUser(userId: string, page: number = 0, pageSize: number = 10): Promise<Post[]> {
     try {
-      const posts = await this.postModel.find({
-        userId,
+      const posts = await this.postModel.find({ userId }, null, {
         skip: page * pageSize,
         limit: pageSize,
+        sort: { createdAt: -1 },
       });
-      return handleResponse(posts);
+
+      return posts;
     } catch (error) {
-      handleError(error);
+      return Promise.reject(error);
     }
   }
 }

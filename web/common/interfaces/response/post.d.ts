@@ -1,5 +1,10 @@
-import type { PostSchema } from "../schema";
+import type { PostSchema, UserSchema } from "../schema";
 import type { ServerResponse } from "../server-response";
+
+interface GetPostsByUserResponseData {
+  posts: PostSchema[];
+  user: UserSchema;
+}
 
 export interface PostCreateResponse extends ServerResponse {
   data?: PostSchema;
@@ -7,6 +12,6 @@ export interface PostCreateResponse extends ServerResponse {
 }
 
 export interface GetPostsByUserResponse extends ServerResponse {
-  data?: PostSchema[];
+  data?: GetPostsByUserResponseData;
   error?: string;
 }

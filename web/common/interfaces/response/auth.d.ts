@@ -1,4 +1,4 @@
-import type { UserCommonInfo } from "../global";
+import type { UserCommonInfo } from "../common";
 import type { Error, ServerResponse } from "../server-response";
 
 interface LoginResponseData {

@@ -16,15 +16,15 @@ const postList = ref<PostSchema[]>([]);
 const isLoadingPosts = ref(true);
 
 onBeforeMount(async () => {
-  const reqBody = {
+  const params = {
     page: 0,
     pageSize: 10,
   };
   try {
-    const response = await useApi<GetPostsByUserResponse>(
+    const response = await useApiClient<GetPostsByUserResponse>(
       "post/getByCurrentUser",
       "get",
-      { body: reqBody }
+      { params }
     );
 
     if (!response?.success) {
@@ -32,7 +32,10 @@ onBeforeMount(async () => {
       return;
     }
 
-    postList.value = response.data || [];
+    if (response.data) {
+      const { posts } = response.data;
+      postList.value = posts || [];
+    }
   } catch (error) {
     showError(error);
   } finally {

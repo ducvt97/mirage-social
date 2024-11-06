@@ -1,9 +1,13 @@
 // Common
-export type { UserCommonInfo } from "./global";
+export type { UserCommonInfo } from "./common";
 export type { Error, ServerResponse } from "./server-response";
 
 // Request
-export type { CreatePostRequest } from "./request";
+export type {
+  CreatePostRequest,
+  LoginRequest,
+  RegisterRequest,
+} from "./request";
 
 // Response
 export type {
@@ -14,4 +18,4 @@ export type {
 } from "./response";
 
 // Schema
-export type { PostSchema } from "./schema";
+export type { PostSchema, UserSchema } from "./schema";
