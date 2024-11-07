@@ -18,7 +18,7 @@ import { PostCreateDTO } from './dto/post-create-dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
 import { PostService } from './post.service';
-import { PostUpdateDTO } from './dto/post-update-dto';
+import { LikePost, PostUpdateDTO } from './dto/post-update-dto';
 import { handleError, handleResponse } from 'src/utils/response.util';
 import { UserService } from 'src/user/user.service';
 
@@ -61,8 +61,27 @@ export class PostController {
     const getPosts = this.postService.getPostByUser(userId, page, pageSize);
     const getUser = this.userService.getUserById(userId);
     const [posts, user] = await Promise.all([getPosts, getUser]);
+    const postsDetails = posts.map((item) => ({
+      ...item['_doc'],
+      userDetails: user,
+    }));
 
-    return handleResponse({ posts, user });
+    return handleResponse({ posts: postsDetails });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('likePost')
+  async likePost(
+    @Body() { postId }: LikePost,
+    @Headers('Authorization') token: string = '',
+  ) {
+    try {
+      const { sub: userId } = parseJWT(token);
+      const likes = await this.postService.likePost(postId, userId);
+      return handleResponse({ likes });
+    } catch (error) {
+      return handleError(error);
+    }
   }
 
   @Get(':id')

@@ -1,46 +1,93 @@
 <template>
   <UCard>
-    <template #header>
-      <h3 class="text-xl font-bold leading-6 text-gray-900 dark:text-white">
-        Create Post
-      </h3>
-    </template>
-
     <div class="flex gap-3 items-center">
       <UAvatar
         size="md"
         :src="
-          user.avatar || 'https://avatars.githubusercontent.com/u/739984?v=4'
+          post.userDetails.avatar ||
+          'https://avatars.githubusercontent.com/u/739984?v=4'
         "
       />
       <div>
         <div class="text-sm font-semibold mb-1">
-          {{ user.firstName }} {{ user.lastName }}
+          {{ post.userDetails.firstName }} {{ post.userDetails.lastName }}
         </div>
-        <div>
-          <UIcon :name="statusIcon" class="w-3 h-3 mr-1" />{{ post.status }}
+        <div class="flex items-center text-xs">
+          <UIcon :name="statusIcon" class="w-4 h-4 mr-1" />{{ post.status }}
         </div>
       </div>
     </div>
 
-    <template #footer>Footer</template>
+    <div class="flex gap-3 items-center mt-3">{{ post.caption }}</div>
+
+    <template #footer>
+      <div class="flex justify-between gap-x-4">
+        <UButton
+          variant="ghost"
+          :icon="likeIcon"
+          @click="onPressLike"
+          :loading="likeLoading"
+        >
+          {{ post.likes }}
+        </UButton>
+        <UButton variant="ghost" :icon="Icons.comment">Comments</UButton>
+        <UButton variant="ghost" :icon="Icons.share">Share</UButton>
+      </div>
+    </template>
   </UCard>
 </template>
 
 <script setup lang="ts">
 import { StatusType } from "~/common/constants/enums";
 import Icons from "~/common/constants/icons";
-import type { PostSchema, UserSchema } from "~/common/interfaces";
+import type {
+  LikePostRequest,
+  LikePostResponse,
+  PostDetail,
+} from "~/common/interfaces";
 
 interface Props {
-  post: PostSchema;
-  user: UserSchema;
+  post: PostDetail;
 }
-
 const props = defineProps<Props>();
-const { post, user } = toRefs(props);
+const { post } = toRefs(props);
+
+const { user } = useAuth();
+const { showError } = useToastMessage();
+
+const likeLoading = ref(false);
 
 const statusIcon = computed(() =>
   post.value.status === StatusType.PUBLIC ? Icons.public : Icons.private
 );
+
+const likeIcon = computed(() =>
+  post.value.usersLike.includes(user._id) ? Icons.like : Icons.notLike
+);
+
+const onPressLike = async () => {
+  const body: LikePostRequest = { postId: post.value._id };
+
+  try {
+    likeLoading.value = true;
+    const res = await useApiClient<LikePostResponse>("post/likePost", "post", {
+      body,
+    });
+
+    if (!res?.success) {
+      showError(res?.error || "");
+      return;
+    }
+
+    if (likePost && res.data) {
+      likePost(body.postId, res.data.likes);
+    }
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    likeLoading.value = false;
+  }
+};
+
+const likePost = inject<Function>("likePost");
 </script>

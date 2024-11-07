@@ -11,3 +11,9 @@ export class PostUpdateDTO {
   @IsString()
   caption: string;
 }
+
+export class LikePost {
+  @IsString()
+  @IsNotEmpty()
+  postId: string;
+}

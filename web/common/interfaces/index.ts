@@ -7,6 +7,7 @@ export type {
   CreatePostRequest,
   LoginRequest,
   RegisterRequest,
+  LikePostRequest,
 } from "./request";
 
 // Response
@@ -15,7 +16,11 @@ export type {
   RegisterResponse,
   PostCreateResponse,
   GetPostsByUserResponse,
+  LikePostResponse,
 } from "./response";
 
 // Schema
 export type { PostSchema, UserSchema } from "./schema";
+
+// Component
+export type { PostDetail } from "./component";

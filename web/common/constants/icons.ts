@@ -8,6 +8,10 @@ const Icons = {
   success: "material-symbols-check-circle",
   public: "material-symbols-light-public",
   private: "material-symbols-lock",
+  like: "material-symbols-thumb-up",
+  notLike: "material-symbols-thumb-up-outline",
+  comment: "mdi-comment-outline",
+  share: "mdi-share-outline",
 };
 
 export default Icons;

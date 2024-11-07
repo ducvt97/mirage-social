@@ -48,7 +48,11 @@ export class PostService {
     }
   }
 
-  async getPostByUser(userId: string, page: number = 0, pageSize: number = 10): Promise<Post[]> {
+  async getPostByUser(
+    userId: string,
+    page: number = 0,
+    pageSize: number = 10,
+  ): Promise<Post[]> {
     try {
       const posts = await this.postModel.find({ userId }, null, {
         skip: page * pageSize,
@@ -59,6 +63,33 @@ export class PostService {
       return posts;
     } catch (error) {
       return Promise.reject(error);
+    }
+  }
+
+  async likePost(postId: string, userId: string) {
+    try {
+      const post = await this.postModel.findById(postId);
+
+      if (!post || (post.status && post.userId !== userId)) {
+        return Promise.reject('This post does not exist.');
+      }
+
+      const userLikeIndex = post.usersLike.findIndex((item) => item === userId);
+      console.log(userLikeIndex);
+
+      if (userLikeIndex > -1) {
+        post.usersLike.splice(userLikeIndex, 1);
+        post.likes -= 1;
+        await post.save();
+        return post.likes;
+      }
+
+      post.usersLike.push(userId);
+      post.likes += 1;
+      await post.save();
+      return post.likes;
+    } catch (error) {
+      return Promise.reject('Cannot like/unlike this post');
     }
   }
 }
