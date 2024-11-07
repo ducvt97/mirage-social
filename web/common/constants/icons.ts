@@ -6,6 +6,8 @@ const Icons = {
   error: "material-symbols-error",
   warning: "material-symbols-warning",
   success: "material-symbols-check-circle",
+  public: "material-symbols-light-public",
+  private: "material-symbols-lock",
 };
 
 export default Icons;

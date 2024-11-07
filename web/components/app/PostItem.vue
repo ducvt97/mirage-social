@@ -10,14 +10,16 @@
       <UAvatar
         size="md"
         :src="
-          info.avatar || 'https://avatars.githubusercontent.com/u/739984?v=4'
+          user.avatar || 'https://avatars.githubusercontent.com/u/739984?v=4'
         "
       />
       <div>
         <div class="text-sm font-semibold mb-1">
           {{ user.firstName }} {{ user.lastName }}
         </div>
-        <USelect v-model="status" :options="statusList" size="2xs" />
+        <div>
+          <UIcon :name="statusIcon" class="w-3 h-3 mr-1" />{{ post.status }}
+        </div>
       </div>
     </div>
 
@@ -26,12 +28,19 @@
 </template>
 
 <script setup lang="ts">
-import type { PostSchema } from "~/common/interfaces";
+import { StatusType } from "~/common/constants/enums";
+import Icons from "~/common/constants/icons";
+import type { PostSchema, UserSchema } from "~/common/interfaces";
 
 interface Props {
-  info: PostSchema;
+  post: PostSchema;
+  user: UserSchema;
 }
 
 const props = defineProps<Props>();
-const { info } = toRefs(props);
+const { post, user } = toRefs(props);
+
+const statusIcon = computed(() =>
+  post.value.status === StatusType.PUBLIC ? Icons.public : Icons.private
+);
 </script>

@@ -58,7 +58,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     if (!res?.success) {
       isShowError.value = true;
-      errorMessage.value = (res?.error as string) || "";
+      errorMessage.value = res?.error || "";
       return;
     }
 
