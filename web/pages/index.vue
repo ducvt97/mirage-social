@@ -21,7 +21,7 @@ onBeforeMount(async () => {
     pageSize: 10,
   };
   try {
-    const response = await useApiClient<GetPostsByUserResponse>(
+    const response = await useApi<GetPostsByUserResponse>(
       "post/getByCurrentUser",
       "get",
       { params }
@@ -37,7 +37,7 @@ onBeforeMount(async () => {
       postList.value = posts || [];
     }
   } catch (error) {
-    showError(error);
+    showError(error.message);
   } finally {
     isLoadingPosts.value = false;
   }

@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async () => {
   const { $api } = useNuxtApp();
   const { token, logout } = useAuth();
 
@@ -6,12 +6,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/login");
   } else {
     try {
-      await $api("auth/verifyToken", {
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await $api("auth/verifyToken", { method: "get" });
     } catch (error) {
       if (error.statusCode === 401) {
         logout();
