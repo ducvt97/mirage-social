@@ -80,7 +80,8 @@ const onPressLike = async () => {
     }
 
     if (likePost && res.data) {
-      likePost(body.postId, res.data.likes);
+      const { likes, usersLike } = res.data;
+      likePost(body.postId, likes, usersLike);
     }
   } catch (error) {
     showError(error.message);

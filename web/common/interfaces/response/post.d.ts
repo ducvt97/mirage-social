@@ -6,8 +6,18 @@ interface GetPostsByUserResponseData {
   posts: PostDetail[];
 }
 
+interface LikePostResponseData {
+  likes: number;
+  usersLike: string[];
+}
+
+interface PostCreateResponseData {
+  post: PostSchema;
+  user: UserSchema;
+}
+
 export interface PostCreateResponse extends ServerResponse {
-  data?: PostSchema;
+  data?: PostCreateResponseData;
   error?: string;
 }
 
@@ -17,6 +27,6 @@ export interface GetPostsByUserResponse extends ServerResponse {
 }
 
 export interface LikePostResponse extends ServerResponse {
-  data?: { likes: number };
+  data?: LikePostResponseData;
   error?: string;
 }

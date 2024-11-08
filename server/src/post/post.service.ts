@@ -3,21 +3,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from 'src/schemas/post.shema';
 import { PostCreateDTO } from './dto/post-create-dto';
-import { handleError, handleResponse } from 'src/utils/response.util';
 import { PostUpdateDTO } from './dto/post-update-dto';
 
 @Injectable()
 export class PostService {
   constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
 
-  async createPost(userId: string, postInfo: PostCreateDTO) {
+  async createPost(userId: string, postInfo: PostCreateDTO): Promise<Post> {
     try {
       const newPost = new this.postModel({ userId, ...postInfo });
       await newPost.save();
-
-      return handleResponse(newPost);
+      return newPost;
     } catch (error) {
-      handleError(error);
+      return Promise.reject(error);
     }
   }
 
@@ -35,7 +33,7 @@ export class PostService {
       const post = await this.postModel.findByIdAndUpdate(postInfo);
       return post;
     } catch (error) {
-      handleError(error);
+      return Promise.reject(error);
     }
   }
 
@@ -66,7 +64,7 @@ export class PostService {
     }
   }
 
-  async likePost(postId: string, userId: string) {
+  async likePost(postId: string, userId: string): Promise<Post> {
     try {
       const post = await this.postModel.findById(postId);
 
@@ -74,20 +72,20 @@ export class PostService {
         return Promise.reject('This post does not exist.');
       }
 
-      const userLikeIndex = post.usersLike.findIndex((item) => item === userId);
-      console.log(userLikeIndex);
+      const userLikeIndex = post.usersLike.findIndex(
+        (item) => String(item) === userId,
+      );
 
       if (userLikeIndex > -1) {
         post.usersLike.splice(userLikeIndex, 1);
         post.likes -= 1;
-        await post.save();
-        return post.likes;
+      } else {
+        post.usersLike.push(userId);
+        post.likes += 1;
       }
 
-      post.usersLike.push(userId);
-      post.likes += 1;
       await post.save();
-      return post.likes;
+      return post;
     } catch (error) {
       return Promise.reject('Cannot like/unlike this post');
     }

@@ -44,12 +44,12 @@ onBeforeMount(async () => {
 });
 
 const createPostSuccess = (post: PostDetail) => {
-  postList.value = [...postList.value, post];
+  postList.value = [post, ...postList.value];
 };
 
-const likePost = (postId: string, likes: number) => {
+const likePost = (postId: string, likes: number, usersLike: string[]) => {
   postList.value = postList.value.map((item) =>
-    item._id === postId ? { ...item, likes } : item
+    item._id === postId ? { ...item, likes, usersLike } : item
   );
 };
 

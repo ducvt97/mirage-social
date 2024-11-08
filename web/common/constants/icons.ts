@@ -12,6 +12,7 @@ const Icons = {
   notLike: "material-symbols-thumb-up-outline",
   comment: "mdi-comment-outline",
   share: "mdi-share-outline",
+  close: "material-symbols-close",
 };
 
 export default Icons;

@@ -2,9 +2,18 @@
   <UModal v-model="isOpen">
     <UCard>
       <template #header>
-        <h3 class="text-xl font-bold leading-6 text-gray-900 dark:text-white">
-          Create Post
-        </h3>
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold leading-6 text-gray-900 dark:text-white">
+            Create Post
+          </h3>
+          <UButton
+            color="gray"
+            variant="ghost"
+            :icon="Icons.close"
+            class="-my-1"
+            @click="closeModal"
+          />
+        </div>
       </template>
 
       <div class="flex gap-3 items-center">
@@ -30,7 +39,10 @@
         placeholder="What are you thinking about?"
       />
 
-      <div class="flex justify-end">
+      <div class="flex justify-end gap-x-3">
+        <UButton type="button" variant="ghost" @click="closeModal">
+          Cancel
+        </UButton>
         <UButton type="button" :disabled="!caption" @click="onSubmit">
           Post
         </UButton>
@@ -41,7 +53,8 @@
 
 <script setup lang="ts">
 import { StatusType } from "~/common/constants/enums";
-import type { CreatePostRequest } from "~/common/interfaces";
+import Icons from "~/common/constants/icons";
+import type { CreatePostRequest, PostDetail } from "~/common/interfaces";
 import type { PostCreateResponse } from "~/common/interfaces";
 
 const isOpen = defineModel({ required: true, default: false });
@@ -72,16 +85,26 @@ const onSubmit = async () => {
       return;
     }
 
-    if (createPostSuccess) {
-      createPostSuccess(res.data);
+    if (createPostSuccess && res.data) {
+      const { post, user } = res.data;
+      const postDetail: PostDetail = {
+        ...post,
+        userDetails: user,
+      };
+      createPostSuccess(postDetail);
     }
-
-    isOpen.value = false;
   } catch (error) {
     showError(error);
   } finally {
+    closeModal();
     endProgress();
   }
+};
+
+const closeModal = () => {
+  caption.value = "";
+  status.value = StatusType.PUBLIC;
+  isOpen.value = false;
 };
 
 const createPostSuccess = inject<Function>("createPostSuccess");

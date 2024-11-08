@@ -36,12 +36,19 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
+  async create(
     @Body() reqBody: PostCreateDTO,
     @Headers('Authorization') token: string = '',
   ) {
     const { sub: userId } = parseJWT(token);
-    return this.postService.createPost(userId, reqBody);
+    try {
+      const getPost = this.postService.createPost(userId, reqBody);
+      const getUser = this.userService.getUserById(userId);
+      const [post, user] = await Promise.all([getPost, getUser]);
+      return handleResponse({ post, user });
+    } catch (error) {
+      return handleError(error);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -77,8 +84,8 @@ export class PostController {
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const likes = await this.postService.likePost(postId, userId);
-      return handleResponse({ likes });
+      const post = await this.postService.likePost(postId, userId);
+      return handleResponse({ likes: post.likes, usersLike: post.usersLike });
     } catch (error) {
       return handleError(error);
     }
