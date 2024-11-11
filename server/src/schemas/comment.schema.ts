@@ -31,11 +31,20 @@ export class Comment {
   })
   postId: string;
 
+  @Prop({ default: 0 })
+  replies: number;
+
+  @Prop({
+    default: null,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+  })
+  replyComments: string[];
+
   @Prop({
     default: null,
     type: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
   })
-  commentId: string;
+  replyCommentId: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
