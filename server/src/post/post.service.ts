@@ -19,18 +19,38 @@ export class PostService {
     }
   }
 
-  async deletePost(postId: string) {
+  async deletePost(userId: string, postId: string) {
     try {
-      await this.postModel.findByIdAndDelete(postId);
+      const post = await this.postModel.findById(postId);
+
+      if (!post) {
+        return Promise.reject('No post found.');
+      }
+
+      if (userId !== post.userId) {
+        return Promise.reject('Permission denied.');
+      }
+
       return true;
     } catch (error) {
       return Promise.reject(error);
     }
   }
 
-  async updatePost(postInfo: PostUpdateDTO) {
+  async updatePost(userId: string, postInfo: PostUpdateDTO) {
     try {
-      const post = await this.postModel.findByIdAndUpdate(postInfo);
+      const post = await this.postModel.findById(postInfo.id);
+
+      if (userId !== String(post.userId)) {
+        return Promise.reject('Permission denied.');
+      }
+
+      for (const key in postInfo) {
+        post[key] = postInfo[key];
+      }
+
+      await post.save();
+
       return post;
     } catch (error) {
       return Promise.reject(error);

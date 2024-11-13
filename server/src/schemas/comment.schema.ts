@@ -20,13 +20,11 @@ export class Comment {
   usersLike: string[];
 
   @Prop({
-    required: true,
     type: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   })
   userId: string;
 
   @Prop({
-    required: true,
     type: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
   })
   postId: string;
@@ -41,7 +39,6 @@ export class Comment {
   replyComments: string[];
 
   @Prop({
-    default: null,
     type: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
   })
   replyCommentId: string;

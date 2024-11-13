@@ -53,8 +53,17 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Patch()
-  update(@Body() reqBody: PostUpdateDTO) {
-    return this.postService.updatePost(reqBody);
+  async update(
+    @Body() reqBody: PostUpdateDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    try {
+      const { sub: userId } = parseJWT(token);
+      const post = await this.postService.updatePost(userId, reqBody);
+      return handleResponse(post);
+    } catch (error) {
+      return handleError(error);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -109,17 +118,7 @@ export class PostController {
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const post = await this.postService.getPostById(id);
-
-      if (!post) {
-        return handleError('No post found.');
-      }
-
-      if (post.userId !== userId) {
-        handleError('Permission denied.');
-      }
-
-      await this.postService.deletePost(id);
+      await this.postService.deletePost(userId, id);
       return handleResponse(true);
     } catch (error) {
       return handleError('Cannot delete this post.');
