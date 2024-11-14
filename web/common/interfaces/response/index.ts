@@ -4,3 +4,4 @@ export type {
   GetPostsByUserResponse,
   LikePostResponse,
 } from "./post";
+export type { CommentOnPostResponse } from "./comment";

@@ -11,7 +11,7 @@
     <USkeleton class="h-8 w-full" />
   </div>
   <div v-else class="flex flex-col gap-4">
-    <AppPostItem v-for="item in props.list" :post="item" :key="item._id" />
+    <PostItem v-for="item in props.list" :post="item" :key="item._id" />
   </div>
 </template>
 

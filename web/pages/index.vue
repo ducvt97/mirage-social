@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHomeCreatePost />
-    <AppPostList :list="postList" :loading="isLoadingPosts" class="mt-4" />
+    <PostList :list="postList" :loading="isLoadingPosts" class="mt-4" />
   </div>
 </template>
 

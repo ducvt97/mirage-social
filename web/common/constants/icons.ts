@@ -13,6 +13,7 @@ const Icons = {
   comment: "mdi-comment-outline",
   share: "mdi-share-outline",
   close: "material-symbols-close",
+  send: "material-symbols-send",
 };
 
 export default Icons;
