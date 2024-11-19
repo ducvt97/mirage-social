@@ -5,3 +5,8 @@ export interface CommentOnPostResponse extends ServerResponse {
   data?: CommentSchema;
   error?: string;
 }
+
+export interface GetCommentsByPostResponse extends ServerResponse {
+  data?: CommentSchema[];
+  error?: string;
+}

@@ -9,6 +9,7 @@ export type {
   RegisterRequest,
   LikePostRequest,
   CommentOnPostRequest,
+  GetCommentsByPostRequest,
 } from "./request";
 
 // Response
@@ -19,6 +20,7 @@ export type {
   GetPostsByUserResponse,
   LikePostResponse,
   CommentOnPostResponse,
+  GetCommentsByPostResponse,
 } from "./response";
 
 // Schema

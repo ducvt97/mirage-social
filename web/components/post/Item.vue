@@ -30,10 +30,15 @@
         >
           {{ post.likes }}
         </UButton>
-        <UButton variant="ghost" :icon="Icons.comment">Comments</UButton>
+        <UButton variant="ghost" :icon="Icons.comment" @click="onPressComment">
+          Comments
+        </UButton>
         <UButton variant="ghost" :icon="Icons.share">Share</UButton>
       </div>
-      <PostAddComment :post-id="post._id" />
+      <div v-if="showCommentPart">
+        <!-- <PostCommentList /> -->
+        <PostAddComment :post-id="post._id" />
+      </div>
     </template>
   </UCard>
 </template>
@@ -42,6 +47,9 @@
 import { StatusType } from "~/common/constants/enums";
 import Icons from "~/common/constants/icons";
 import type {
+  CommentSchema,
+  GetCommentsByPostRequest,
+  GetCommentsByPostResponse,
   LikePostRequest,
   LikePostResponse,
   PostDetail,
@@ -57,6 +65,9 @@ const { user } = useAuth();
 const { showError } = useToastMessage();
 
 const likeLoading = ref(false);
+const showCommentPart = ref(false);
+const getCommentsLoading = ref(false);
+const commentList = reactive<CommentSchema[]>([]);
 
 const statusIcon = computed(() =>
   post.value.status === StatusType.PUBLIC ? Icons.public : Icons.private
@@ -88,6 +99,33 @@ const onPressLike = async () => {
     showError(error.message);
   } finally {
     likeLoading.value = false;
+  }
+};
+
+const onPressComment = async () => {
+  if (showCommentPart) {
+    showCommentPart.value = true;
+    getCommentsLoading.value = true;
+    try {
+      const query: GetCommentsByPostRequest = {
+        postId: post.value._id,
+      };
+
+      const res = await useApiClient<GetCommentsByPostResponse>(
+        "comment/getCommentsByPost",
+        "get",
+        { query }
+      );
+
+      if (!res?.success) {
+        showError(res?.error || "");
+      }
+      commentList.push(...(res?.data || []));
+    } catch (error) {
+      showError(error);
+    } finally {
+      getCommentsLoading.value = false;
+    }
   }
 };
 

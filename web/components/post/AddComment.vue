@@ -58,7 +58,7 @@ const onClickAddComment = async () => {
   try {
     startProgress();
 
-    const res = await useApiClient<CommentOnPostResponse>("post", "post", {
+    const res = await useApiClient<CommentOnPostResponse>("comment", "post", {
       body,
     });
 

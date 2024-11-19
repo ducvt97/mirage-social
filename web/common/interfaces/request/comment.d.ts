@@ -3,3 +3,7 @@ export class CommentOnPostRequest {
   postId: string;
   replyCommentId?: string;
 }
+
+export class GetCommentsByPostRequest {
+  postId: string;
+}
