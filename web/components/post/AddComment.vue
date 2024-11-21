@@ -6,11 +6,13 @@
     />
     <div class="flex gap-3 items-center w-full">
       <UTextarea
-        :autofocus="focus"
+        :autofocus="true"
         class="w-full"
         v-model="caption"
         :rows="3"
         placeholder="Write your comment."
+        ref="inputRef"
+        @blur="emit('onBlur')"
       />
       <UButton
         variant="ghost"
@@ -28,8 +30,8 @@ import Icons from "~/common/constants/icons";
 import type {
   CommentOnPostRequest,
   CommentOnPostResponse,
-  CommentSchema,
 } from "~/common/interfaces";
+import type { CommentDetail } from "~/common/interfaces/component";
 
 interface Props {
   postId: string;
@@ -38,17 +40,26 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { postId, replyCommentId } = toRefs(props);
+const { postId, replyCommentId, focus } = toRefs(props);
 
 const emit = defineEmits<{
-  (e: "addCommentSuccess", comment: CommentSchema): void;
+  (e: "addCommentSuccess", comment: CommentDetail): void;
+  (e: "onBlur"): void;
 }>();
 
 const { user } = storeToRefs(useAuth());
 const { showError } = useToastMessage();
 const { startProgress, endProgress } = useLoading();
 
+const inputRef = useTemplateRef("inputRef");
+
 const caption = ref("");
+
+watchEffect(() => {
+  if (focus.value && inputRef.value?.textarea) {
+    inputRef.value.textarea.focus();
+  }
+});
 
 const onClickAddComment = async () => {
   const body: CommentOnPostRequest = {

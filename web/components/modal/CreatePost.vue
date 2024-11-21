@@ -54,8 +54,17 @@
 <script setup lang="ts">
 import { StatusType } from "~/common/constants/enums";
 import Icons from "~/common/constants/icons";
-import type { CreatePostRequest, PostDetail } from "~/common/interfaces";
+import type {
+  CreatePostRequest,
+  PostDetail,
+  PostSchema,
+} from "~/common/interfaces";
 import type { PostCreateResponse } from "~/common/interfaces";
+
+interface Props {
+  postDetail?: PostSchema;
+}
+const { postDetail } = toRefs(defineProps<Props>());
 
 const isOpen = defineModel({ required: true, default: false });
 
@@ -63,8 +72,8 @@ const { user } = useAuth();
 const { startProgress, endProgress } = useLoading();
 const { showError } = useToastMessage();
 
-const caption = ref("");
-const status = ref(StatusType.PUBLIC);
+const caption = ref(postDetail.value?.caption || "");
+const status = ref(postDetail.value?.status || StatusType.PUBLIC);
 
 const statusList = Object.values(StatusType);
 

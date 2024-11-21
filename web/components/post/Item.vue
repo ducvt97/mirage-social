@@ -21,7 +21,7 @@
     <div class="flex gap-3 items-center mt-3">{{ post.caption }}</div>
 
     <template #footer>
-      <div class="flex justify-between gap-x-4 mb-4">
+      <div class="flex justify-between gap-x-4">
         <UButton
           variant="ghost"
           :icon="likeIcon"
@@ -35,10 +35,15 @@
         </UButton>
         <UButton variant="ghost" :icon="Icons.share">Share</UButton>
       </div>
-      <div v-if="showCommentPart">
+      <div v-if="showCommentPart" class="mt-4">
         <PostCommentList :loading="getCommentsLoading" :list="commentList" />
-        <div class="h-4"></div>
-        <PostAddComment :post-id="post._id" />
+        <div class="h-4" v-if="commentList.length > 0"></div>
+        <PostAddComment
+          :post-id="post._id"
+          :focus="focusAddComment"
+          @add-comment-success="onAddCommentSuccess"
+          @on-blur="onFocusOutAddComment"
+        />
       </div>
     </template>
   </UCard>
@@ -105,6 +110,7 @@ const onPressLike = async () => {
 };
 
 const onPressComment = async () => {
+  // Load comments for the first time
   if (!showCommentPart.value) {
     showCommentPart.value = true;
     getCommentsLoading.value = true;
@@ -129,7 +135,16 @@ const onPressComment = async () => {
       getCommentsLoading.value = false;
     }
   }
+
   focusAddComment.value = true;
+};
+
+const onAddCommentSuccess = (comment: CommentDetail) => {
+  commentList.push(comment);
+};
+
+const onFocusOutAddComment = () => {
+  focusAddComment.value = false;
 };
 
 const likePost = inject<Function>("likePost");

@@ -34,8 +34,11 @@ export class CommentController {
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const comment = await this.commentService.createComment(userId, body);
-      return handleResponse(comment);
+      const getComment = this.commentService.createComment(userId, body);
+      const getUser = this.userService.getUserById(userId);
+      const [comment, user] = await Promise.all([getComment, getUser]);
+
+      return handleResponse({ ...comment['_doc'], userDetails: user });
     } catch (error) {
       handleError(error);
     }
@@ -57,7 +60,6 @@ export class CommentController {
           (user) => String(user._id) === item.userId,
         ),
       }));
-      console.log(usersDetails);
 
       return handleResponse(commentsDetails);
     } catch (error) {
