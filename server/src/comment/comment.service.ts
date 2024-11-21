@@ -34,7 +34,7 @@ export class CommentService {
   }: GetCommentsByPostDTO): Promise<Comment[]> {
     try {
       const comments = await this.commentModel.find(
-        { postId, replyCommentId: null },
+        { postId },
         {},
         { skip: page * pageSize, limit: pageSize },
       );

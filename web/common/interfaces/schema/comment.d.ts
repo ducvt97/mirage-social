@@ -1,10 +1,12 @@
 export interface CommentSchema {
   _id: string;
-  email: string;
-  avatar: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  friends: string[];
-  posts: string[];
+  caption: string;
+  content: string;
+  likes: number;
+  usersLike: string[];
+  userId: string;
+  postId: string;
+  replies: number;
+  replyComments: string[];
+  replyCommentId: string;
 }

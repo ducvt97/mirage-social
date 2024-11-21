@@ -36,7 +36,8 @@
         <UButton variant="ghost" :icon="Icons.share">Share</UButton>
       </div>
       <div v-if="showCommentPart">
-        <!-- <PostCommentList /> -->
+        <PostCommentList :loading="getCommentsLoading" :list="commentList" />
+        <div class="h-4"></div>
         <PostAddComment :post-id="post._id" />
       </div>
     </template>
@@ -47,13 +48,13 @@
 import { StatusType } from "~/common/constants/enums";
 import Icons from "~/common/constants/icons";
 import type {
-  CommentSchema,
   GetCommentsByPostRequest,
   GetCommentsByPostResponse,
   LikePostRequest,
   LikePostResponse,
   PostDetail,
 } from "~/common/interfaces";
+import type { CommentDetail } from "~/common/interfaces/component";
 
 interface Props {
   post: PostDetail;
@@ -67,7 +68,8 @@ const { showError } = useToastMessage();
 const likeLoading = ref(false);
 const showCommentPart = ref(false);
 const getCommentsLoading = ref(false);
-const commentList = reactive<CommentSchema[]>([]);
+const focusAddComment = ref(false);
+const commentList = reactive<CommentDetail[]>([]);
 
 const statusIcon = computed(() =>
   post.value.status === StatusType.PUBLIC ? Icons.public : Icons.private
@@ -103,7 +105,7 @@ const onPressLike = async () => {
 };
 
 const onPressComment = async () => {
-  if (showCommentPart) {
+  if (!showCommentPart.value) {
     showCommentPart.value = true;
     getCommentsLoading.value = true;
     try {
@@ -127,6 +129,7 @@ const onPressComment = async () => {
       getCommentsLoading.value = false;
     }
   }
+  focusAddComment.value = true;
 };
 
 const likePost = inject<Function>("likePost");

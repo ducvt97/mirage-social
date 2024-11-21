@@ -16,10 +16,15 @@ import {
   GetCommentsByCommentDTO,
   GetCommentsByPostDTO,
 } from './dto/get-comment.dto';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/schemas/user.schema';
 
 @Controller('comment')
 export class CommentController {
-  constructor(private commentService: CommentService) {}
+  constructor(
+    private commentService: CommentService,
+    private userService: UserService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -39,8 +44,22 @@ export class CommentController {
   @Get('getCommentsByPost')
   async getCommentsByPost(@Query() query: GetCommentsByPostDTO) {
     try {
-      const comment = await this.commentService.getCommentsByPost(query);
-      return handleResponse(comment);
+      const comments = await this.commentService.getCommentsByPost(query);
+      const getUsersDetails: Promise<User>[] = [];
+      for (const comment of comments) {
+        getUsersDetails.push(this.userService.getUserById(comment.userId));
+      }
+
+      const usersDetails = await Promise.all(getUsersDetails);
+      const commentsDetails = comments.map((item) => ({
+        ...item['_doc'],
+        userDetails: usersDetails.find(
+          (user) => String(user._id) === item.userId,
+        ),
+      }));
+      console.log(usersDetails);
+
+      return handleResponse(commentsDetails);
     } catch (error) {
       handleError(error);
     }

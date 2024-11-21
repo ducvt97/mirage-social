@@ -6,7 +6,7 @@
     />
     <div class="flex gap-3 items-center w-full">
       <UTextarea
-        autofocus
+        :autofocus="focus"
         class="w-full"
         v-model="caption"
         :rows="3"
@@ -34,6 +34,7 @@ import type {
 interface Props {
   postId: string;
   replyCommentId?: string;
+  focus?: boolean;
 }
 
 const props = defineProps<Props>();

@@ -19,14 +19,10 @@ export class Comment {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   usersLike: string[];
 
-  @Prop({
-    type: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  })
+  @Prop({ required: true })
   userId: string;
 
-  @Prop({
-    type: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
-  })
+  @Prop()
   postId: string;
 
   @Prop({ default: 0 })
@@ -38,9 +34,7 @@ export class Comment {
   })
   replyComments: string[];
 
-  @Prop({
-    type: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
-  })
+  @Prop()
   replyCommentId: string;
 }
 

@@ -14,6 +14,7 @@ const Icons = {
   share: "mdi-share-outline",
   close: "material-symbols-close",
   send: "material-symbols-send",
+  loading: "line-md-loading-twotone-loop",
 };
 
 export default Icons;
