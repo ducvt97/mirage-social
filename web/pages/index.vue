@@ -10,6 +10,7 @@ import type { GetPostsByUserResponse, PostDetail } from "~/common/interfaces";
 
 definePageMeta({ middleware: ["auth"] });
 
+const { $api } = useNuxtApp();
 const { showError } = useToastMessage();
 
 const postList = ref<PostDetail[]>([]);
@@ -21,14 +22,13 @@ onBeforeMount(async () => {
     pageSize: 10,
   };
   try {
-    const response = await useApi<GetPostsByUserResponse>(
+    const response = await $api<GetPostsByUserResponse>(
       "post/getByCurrentUser",
-      "get",
-      { params }
+      { method: "get", params }
     );
 
     if (!response?.success) {
-      showError(response?.error!);
+      showError(response?.error || "");
       return;
     }
 
@@ -47,6 +47,10 @@ const createPostSuccess = (post: PostDetail) => {
   postList.value = [post, ...postList.value];
 };
 
+const deletePostSuccess = (post: PostDetail) => {
+  postList.value = postList.value.filter((item) => item._id !== post._id);
+};
+
 const likePost = (postId: string, likes: number, usersLike: string[]) => {
   postList.value = postList.value.map((item) =>
     item._id === postId ? { ...item, likes, usersLike } : item
@@ -54,5 +58,6 @@ const likePost = (postId: string, likes: number, usersLike: string[]) => {
 };
 
 provide("createPostSuccess", createPostSuccess);
+provide("deletePostSuccess", deletePostSuccess);
 provide("likePost", likePost);
 </script>

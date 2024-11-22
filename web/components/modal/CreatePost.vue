@@ -64,7 +64,8 @@ import type { PostCreateResponse } from "~/common/interfaces";
 interface Props {
   postDetail?: PostSchema;
 }
-const { postDetail } = toRefs(defineProps<Props>());
+const props = defineProps<Props>();
+const { postDetail } = toRefs(props);
 
 const isOpen = defineModel({ required: true, default: false });
 

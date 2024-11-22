@@ -8,7 +8,7 @@
           'https://avatars.githubusercontent.com/u/739984?v=4'
         "
       />
-      <div>
+      <div class="flex-1">
         <div class="text-sm font-semibold mb-1">
           {{ post.userDetails.firstName }} {{ post.userDetails.lastName }}
         </div>
@@ -16,6 +16,9 @@
           <UIcon :name="statusIcon" class="w-4 h-4 mr-1" />{{ post.status }}
         </div>
       </div>
+      <UDropdown :items="actionItems" :popper="{ placement: 'bottom-end' }">
+        <UButton variant="ghost" :icon="Icons.more" />
+      </UDropdown>
     </div>
 
     <div class="flex gap-3 items-center mt-3">{{ post.caption }}</div>
@@ -83,6 +86,24 @@ const statusIcon = computed(() =>
 const likeIcon = computed(() =>
   post.value.usersLike.includes(user._id) ? Icons.like : Icons.notLike
 );
+
+const actionItems = computed(() => [
+  [
+    {
+      label: "Edit",
+      icon: "i-heroicons-pencil-square-20-solid",
+      click: () => {
+        console.log("Edit");
+      },
+    },
+  ],
+  [
+    {
+      label: "Delete",
+      icon: "i-heroicons-trash-20-solid",
+    },
+  ],
+]);
 
 const onPressLike = async () => {
   const body: LikePostRequest = { postId: post.value._id };

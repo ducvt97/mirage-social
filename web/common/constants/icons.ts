@@ -15,6 +15,7 @@ const Icons = {
   close: "material-symbols-close",
   send: "material-symbols-send",
   loading: "line-md-loading-twotone-loop",
+  more: "mdi-dots-horizontal",
 };
 
 export default Icons;
