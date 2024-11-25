@@ -28,3 +28,6 @@ export type { PostSchema, UserSchema, CommentSchema } from "./schema";
 
 // Component
 export type { PostDetail } from "./component";
+
+// Properties
+export type { ModalProps } from "./properties";

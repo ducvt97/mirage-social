@@ -101,6 +101,11 @@ const actionItems = computed(() => [
     {
       label: "Delete",
       icon: "i-heroicons-trash-20-solid",
+      click: () => {
+        if (toggleDeleteModal) {
+          toggleDeleteModal(true, post.value._id);
+        }
+      },
     },
   ],
 ]);
@@ -169,4 +174,5 @@ const onFocusOutAddComment = () => {
 };
 
 const likePost = inject<Function>("likePost");
+const toggleDeleteModal = inject<Function>("toggleDeleteModal");
 </script>
