@@ -30,3 +30,8 @@ export interface LikePostResponse extends ServerResponse {
   data?: LikePostResponseData;
   error?: string;
 }
+
+export interface DeletePostResponse extends ServerResponse {
+  data?: boolean;
+  error?: string;
+}

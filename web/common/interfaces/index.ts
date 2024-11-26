@@ -19,6 +19,7 @@ export type {
   PostCreateResponse,
   GetPostsByUserResponse,
   LikePostResponse,
+  DeletePostResponse,
   CommentOnPostResponse,
   GetCommentsByPostResponse,
 } from "./response";

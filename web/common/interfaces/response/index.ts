@@ -3,6 +3,7 @@ export type {
   PostCreateResponse,
   GetPostsByUserResponse,
   LikePostResponse,
+  DeletePostResponse,
 } from "./post";
 export type {
   CommentOnPostResponse,

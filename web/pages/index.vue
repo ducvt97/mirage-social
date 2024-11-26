@@ -2,25 +2,33 @@
   <div>
     <PageHomeCreatePost />
     <PostList :list="postList" :loading="isLoadingPosts" class="mt-4" />
+    <!-- Confirm Delete Post Modal -->
     <ModalConfirm
       v-model="isShowDeleteModal"
       content="Do you want to delete this post? This cannot be undone."
+      @on-action="deletePost"
+      @on-close="postDeleteId = ''"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { GetPostsByUserResponse, PostDetail } from "~/common/interfaces";
+import type {
+  DeletePostResponse,
+  GetPostsByUserResponse,
+  PostDetail,
+} from "~/common/interfaces";
 
 definePageMeta({ middleware: ["auth"] });
 
 const { $api } = useNuxtApp();
 const { showError } = useToastMessage();
+const { startProgress, endProgress } = useLoading();
 
 const postList = ref<PostDetail[]>([]);
 const isLoadingPosts = ref(true);
 const isShowDeleteModal = ref(false);
-const postDeleteId = ref("");
+const postDeleteId = ref<string>("");
 
 onBeforeMount(async () => {
   const params = {
@@ -53,8 +61,27 @@ const createPostSuccess = (post: PostDetail) => {
   postList.value = [post, ...postList.value];
 };
 
-const deletePostSuccess = (post: PostDetail) => {
-  postList.value = postList.value.filter((item) => item._id !== post._id);
+const deletePost = async () => {
+  try {
+    startProgress();
+    const res = await useApiClient<DeletePostResponse>(
+      `post/${postDeleteId.value}`,
+      "delete"
+    );
+
+    if (!res?.success) {
+      showError(res?.message || "");
+      return;
+    }
+
+    postList.value = postList.value.filter(
+      (item) => item._id !== postDeleteId.value
+    );
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    endProgress();
+  }
 };
 
 const likePost = (postId: string, likes: number, usersLike: string[]) => {
@@ -69,7 +96,6 @@ const toggleDeleteModal = (isShow: boolean, postId: string) => {
 };
 
 provide("createPostSuccess", createPostSuccess);
-provide("deletePostSuccess", deletePostSuccess);
 provide("likePost", likePost);
 provide("toggleDeleteModal", toggleDeleteModal);
 </script>
