@@ -8,6 +8,7 @@ export type {
   LoginRequest,
   RegisterRequest,
   LikePostRequest,
+  UpdatePostRequest,
   CommentOnPostRequest,
   GetCommentsByPostRequest,
 } from "./request";
@@ -20,6 +21,7 @@ export type {
   GetPostsByUserResponse,
   LikePostResponse,
   DeletePostResponse,
+  PostUpdateResponse,
   CommentOnPostResponse,
   GetCommentsByPostResponse,
 } from "./response";

@@ -1,8 +1,14 @@
 export interface CreatePostRequest {
   caption: string;
-  status: StatusType;
+  status: PostStatusType;
 }
 
 export interface LikePostRequest {
   postId: string;
+}
+
+export interface UpdatePostRequest {
+  id: string;
+  caption: string;
+  status: PostStatusType;
 }

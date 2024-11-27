@@ -16,14 +16,22 @@
         placeholder="What are you thinking about?"
       />
     </div>
-    <ModalCreateUpdatePost v-model="isOpen" />
+    <ModalCreateUpdatePost v-model="isOpen" @create-success="onCreateSuccess" />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { PostDetail } from "~/common/interfaces";
+
 const { user } = useAuth();
+
+const emits = defineEmits<{
+  (e: "create-success", post: PostDetail): any;
+}>();
 
 const isOpen = ref(false);
 
 const onClickEdit = () => (isOpen.value = true);
+
+const onCreateSuccess = (post: PostDetail) => emits("create-success", post);
 </script>

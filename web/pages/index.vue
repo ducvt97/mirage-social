@@ -1,13 +1,19 @@
 <template>
   <div>
-    <PageHomeCreatePost />
+    <PageHomeCreatePost @create-success="createPostSuccess" />
     <PostList :list="postList" :loading="isLoadingPosts" class="mt-4" />
     <!-- Confirm Delete Post Modal -->
     <ModalConfirm
-      v-model="isShowDeleteModal"
+      v-model="isShowDeletePostModal"
       content="Do you want to delete this post? This cannot be undone."
       @on-action="deletePost"
       @on-close="postDeleteId = ''"
+    />
+    <!-- Create/Edit Post Modal -->
+    <ModalCreateUpdatePost
+      v-model="isShowEditPostModal"
+      :post-detail="postEditting"
+      @update-success="updatePostSuccess"
     />
   </div>
 </template>
@@ -17,6 +23,7 @@ import type {
   DeletePostResponse,
   GetPostsByUserResponse,
   PostDetail,
+  PostSchema,
 } from "~/common/interfaces";
 
 definePageMeta({ middleware: ["auth"] });
@@ -27,7 +34,9 @@ const { startProgress, endProgress } = useLoading();
 
 const postList = ref<PostDetail[]>([]);
 const isLoadingPosts = ref(true);
-const isShowDeleteModal = ref(false);
+const isShowEditPostModal = ref(false);
+const postEditting = ref<PostDetail | undefined>(undefined);
+const isShowDeletePostModal = ref(false);
 const postDeleteId = ref<string>("");
 
 onBeforeMount(async () => {
@@ -61,6 +70,12 @@ const createPostSuccess = (post: PostDetail) => {
   postList.value = [post, ...postList.value];
 };
 
+const updatePostSuccess = (post: PostSchema) => {
+  postList.value = postList.value.map((item) =>
+    item._id === post._id ? { ...item, ...post } : item
+  );
+};
+
 const deletePost = async () => {
   try {
     startProgress();
@@ -90,12 +105,17 @@ const likePost = (postId: string, likes: number, usersLike: string[]) => {
   );
 };
 
-const toggleDeleteModal = (isShow: boolean, postId: string) => {
-  postDeleteId.value = postId;
-  isShowDeleteModal.value = isShow;
+const toggleEditPostModal = (isShow: boolean, postId: string) => {
+  postEditting.value = postList.value.find((item) => item._id === postId);
+  isShowEditPostModal.value = isShow;
 };
 
-provide("createPostSuccess", createPostSuccess);
+const toggleDeleteModal = (isShow: boolean, postId: string) => {
+  postDeleteId.value = postId;
+  isShowDeletePostModal.value = isShow;
+};
+
 provide("likePost", likePost);
+provide("toggleEditPostModal", toggleEditPostModal);
 provide("toggleDeleteModal", toggleDeleteModal);
 </script>

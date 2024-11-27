@@ -1,9 +1,9 @@
-import type { StatusType } from "~/common/constants/enums";
+import type { PostStatusType } from "~/common/constants/enums";
 
 export interface PostSchema {
   _id: string;
   caption: string;
-  status: StatusType;
+  status: PostStatusType;
   content: string[];
   likes: number;
   usersLike: string[];

@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { StatusType } from "~/common/constants/enums";
+import { PostStatusType } from "~/common/constants/enums";
 import Icons from "~/common/constants/icons";
 import type {
   GetCommentsByPostRequest,
@@ -80,7 +80,7 @@ const focusAddComment = ref(false);
 const commentList = reactive<CommentDetail[]>([]);
 
 const statusIcon = computed(() =>
-  post.value.status === StatusType.PUBLIC ? Icons.public : Icons.private
+  post.value.status === PostStatusType.PUBLIC ? Icons.public : Icons.private
 );
 
 const likeIcon = computed(() =>
@@ -93,7 +93,9 @@ const actionItems = computed(() => [
       label: "Edit",
       icon: "i-heroicons-pencil-square-20-solid",
       click: () => {
-        console.log("Edit");
+        if (toggleEditPostModal) {
+          toggleEditPostModal(true, post.value._id);
+        }
       },
     },
   ],
@@ -174,5 +176,6 @@ const onFocusOutAddComment = () => {
 };
 
 const likePost = inject<Function>("likePost");
+const toggleEditPostModal = inject<Function>("toggleEditPostModal");
 const toggleDeleteModal = inject<Function>("toggleDeleteModal");
 </script>

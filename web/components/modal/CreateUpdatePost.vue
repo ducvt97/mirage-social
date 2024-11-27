@@ -2,18 +2,7 @@
   <UModal v-model="isOpen">
     <UCard>
       <template #header>
-        <div class="flex items-center justify-between">
-          <h3 class="text-xl font-bold leading-6 text-gray-900 dark:text-white">
-            Create Post
-          </h3>
-          <UButton
-            color="gray"
-            variant="ghost"
-            :icon="Icons.close"
-            class="-my-1"
-            @click="closeModal"
-          />
-        </div>
+        <ModalHeader :title="title" @on-close="closeModal" />
       </template>
 
       <div class="flex gap-3 items-center">
@@ -39,25 +28,24 @@
         placeholder="What are you thinking about?"
       />
 
-      <div class="flex justify-end gap-x-3">
-        <UButton type="button" variant="ghost" @click="closeModal">
-          Cancel
-        </UButton>
-        <UButton type="button" :disabled="!caption" @click="onSubmit">
-          Post
-        </UButton>
-      </div>
+      <ModalFooter
+        btn-action-text="Post"
+        :disabled-btn-action="!caption"
+        @on-action="onSubmit"
+        @on-close="closeModal"
+      />
     </UCard>
   </UModal>
 </template>
 
 <script setup lang="ts">
-import { StatusType } from "~/common/constants/enums";
-import Icons from "~/common/constants/icons";
+import { PostStatusType } from "~/common/constants/enums";
 import type {
   CreatePostRequest,
   PostDetail,
   PostSchema,
+  PostUpdateResponse,
+  UpdatePostRequest,
 } from "~/common/interfaces";
 import type { PostCreateResponse } from "~/common/interfaces";
 
@@ -68,8 +56,9 @@ const props = defineProps<Props>();
 const { postDetail } = toRefs(props);
 
 const emits = defineEmits<{
-  (e: "create-success"): any;
-  (e: "update-success"): any;
+  (e: "create-success", postDetail: PostDetail): any;
+  (e: "update-success", post: PostSchema): any;
+  (e: "close"): any;
 }>();
 
 const isOpen = defineModel({ required: true, default: false });
@@ -78,24 +67,59 @@ const { user } = useAuth();
 const { startProgress, endProgress } = useLoading();
 const { showError } = useToastMessage();
 
-const caption = ref(postDetail.value?.caption || "");
-const status = ref(postDetail.value?.status || StatusType.PUBLIC);
+const caption = ref("");
+const status = ref(PostStatusType.PUBLIC);
 
 const isUpdate = computed<boolean>(() => !!postDetail.value);
+const title = computed<string>(() =>
+  isUpdate.value ? "Edit Post" : "Create Post"
+);
 
-const statusList = Object.values(StatusType);
+const statusList = Object.values(PostStatusType);
+
+watchEffect(() => {
+  if (isOpen) {
+    caption.value = isUpdate.value ? postDetail.value?.caption || "" : "";
+    status.value = isUpdate.value
+      ? postDetail.value?.status || PostStatusType.PUBLIC
+      : PostStatusType.PUBLIC;
+    return;
+  }
+
+  caption.value = "";
+  status.value = PostStatusType.PUBLIC;
+});
 
 const onSubmit = async () => {
-  const body: CreatePostRequest = {
-    caption: caption.value,
-    status: status.value,
-  };
   startProgress();
 
   try {
     if (isUpdate.value) {
-      emits("update-success");
+      const body: UpdatePostRequest = {
+        id: postDetail.value?._id || "",
+        caption: caption.value,
+        status: status.value,
+      };
+
+      const res = await useApiClient<PostUpdateResponse>("post", "patch", {
+        body,
+      });
+
+      if (!res || !res.success) {
+        showError(res?.error!);
+        return;
+      }
+
+      if (res.data) {
+        const post = res.data;
+        emits("update-success", post);
+      }
     } else {
+      const body: CreatePostRequest = {
+        caption: caption.value,
+        status: status.value,
+      };
+
       const res = await useApiClient<PostCreateResponse>("post", "post", {
         body,
       });
@@ -105,13 +129,13 @@ const onSubmit = async () => {
         return;
       }
 
-      if (createPostSuccess && res.data) {
+      if (res.data) {
         const { post, user } = res.data;
         const postDetail: PostDetail = {
           ...post,
           userDetails: user,
         };
-        createPostSuccess(postDetail);
+        emits("create-success", postDetail);
       }
     }
   } catch (error) {
@@ -123,10 +147,9 @@ const onSubmit = async () => {
 };
 
 const closeModal = () => {
+  emits("close");
   caption.value = "";
-  status.value = StatusType.PUBLIC;
+  status.value = PostStatusType.PUBLIC;
   isOpen.value = false;
 };
-
-const createPostSuccess = inject<Function>("createPostSuccess");
 </script>
