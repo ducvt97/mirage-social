@@ -16,7 +16,7 @@
         placeholder="What are you thinking about?"
       />
     </div>
-    <ModalCreatePost v-model="isOpen" />
+    <ModalCreateUpdatePost v-model="isOpen" />
   </div>
 </template>
 

@@ -30,7 +30,7 @@ export class PostService {
       if (userId !== post.userId) {
         return Promise.reject('Permission denied.');
       }
-
+      await post.deleteOne();
       return true;
     } catch (error) {
       return Promise.reject(error);

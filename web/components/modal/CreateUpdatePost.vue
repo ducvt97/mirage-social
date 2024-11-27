@@ -67,6 +67,11 @@ interface Props {
 const props = defineProps<Props>();
 const { postDetail } = toRefs(props);
 
+const emits = defineEmits<{
+  (e: "create-success"): any;
+  (e: "update-success"): any;
+}>();
+
 const isOpen = defineModel({ required: true, default: false });
 
 const { user } = useAuth();
@@ -75,6 +80,8 @@ const { showError } = useToastMessage();
 
 const caption = ref(postDetail.value?.caption || "");
 const status = ref(postDetail.value?.status || StatusType.PUBLIC);
+
+const isUpdate = computed<boolean>(() => !!postDetail.value);
 
 const statusList = Object.values(StatusType);
 
@@ -86,22 +93,26 @@ const onSubmit = async () => {
   startProgress();
 
   try {
-    const res = await useApiClient<PostCreateResponse>("post", "post", {
-      body,
-    });
+    if (isUpdate.value) {
+      emits("update-success");
+    } else {
+      const res = await useApiClient<PostCreateResponse>("post", "post", {
+        body,
+      });
 
-    if (!res || !res.success) {
-      showError(res?.error!);
-      return;
-    }
+      if (!res || !res.success) {
+        showError(res?.error!);
+        return;
+      }
 
-    if (createPostSuccess && res.data) {
-      const { post, user } = res.data;
-      const postDetail: PostDetail = {
-        ...post,
-        userDetails: user,
-      };
-      createPostSuccess(postDetail);
+      if (createPostSuccess && res.data) {
+        const { post, user } = res.data;
+        const postDetail: PostDetail = {
+          ...post,
+          userDetails: user,
+        };
+        createPostSuccess(postDetail);
+      }
     }
   } catch (error) {
     showError(error);
