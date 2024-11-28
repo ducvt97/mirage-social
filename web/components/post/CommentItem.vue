@@ -1,18 +1,27 @@
 <template>
-  <div class="flex gap-3 items-center">
-    <UAvatar
-      size="md"
-      :src="
-        comment.userDetails.avatar ||
-        'https://avatars.githubusercontent.com/u/739984?v=4'
-      "
-    />
-    <UAlert
-      :title="
-        comment.userDetails.firstName + ' ' + comment.userDetails.lastName
-      "
-      :description="comment.caption"
-    />
+  <div>
+    <div class="flex gap-3 items-center">
+      <UAvatar
+        size="md"
+        :src="
+          comment.userDetails.avatar ||
+          'https://avatars.githubusercontent.com/u/739984?v=4'
+        "
+      />
+      <UAlert
+        :title="
+          comment.userDetails.firstName + ' ' + comment.userDetails.lastName
+        "
+        :description="comment.caption"
+      />
+    </div>
+    <div v-if="isParentComment" class="flex flex-col gap-y-4 ml-4">
+      <PostCommentList :list="[]" />
+      <PostAddComment
+        :post-id="comment.postId"
+        :reply-comment-id="comment._id"
+      />
+    </div>
   </div>
 </template>
 
@@ -23,8 +32,9 @@ import type { CommentDetail } from "~/common/interfaces/component";
 
 interface Props {
   comment: CommentDetail;
+  isParentComment?: boolean;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { isParentComment: true });
 const { comment } = toRefs(props);
 
 const { user } = useAuth();
