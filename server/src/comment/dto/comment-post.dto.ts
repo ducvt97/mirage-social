@@ -13,3 +13,8 @@ export class CommentOnPostDTO {
   @IsMongoId()
   replyCommentId?: string;
 }
+
+export class CommentOnCommentDTO extends CommentOnPostDTO {
+  @IsMongoId()
+  replyCommentId: string;
+}

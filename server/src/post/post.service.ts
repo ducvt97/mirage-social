@@ -37,7 +37,7 @@ export class PostService {
     }
   }
 
-  async updatePost(userId: string, postInfo: PostUpdateDTO) {
+  async userUpdatePost(userId: string, postInfo: PostUpdateDTO) {
     try {
       const post = await this.postModel.findById(postInfo.id);
 

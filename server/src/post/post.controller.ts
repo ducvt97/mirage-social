@@ -59,7 +59,7 @@ export class PostController {
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const post = await this.postService.updatePost(userId, reqBody);
+      const post = await this.postService.userUpdatePost(userId, reqBody);
       return handleResponse(post);
     } catch (error) {
       return handleError(error);

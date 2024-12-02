@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CommentOnPostDTO } from './dto/comment-post.dto';
+import { CommentOnCommentDTO, CommentOnPostDTO } from './dto/comment-post.dto';
 import { CommentService } from './comment.service';
 import { parseJWT } from 'src/utils/jwt.util';
 import { handleError, handleResponse } from 'src/utils/response.util';
@@ -62,6 +62,24 @@ export class CommentController {
       }));
 
       return handleResponse(commentsDetails);
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async commentOnComment(
+    @Body() body: CommentOnCommentDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    try {
+      const { sub: userId } = parseJWT(token);
+      const getComment = this.commentService.createComment(userId, body);
+      const getUser = this.userService.getUserById(userId);
+      const [comment, user] = await Promise.all([getComment, getUser]);
+
+      return handleResponse({ ...comment['_doc'], userDetails: user });
     } catch (error) {
       handleError(error);
     }
