@@ -14,14 +14,14 @@
         "
         :description="comment.caption"
       />
-      <div class="absolute bg-white -bottom-2.5 left-16 flex gap-4">
+      <div class="absolute bg-white -bottom-2.5 left-16 flex gap-2">
         <UButton
           variant="link"
           size="2xs"
-          :class="likeClass"
+          :class="likeBtn.class"
           @click="onPressLike"
         >
-          Like
+          {{ likeBtn.text }}
         </UButton>
         <UButton
           v-if="isParentComment"
@@ -51,6 +51,7 @@
         v-model:focus="isFocusAddComment"
         :post-id="comment.postId"
         :reply-comment-id="comment._id"
+        @add-comment-success="addCommentSuccess"
       />
     </div>
   </div>
@@ -73,6 +74,16 @@ interface Props {
 const props = defineProps<Props>();
 const { comment } = toRefs(props);
 
+// Emits
+const emits = defineEmits<{
+  (
+    e: "likeComment",
+    commentId: string,
+    likes: number,
+    usersLike: string[]
+  ): void;
+}>();
+
 // Composables
 const { user } = useAuth();
 const { showError } = useToastMessage();
@@ -87,8 +98,10 @@ const replyCommentListLoading = ref(false);
 
 // Computed
 const isParentComment = computed(() => !comment.value.replyCommentId);
-const likeClass = computed(() =>
-  comment.value.usersLike.includes(user._id) ? "fw-bold" : ""
+const likeBtn = computed(() =>
+  comment.value.usersLike.includes(user._id)
+    ? { text: "Liked", class: "font-bold" }
+    : { text: "Like", class: "" }
 );
 
 // Constants
@@ -117,7 +130,6 @@ const onLoadMoreReply = async () => {
 
     if (res.data) {
       const newReplyList = res.data.filter((item) => {
-        debugger;
         return replyCommentList.value.find((reply) => reply._id === item._id)
           ? false
           : true;
@@ -151,9 +163,9 @@ const onPressLike = async () => {
       return;
     }
 
-    if (likeComment && res.data) {
+    if (res.data) {
       const { likes, usersLike } = res.data;
-      likeComment(body.commentId, likes, usersLike);
+      emits("likeComment", body.commentId, likes, usersLike);
     }
   } catch (error) {
     showError(error.message);
@@ -167,5 +179,7 @@ const onClickReply = () => {
   isFocusAddComment.value = true;
 };
 
-const likeComment = inject<Function>("likeComment");
+const addCommentSuccess = (comment: CommentDetail) => {
+  replyCommentList.value.push(comment);
+};
 </script>

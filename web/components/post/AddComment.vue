@@ -81,6 +81,7 @@ const onClickAddComment = async () => {
 
     if (res.data) {
       emit("addCommentSuccess", res.data);
+      caption.value = "";
     }
   } catch (error) {
     showError(error);

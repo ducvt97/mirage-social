@@ -39,7 +39,10 @@
         <UButton variant="ghost" :icon="Icons.share">Share</UButton>
       </div>
       <div v-if="showCommentPart" class="mt-4">
-        <PostCommentList :loading="getCommentsLoading" :list="commentList" />
+        <PostCommentList
+          :loading="getCommentsLoading"
+          v-model:list="commentList"
+        />
         <div class="h-4" v-if="commentList.length > 0"></div>
         <PostAddComment
           :post-id="post._id"
