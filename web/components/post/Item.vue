@@ -43,9 +43,8 @@
         <div class="h-4" v-if="commentList.length > 0"></div>
         <PostAddComment
           :post-id="post._id"
-          :focus="focusAddComment"
+          v-model:focus="focusAddComment"
           @add-comment-success="onAddCommentSuccess"
-          @on-blur="onFocusOutAddComment"
         />
       </div>
     </template>
@@ -169,10 +168,6 @@ const onPressComment = async () => {
 
 const onAddCommentSuccess = (comment: CommentDetail) => {
   commentList.push(comment);
-};
-
-const onFocusOutAddComment = () => {
-  focusAddComment.value = false;
 };
 
 const likePost = inject<Function>("likePost");

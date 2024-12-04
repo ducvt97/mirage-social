@@ -4,4 +4,10 @@ export type {
   UpdatePostRequest,
 } from "./post";
 export type { LoginRequest, RegisterRequest } from "./auth";
-export type { CommentOnPostRequest, GetCommentsByPostRequest } from "./comment";
+export type {
+  CommentOnPostRequest,
+  GetCommentsByPostRequest,
+  GetCommentsByCommentRequest,
+  LikeCommentRequest,
+} from "./comment";
+export type { GetWithPaging } from "./common";

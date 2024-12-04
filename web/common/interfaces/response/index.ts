@@ -9,4 +9,6 @@ export type {
 export type {
   CommentOnPostResponse,
   GetCommentsByPostResponse,
+  GetCommentsByCommentResponse,
+  LikeCommentResponse,
 } from "./comment";

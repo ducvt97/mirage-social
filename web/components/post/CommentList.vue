@@ -1,5 +1,4 @@
 <template>
-  <div></div>
   <div v-if="loading" class="flex justify-center w-full">
     <UIcon :name="Icons.loading" class="w-6 h-6" />
   </div>

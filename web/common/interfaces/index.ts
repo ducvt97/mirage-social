@@ -11,6 +11,9 @@ export type {
   UpdatePostRequest,
   CommentOnPostRequest,
   GetCommentsByPostRequest,
+  GetCommentsByCommentRequest,
+  LikeCommentRequest,
+  GetWithPaging,
 } from "./request";
 
 // Response
@@ -24,6 +27,8 @@ export type {
   PostUpdateResponse,
   CommentOnPostResponse,
   GetCommentsByPostResponse,
+  GetCommentsByCommentResponse,
+  LikeCommentResponse,
 } from "./response";
 
 // Schema

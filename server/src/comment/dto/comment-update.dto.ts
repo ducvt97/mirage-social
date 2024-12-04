@@ -1,34 +1,25 @@
 import {
   IsArray,
-  IsEnum,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { PostStatusType } from 'src/common/constants/enums';
 
-export class PostUpdateDTO {
+export class CommentUpdateDTO {
   @IsMongoId()
   id: string;
 
   @IsNotEmpty()
   @IsString()
   caption: string;
-
-  @IsEnum(PostStatusType)
-  status: string;
 }
 
-export class SystemPostUpdateDTO {
+export class SystemCommentUpdateDTO {
   @IsOptional()
   @IsString()
   caption: string;
-
-  @IsOptional()
-  @IsEnum(PostStatusType)
-  status: string;
 
   @IsOptional()
   content: string;
@@ -48,10 +39,24 @@ export class SystemPostUpdateDTO {
   @IsOptional()
   @IsArray()
   comments: string[];
+
+  @IsOptional()
+  @IsNumber()
+  replies: number;
+
+  @IsOptional()
+  @IsArray()
+  replyComments: string[];
 }
 
-export class LikePostDTO {
+export class LikeComment {
   @IsString()
   @IsNotEmpty()
-  postId: string;
+  commentId: string;
+}
+
+export class LikeCommentDTO {
+  @IsString()
+  @IsNotEmpty()
+  commentId: string;
 }

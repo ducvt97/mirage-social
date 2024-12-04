@@ -18,6 +18,7 @@ import {
 } from './dto/get-comment.dto';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/schemas/user.schema';
+import { LikeCommentDTO } from './dto/comment-update.dto';
 
 @Controller('comment')
 export class CommentController {
@@ -67,31 +68,43 @@ export class CommentController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post()
-  async commentOnComment(
-    @Body() body: CommentOnCommentDTO,
-    @Headers('Authorization') token: string = '',
-  ) {
+  @Get('getCommentsByComment')
+  async getCommentsByComment(@Query() query: GetCommentsByCommentDTO) {
     try {
-      const { sub: userId } = parseJWT(token);
-      const getComment = this.commentService.createComment(userId, body);
-      const getUser = this.userService.getUserById(userId);
-      const [comment, user] = await Promise.all([getComment, getUser]);
+      const comments = await this.commentService.getCommentsByComment(query);
+      const getUsersDetails: Promise<User>[] = [];
+      for (const comment of comments) {
+        getUsersDetails.push(this.userService.getUserById(comment.userId));
+      }
 
-      return handleResponse({ ...comment['_doc'], userDetails: user });
+      const usersDetails = await Promise.all(getUsersDetails);
+      const commentsDetails = comments.map((item) => ({
+        ...item['_doc'],
+        userDetails: usersDetails.find(
+          (user) => String(user._id) === item.userId,
+        ),
+      }));
+      return handleResponse(commentsDetails);
     } catch (error) {
       handleError(error);
     }
   }
 
-  @Get('getCommentsByComment')
-  async getCommentsByComment(@Query() query: GetCommentsByCommentDTO) {
+  @UseGuards(JwtAuthGuard)
+  @Post('likeComment')
+  async likePost(
+    @Body() { commentId }: LikeCommentDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
     try {
-      const comment = await this.commentService.getCommentsByComment(query);
-      return handleResponse(comment);
+      const { sub: userId } = parseJWT(token);
+      const comment = await this.commentService.likePost(commentId, userId);
+      return handleResponse({
+        likes: comment.likes,
+        usersLike: comment.usersLike,
+      });
     } catch (error) {
-      handleError(error);
+      return handleError(error);
     }
   }
 }

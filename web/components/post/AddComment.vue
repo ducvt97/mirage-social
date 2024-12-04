@@ -12,7 +12,7 @@
         :rows="3"
         placeholder="Write your comment."
         ref="inputRef"
-        @blur="emit('onBlur')"
+        @blur="onBlur"
       />
       <UButton
         variant="ghost"
@@ -36,16 +36,16 @@ import type { CommentDetail } from "~/common/interfaces/component";
 interface Props {
   postId: string;
   replyCommentId?: string;
-  focus?: boolean;
 }
 
 const props = defineProps<Props>();
-const { postId, replyCommentId, focus } = toRefs(props);
+const { postId, replyCommentId } = toRefs(props);
 
 const emit = defineEmits<{
   (e: "addCommentSuccess", comment: CommentDetail): void;
-  (e: "onBlur"): void;
 }>();
+
+const focus = defineModel("focus", { default: false });
 
 const { user } = storeToRefs(useAuth());
 const { showError } = useToastMessage();
@@ -88,4 +88,6 @@ const onClickAddComment = async () => {
     endProgress();
   }
 };
+
+const onBlur = () => (focus.value = false);
 </script>

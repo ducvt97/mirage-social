@@ -18,7 +18,7 @@ import { PostCreateDTO } from './dto/post-create-dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
 import { PostService } from './post.service';
-import { LikePost, PostUpdateDTO } from './dto/post-update-dto';
+import { LikePostDTO, PostUpdateDTO } from './dto/post-update-dto';
 import { handleError, handleResponse } from 'src/utils/response.util';
 import { UserService } from 'src/user/user.service';
 
@@ -88,7 +88,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @Post('likePost')
   async likePost(
-    @Body() { postId }: LikePost,
+    @Body() { postId }: LikePostDTO,
     @Headers('Authorization') token: string = '',
   ) {
     try {

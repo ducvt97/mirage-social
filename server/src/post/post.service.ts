@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from 'src/schemas/post.schema';
 import { PostCreateDTO } from './dto/post-create-dto';
-import { PostUpdateDTO } from './dto/post-update-dto';
+import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/post-update-dto';
 
 @Injectable()
 export class PostService {
@@ -51,6 +51,20 @@ export class PostService {
 
       await post.save();
 
+      return post;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async systemUpdatePost(postId: string, postInfo: SystemPostUpdateDTO) {
+    try {
+      const post = await this.postModel.findById(postId);
+      for (const key in postInfo) {
+        post[key] = postInfo[key] ?? post[key];
+      }
+
+      await post.save();
       return post;
     } catch (error) {
       return Promise.reject(error);
@@ -107,7 +121,7 @@ export class PostService {
       await post.save();
       return post;
     } catch (error) {
-      return Promise.reject('Cannot like/unlike this post');
+      return Promise.reject('Cannot like/unlike this post.');
     }
   }
 }

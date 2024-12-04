@@ -22,7 +22,7 @@ export class Comment {
   @Prop({ required: true })
   userId: string;
 
-  @Prop()
+  @Prop({ required: true })
   postId: string;
 
   @Prop({ default: 0 })
@@ -34,7 +34,7 @@ export class Comment {
   })
   replyComments: string[];
 
-  @Prop()
+  @Prop({ default: null })
   replyCommentId: string;
 }
 
