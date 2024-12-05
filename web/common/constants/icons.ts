@@ -16,6 +16,8 @@ const Icons = {
   send: "material-symbols-send",
   loading: "line-md-loading-twotone-loop",
   more: "mdi-dots-horizontal",
+  edit: "material-symbols-edit-square-outline",
+  delete: "material-symbols-delete-outline",
 };
 
 export default Icons;

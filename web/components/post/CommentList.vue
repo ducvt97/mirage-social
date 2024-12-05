@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="flex justify-center w-full">
+  <div v-if="props.loading" class="flex justify-center w-full">
     <UIcon :name="Icons.loading" class="w-6 h-6" />
   </div>
   <div v-else class="flex flex-col gap-4">
@@ -7,7 +7,7 @@
       v-for="item in list"
       :comment="item"
       :key="item._id"
-      @like-comment="likeComment"
+      @like-comment-success="likeCommentSuccess"
     />
   </div>
 </template>
@@ -23,7 +23,11 @@ const props = withDefaults(defineProps<Props>(), { loading: false });
 
 const list = defineModel<CommentDetail[]>("list", { required: true });
 
-const likeComment = (commentId: string, likes: number, usersLike: string[]) => {
+const likeCommentSuccess = (
+  commentId: string,
+  likes: number,
+  usersLike: string[]
+) => {
   const index = list.value.findIndex((item) => item._id === commentId);
   if (index >= 0) {
     list.value[index].likes = likes;

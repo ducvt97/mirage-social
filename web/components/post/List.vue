@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="flex flex-col gap-y-3">
+  <div v-if="props.loading" class="flex flex-col gap-y-3">
     <div class="flex items-center gap-x-4">
       <USkeleton class="h-10 w-10" :ui="{ rounded: 'rounded-full' }" />
       <div class="w-full">
@@ -11,7 +11,12 @@
     <USkeleton class="h-8 w-full" />
   </div>
   <div v-else class="flex flex-col gap-4">
-    <PostItem v-for="item in props.list" :post="item" :key="item._id" />
+    <PostItem
+      v-for="item in list"
+      :post="item"
+      :key="item._id"
+      @like-post-success="likePostSuccess"
+    />
   </div>
 </template>
 
@@ -19,9 +24,21 @@
 import type { PostDetail } from "~/common/interfaces";
 
 interface Props {
-  list: PostDetail[];
   loading?: boolean;
 }
-
 const props = withDefaults(defineProps<Props>(), { loading: true });
+
+const list = defineModel<PostDetail[]>("list", { required: true });
+
+const likePostSuccess = (
+  postId: string,
+  likes: number,
+  usersLike: string[]
+) => {
+  const index = list.value.findIndex((item) => item._id === postId);
+  if (index >= 0) {
+    list.value[index].likes = likes;
+    list.value[index].usersLike = usersLike;
+  }
+};
 </script>

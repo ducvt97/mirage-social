@@ -39,6 +39,14 @@
         <UButton variant="ghost" :icon="Icons.share">Share</UButton>
       </div>
       <div v-if="showCommentPart" class="mt-4">
+        <UButton
+          variant="link"
+          :loading="getCommentsLoading"
+          :disabled="getCommentsLoading"
+          @click="loadComments"
+        >
+          View more replies
+        </UButton>
         <PostCommentList
           :loading="getCommentsLoading"
           v-model:list="commentList"
@@ -66,21 +74,36 @@ import type {
 } from "~/common/interfaces";
 import type { CommentDetail } from "~/common/interfaces/component";
 
+// Props
 interface Props {
   post: PostDetail;
 }
 const props = defineProps<Props>();
 const { post } = toRefs(props);
 
+// Emits
+const emits = defineEmits<{
+  (
+    e: "likePostSuccess",
+    postId: string,
+    likes: number,
+    usersLike: string[]
+  ): void;
+}>();
+
+// Composables
 const { user } = useAuth();
 const { showError } = useToastMessage();
 
+// States
 const likeLoading = ref(false);
 const showCommentPart = ref(false);
 const getCommentsLoading = ref(false);
 const focusAddComment = ref(false);
 const commentList = reactive<CommentDetail[]>([]);
+const commentListPage = ref<number>(0);
 
+// Computed
 const statusIcon = computed(() =>
   post.value.status === PostStatusType.PUBLIC ? Icons.public : Icons.private
 );
@@ -93,7 +116,7 @@ const actionItems = computed(() => [
   [
     {
       label: "Edit",
-      icon: "i-heroicons-pencil-square-20-solid",
+      icon: Icons.edit,
       click: () => {
         if (toggleEditPostModal) {
           toggleEditPostModal(true, post.value._id);
@@ -104,7 +127,9 @@ const actionItems = computed(() => [
   [
     {
       label: "Delete",
-      icon: "i-heroicons-trash-20-solid",
+      icon: Icons.delete,
+      class: "text-red-600",
+      iconClass: "text-red-600",
       click: () => {
         if (toggleDeleteModal) {
           toggleDeleteModal(true, post.value._id);
@@ -113,6 +138,48 @@ const actionItems = computed(() => [
     },
   ],
 ]);
+
+// Constants
+const pageSize = 10;
+
+// Methods
+const loadComments = async () => {
+  getCommentsLoading.value = true;
+  try {
+    const query: GetCommentsByPostRequest = {
+      postId: post.value._id,
+      page: commentListPage.value,
+      pageSize,
+    };
+
+    const res = await useApiClient<GetCommentsByPostResponse>(
+      "comment/getCommentsByPost",
+      "get",
+      { query }
+    );
+
+    if (!res?.success) {
+      showError(res?.error || "");
+      return;
+    }
+    if (res.data) {
+      const newCommentList = res.data?.filter((item) => {
+        return commentList.find((reply) => reply._id === item._id)
+          ? false
+          : true;
+      });
+      commentList.unshift(...(newCommentList || []));
+
+      if (res.data?.length >= pageSize) {
+        commentListPage.value++;
+      }
+    }
+  } catch (error) {
+    showError(error);
+  } finally {
+    getCommentsLoading.value = false;
+  }
+};
 
 const onPressLike = async () => {
   const body: LikePostRequest = { postId: post.value._id };
@@ -128,9 +195,9 @@ const onPressLike = async () => {
       return;
     }
 
-    if (likePost && res.data) {
+    if (res.data) {
       const { likes, usersLike } = res.data;
-      likePost(body.postId, likes, usersLike);
+      emits("likePostSuccess", body.postId, likes, usersLike);
     }
   } catch (error) {
     showError(error.message);
@@ -139,31 +206,11 @@ const onPressLike = async () => {
   }
 };
 
-const onPressComment = async () => {
+const onPressComment = () => {
   // Load comments for the first time
   if (!showCommentPart.value) {
     showCommentPart.value = true;
-    getCommentsLoading.value = true;
-    try {
-      const query: GetCommentsByPostRequest = {
-        postId: post.value._id,
-      };
-
-      const res = await useApiClient<GetCommentsByPostResponse>(
-        "comment/getCommentsByPost",
-        "get",
-        { query }
-      );
-
-      if (!res?.success) {
-        showError(res?.error || "");
-      }
-      commentList.push(...(res?.data || []));
-    } catch (error) {
-      showError(error);
-    } finally {
-      getCommentsLoading.value = false;
-    }
+    loadComments();
   }
 
   focusAddComment.value = true;
@@ -173,7 +220,6 @@ const onAddCommentSuccess = (comment: CommentDetail) => {
   commentList.push(comment);
 };
 
-const likePost = inject<Function>("likePost");
 const toggleEditPostModal = inject<Function>("toggleEditPostModal");
 const toggleDeleteModal = inject<Function>("toggleDeleteModal");
 </script>

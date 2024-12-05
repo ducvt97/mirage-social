@@ -6,10 +6,12 @@
     />
     <div class="flex gap-3 items-center w-full">
       <UTextarea
-        :autofocus="true"
+        autofocus
+        autoresize
         class="w-full"
         v-model="caption"
-        :rows="3"
+        :rows="2"
+        :maxrows="5"
         placeholder="Write your comment."
         ref="inputRef"
         @blur="onBlur"
@@ -45,7 +47,7 @@ const emit = defineEmits<{
   (e: "addCommentSuccess", comment: CommentDetail): void;
 }>();
 
-const focus = defineModel("focus", { default: false });
+const focus = defineModel<boolean>("focus", { default: false });
 
 const { user } = storeToRefs(useAuth());
 const { showError } = useToastMessage();

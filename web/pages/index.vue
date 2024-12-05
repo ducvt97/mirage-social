@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHomeCreatePost @create-success="createPostSuccess" />
-    <PostList :list="postList" :loading="isLoadingPosts" class="mt-4" />
+    <PostList v-model:list="postList" :loading="isLoadingPosts" class="mt-4" />
     <!-- Confirm Delete Post Modal -->
     <ModalConfirm
       v-model="isShowDeletePostModal"
@@ -32,7 +32,7 @@ const { $api } = useNuxtApp();
 const { showError } = useToastMessage();
 const { startProgress, endProgress } = useLoading();
 
-const postList = ref<PostDetail[]>([]);
+const postList = reactive<PostDetail[]>([]);
 const isLoadingPosts = ref(true);
 const isShowEditPostModal = ref(false);
 const postEditting = ref<PostDetail | undefined>(undefined);
@@ -57,7 +57,7 @@ onBeforeMount(async () => {
 
     if (response.data) {
       const { posts } = response.data;
-      postList.value = posts || [];
+      postList.push(...(posts || []));
     }
   } catch (error) {
     showError(error.message);
@@ -67,13 +67,14 @@ onBeforeMount(async () => {
 });
 
 const createPostSuccess = (post: PostDetail) => {
-  postList.value = [post, ...postList.value];
+  postList.unshift(post);
 };
 
 const updatePostSuccess = (post: PostSchema) => {
-  postList.value = postList.value.map((item) =>
-    item._id === post._id ? { ...item, ...post } : item
-  );
+  const index = postList.findIndex((item) => item._id === post._id);
+  if (index >= 0) {
+    postList[index] = { ...postList[index], ...post };
+  }
 };
 
 const deletePost = async () => {
@@ -89,9 +90,10 @@ const deletePost = async () => {
       return;
     }
 
-    postList.value = postList.value.filter(
-      (item) => item._id !== postDeleteId.value
-    );
+    const index = postList.findIndex((item) => item._id === postDeleteId.value);
+    if (index >= 0) {
+      postList.splice(index, 1);
+    }
   } catch (error) {
     showError(error.message);
   } finally {
@@ -99,14 +101,8 @@ const deletePost = async () => {
   }
 };
 
-const likePost = (postId: string, likes: number, usersLike: string[]) => {
-  postList.value = postList.value.map((item) =>
-    item._id === postId ? { ...item, likes, usersLike } : item
-  );
-};
-
 const toggleEditPostModal = (isShow: boolean, postId: string) => {
-  postEditting.value = postList.value.find((item) => item._id === postId);
+  postEditting.value = postList.find((item) => item._id === postId);
   isShowEditPostModal.value = isShow;
 };
 
@@ -115,7 +111,6 @@ const toggleDeleteModal = (isShow: boolean, postId: string) => {
   isShowDeletePostModal.value = isShow;
 };
 
-provide("likePost", likePost);
 provide("toggleEditPostModal", toggleEditPostModal);
 provide("toggleDeleteModal", toggleDeleteModal);
 </script>

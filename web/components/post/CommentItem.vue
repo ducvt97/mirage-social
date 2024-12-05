@@ -37,6 +37,7 @@
       <UButton
         variant="link"
         :loading="replyCommentListLoading"
+        :disabled="replyCommentListLoading"
         @click="onLoadMoreReply"
       >
         View more replies
@@ -77,7 +78,7 @@ const { comment } = toRefs(props);
 // Emits
 const emits = defineEmits<{
   (
-    e: "likeComment",
+    e: "likeCommentSuccess",
     commentId: string,
     likes: number,
     usersLike: string[]
@@ -134,7 +135,7 @@ const onLoadMoreReply = async () => {
           ? false
           : true;
       });
-      replyCommentList.value = [...replyCommentList.value, ...newReplyList];
+      replyCommentList.value.unshift(...newReplyList);
 
       if (res.data.length >= pageSize) {
         replyCommentListPage.value++;
@@ -165,7 +166,7 @@ const onPressLike = async () => {
 
     if (res.data) {
       const { likes, usersLike } = res.data;
-      emits("likeComment", body.commentId, likes, usersLike);
+      emits("likeCommentSuccess", body.commentId, likes, usersLike);
     }
   } catch (error) {
     showError(error.message);
