@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CommentOnCommentDTO, CommentOnPostDTO } from './dto/comment-post.dto';
+import { CommentOnPostDTO } from './dto/comment-post.dto';
 import { CommentService } from './comment.service';
 import { parseJWT } from 'src/utils/jwt.util';
 import { handleError, handleResponse } from 'src/utils/response.util';
@@ -18,7 +21,7 @@ import {
 } from './dto/get-comment.dto';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/schemas/user.schema';
-import { LikeCommentDTO } from './dto/comment-update.dto';
+import { CommentUpdateDTO, LikeCommentDTO } from './dto/comment-update.dto';
 
 @Controller('comment')
 export class CommentController {
@@ -92,17 +95,47 @@ export class CommentController {
 
   @UseGuards(JwtAuthGuard)
   @Post('likeComment')
-  async likePost(
+  async likeComment(
     @Body() { commentId }: LikeCommentDTO,
     @Headers('Authorization') token: string = '',
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const comment = await this.commentService.likePost(commentId, userId);
+      const comment = await this.commentService.likeComment(commentId, userId);
       return handleResponse({
         likes: comment.likes,
         usersLike: comment.usersLike,
       });
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteComment(
+    @Param('id') commentId: string,
+    @Headers('Authorization') token: string = '',
+  ) {
+    try {
+      const { sub: userId } = parseJWT(token);
+      await this.commentService.deleteComment(commentId, userId);
+      return handleResponse();
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  async updateComment(
+    @Body() body: CommentUpdateDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    try {
+      const { sub: userId } = parseJWT(token);
+      const comment = await this.commentService.userUpdateComment(userId, body);
+      return handleResponse(comment);
     } catch (error) {
       return handleError(error);
     }

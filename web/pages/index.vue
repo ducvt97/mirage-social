@@ -12,7 +12,7 @@
     <!-- Create/Edit Post Modal -->
     <ModalCreateUpdatePost
       v-model="isShowEditPostModal"
-      :post-detail="postEditting"
+      :post-detail="postEditing"
       @update-success="updatePostSuccess"
     />
   </div>
@@ -35,7 +35,7 @@ const { startProgress, endProgress } = useLoading();
 const postList = reactive<PostDetail[]>([]);
 const isLoadingPosts = ref(true);
 const isShowEditPostModal = ref(false);
-const postEditting = ref<PostDetail | undefined>(undefined);
+const postEditing = ref<PostDetail | undefined>(undefined);
 const isShowDeletePostModal = ref(false);
 const postDeleteId = ref<string>("");
 
@@ -102,7 +102,7 @@ const deletePost = async () => {
 };
 
 const toggleEditPostModal = (isShow: boolean, postId: string) => {
-  postEditting.value = postList.find((item) => item._id === postId);
+  postEditing.value = postList.find((item) => item._id === postId);
   isShowEditPostModal.value = isShow;
 };
 

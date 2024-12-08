@@ -1,4 +1,5 @@
 import type { CommentDetail } from "../component";
+import type { CommentSchema } from "../schema";
 import type { ServerResponse } from "../server-response";
 
 export interface CommentOnPostResponse extends ServerResponse {
@@ -18,7 +19,18 @@ interface LikeCommentResponseData {
   likes: number;
   usersLike: string[];
 }
+
 export interface LikeCommentResponse extends ServerResponse {
   data?: LikeCommentResponseData;
+  error?: string;
+}
+
+export interface DeleteCommentResponse extends ServerResponse {
+  data?: boolean;
+  error?: string;
+}
+
+export interface UpdateCommentResponse extends ServerResponse {
+  data?: CommentSchema;
   error?: string;
 }

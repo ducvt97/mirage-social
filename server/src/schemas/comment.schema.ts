@@ -29,7 +29,7 @@ export class Comment {
   replies: number;
 
   @Prop({
-    default: null,
+    default: [],
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   })
   replyComments: string[];

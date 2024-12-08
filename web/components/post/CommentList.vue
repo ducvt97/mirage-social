@@ -1,6 +1,6 @@
 <template>
   <div v-if="props.loading" class="flex justify-center w-full">
-    <UIcon :name="Icons.loading" class="w-6 h-6" />
+    <AppIcon :name="Icons.loading" />
   </div>
   <div v-else class="flex flex-col gap-4">
     <PostCommentItem
@@ -8,12 +8,14 @@
       :comment="item"
       :key="item._id"
       @like-comment-success="likeCommentSuccess"
+      @edit-comment-success="editCommentSuccess"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import Icons from "~/common/constants/icons";
+import type { CommentSchema } from "~/common/interfaces";
 import type { CommentDetail } from "~/common/interfaces/component";
 
 interface Props {
@@ -32,6 +34,13 @@ const likeCommentSuccess = (
   if (index >= 0) {
     list.value[index].likes = likes;
     list.value[index].usersLike = usersLike;
+  }
+};
+
+const editCommentSuccess = (comment: CommentSchema) => {
+  const index = list.value.findIndex((item) => item._id === comment._id);
+  if (index > -1) {
+    list.value[index] = { ...list.value[index], ...comment };
   }
 };
 </script>

@@ -17,3 +17,8 @@ export interface GetCommentsByCommentRequest extends GetWithPaging {
 export interface LikeCommentRequest {
   commentId: string;
 }
+
+export class UpdateCommentRequest {
+  id: string;
+  caption: string;
+}

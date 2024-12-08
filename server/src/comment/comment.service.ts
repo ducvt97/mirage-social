@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommentOnPostDTO } from './dto/comment-post.dto';
-import { Comment } from 'src/schemas/comment.schema';
+import { Comment, CommentDocument } from 'src/schemas/comment.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -15,8 +15,25 @@ import {
 @Injectable()
 export class CommentService {
   constructor(
-    @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
+
+  async findAndCheckPermission(
+    commentId: string,
+    userId: string,
+  ): Promise<CommentDocument> {
+    const comment = await this.commentModel.findById(commentId);
+
+    if (!comment) {
+      return Promise.reject('Comment does not exist.');
+    }
+
+    if (userId !== String(comment.userId)) {
+      return Promise.reject('Permission denied.');
+    }
+
+    return comment;
+  }
 
   async createComment(
     userId: string,
@@ -31,13 +48,12 @@ export class CommentService {
     }
   }
 
-  async userUpdateComment(userId: string, commentInfo: CommentUpdateDTO) {
+  async userUpdateComment(
+    userId: string,
+    commentInfo: CommentUpdateDTO,
+  ): Promise<Comment> {
     try {
-      const comment = await this.commentModel.findById(commentInfo.id);
-
-      if (userId !== String(comment.userId)) {
-        return Promise.reject('Permission denied.');
-      }
+      const comment = await this.findAndCheckPermission(commentInfo.id, userId);
 
       for (const key in commentInfo) {
         comment[key] = commentInfo[key];
@@ -53,7 +69,7 @@ export class CommentService {
   async systemUpdatePost(
     commentId: string,
     commentInfo: SystemCommentUpdateDTO,
-  ) {
+  ): Promise<Comment> {
     try {
       const comment = await this.commentModel.findById(commentId);
       for (const key in commentInfo) {
@@ -101,9 +117,9 @@ export class CommentService {
     }
   }
 
-  async likePost(postId: string, userId: string): Promise<Comment> {
+  async likeComment(commentId: string, userId: string): Promise<Comment> {
     try {
-      const comment = await this.commentModel.findById(postId);
+      const comment = await this.commentModel.findById(commentId);
 
       if (!comment) {
         return Promise.reject('This comment does not exist.');
@@ -125,6 +141,29 @@ export class CommentService {
       return comment;
     } catch (error) {
       return Promise.reject('Cannot like/unlike this comment.');
+    }
+  }
+
+  async deleteComment(commentId: string, userId: string): Promise<boolean> {
+    try {
+      const comment = await this.findAndCheckPermission(commentId, userId);
+      const deleteParentComment = comment.deleteOne();
+      const deleteChildComment = this.commentModel.deleteMany({
+        replyCommentId: comment.id,
+      });
+      await Promise.all([deleteParentComment, deleteChildComment]);
+      return true;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async deleteCommentsByPost(postId: string): Promise<boolean> {
+    try {
+      await this.commentModel.deleteMany({ replyCommentId: postId });
+      return true;
+    } catch (error) {
+      return Promise.reject(error);
     }
   }
 }

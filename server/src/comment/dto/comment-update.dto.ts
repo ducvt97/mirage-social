@@ -9,6 +9,7 @@ import {
 
 export class CommentUpdateDTO {
   @IsMongoId()
+  @IsNotEmpty()
   id: string;
 
   @IsNotEmpty()

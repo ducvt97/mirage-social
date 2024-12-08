@@ -11,4 +11,6 @@ export type {
   GetCommentsByPostResponse,
   GetCommentsByCommentResponse,
   LikeCommentResponse,
+  DeleteCommentResponse,
+  UpdateCommentResponse,
 } from "./comment";

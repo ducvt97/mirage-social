@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Post } from 'src/schemas/post.schema';
+import { Post, PostDocument } from 'src/schemas/post.schema';
 import { PostCreateDTO } from './dto/post-create-dto';
 import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/post-update-dto';
+import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class PostService {
-  constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    private commentService: CommentService,
+  ) {}
 
   async createPost(userId: string, postInfo: PostCreateDTO): Promise<Post> {
     try {
@@ -30,7 +34,11 @@ export class PostService {
       if (userId !== post.userId) {
         return Promise.reject('Permission denied.');
       }
-      await post.deleteOne();
+
+      const deletePost = post.deleteOne();
+      const deletePostComments =
+        this.commentService.deleteCommentsByPost(postId);
+      await Promise.all([deletePost, deletePostComments]);
       return true;
     } catch (error) {
       return Promise.reject(error);

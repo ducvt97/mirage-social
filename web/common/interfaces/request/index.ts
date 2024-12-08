@@ -9,5 +9,6 @@ export type {
   GetCommentsByPostRequest,
   GetCommentsByCommentRequest,
   LikeCommentRequest,
+  UpdateCommentRequest,
 } from "./comment";
 export type { GetWithPaging } from "./common";

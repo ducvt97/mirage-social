@@ -1,6 +1,14 @@
 <template>
-  <div>
-    <div class="flex gap-3 items-center relative">
+  <PostAddUpdateComment
+    v-if="isEdit"
+    :post-id="comment.postId"
+    :update-comment-id="comment._id"
+    :update-caption="comment.caption"
+    @cancel-edit="cancelEdit"
+    @save-edit-success="editCommentSuccess"
+  />
+  <div v-else>
+    <div class="flex gap-3 items-center">
       <UAvatar
         size="md"
         :src="
@@ -8,29 +16,35 @@
           'https://avatars.githubusercontent.com/u/739984?v=4'
         "
       />
-      <UAlert
-        :title="
-          comment.userDetails.firstName + ' ' + comment.userDetails.lastName
-        "
-        :description="comment.caption"
-      />
-      <div class="absolute bg-white -bottom-2.5 left-16 flex gap-2">
-        <UButton
-          variant="link"
-          size="2xs"
-          :class="likeBtn.class"
-          @click="onPressLike"
-        >
-          {{ likeBtn.text }}
-        </UButton>
-        <UButton
-          v-if="isParentComment"
-          variant="link"
-          size="2xs"
-          @click="onClickReply"
-        >
-          Reply
-        </UButton>
+      <div class="flex flex-1 gap-3 relative">
+        <UAlert
+          class="flex-1"
+          :title="
+            comment.userDetails.firstName + ' ' + comment.userDetails.lastName
+          "
+          :description="comment.caption"
+        />
+        <UDropdown :items="actionItems" :popper="{ placement: 'bottom-end' }">
+          <UButton variant="ghost" :icon="Icons.more" />
+        </UDropdown>
+        <div class="absolute bg-white -bottom-2.5 left-4 flex gap-1">
+          <UButton
+            variant="link"
+            size="2xs"
+            :class="likeBtn.class"
+            @click="onPressLike"
+          >
+            {{ likeBtn.text }}
+          </UButton>
+          <UButton
+            v-if="isParentComment"
+            variant="link"
+            size="2xs"
+            @click="onClickReply"
+          >
+            Reply
+          </UButton>
+        </div>
       </div>
     </div>
     <div v-if="isParentComment" class="flex flex-col gap-y-3 mt-1 ml-12">
@@ -47,7 +61,7 @@
         :list="replyCommentList"
         :loading="false"
       />
-      <PostAddComment
+      <PostAddUpdateComment
         v-if="isShowAddComment"
         v-model:focus="isFocusAddComment"
         :post-id="comment.postId"
@@ -61,6 +75,7 @@
 <script setup lang="ts">
 import Icons from "~/common/constants/icons";
 import type {
+  CommentSchema,
   GetCommentsByCommentRequest,
   GetCommentsByCommentResponse,
   LikeCommentRequest,
@@ -83,6 +98,7 @@ const emits = defineEmits<{
     likes: number,
     usersLike: string[]
   ): void;
+  (e: "editCommentSuccess", comment: CommentSchema): void;
 }>();
 
 // Composables
@@ -90,6 +106,7 @@ const { user } = useAuth();
 const { showError } = useToastMessage();
 
 // Refs
+const isEdit = ref(false);
 const likeLoading = ref(false);
 const isShowAddComment = ref(false);
 const isFocusAddComment = ref(false);
@@ -104,6 +121,31 @@ const likeBtn = computed(() =>
     ? { text: "Liked", class: "font-bold" }
     : { text: "Like", class: "" }
 );
+
+const actionItems = computed(() => [
+  [
+    {
+      label: "Edit",
+      icon: Icons.edit,
+      click: () => {
+        isEdit.value = true;
+      },
+    },
+  ],
+  [
+    {
+      label: "Delete",
+      icon: Icons.delete,
+      class: "text-red-600",
+      iconClass: "text-red-600",
+      click: () => {
+        if (toggleModalConfirmDeleteComment) {
+          toggleModalConfirmDeleteComment(true, comment.value._id);
+        }
+      },
+    },
+  ],
+]);
 
 // Constants
 const pageSize = 10;
@@ -183,4 +225,16 @@ const onClickReply = () => {
 const addCommentSuccess = (comment: CommentDetail) => {
   replyCommentList.value.push(comment);
 };
+
+const cancelEdit = () => (isEdit.value = false);
+
+const editCommentSuccess = (comment: CommentSchema) => {
+  isEdit.value = false;
+  emits("editCommentSuccess", comment);
+};
+
+// Injects
+const toggleModalConfirmDeleteComment = inject<Function>(
+  "toggleModalConfirmDeleteComment"
+);
 </script>
