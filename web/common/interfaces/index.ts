@@ -35,7 +35,12 @@ export type {
 } from "./response";
 
 // Schema
-export type { PostSchema, UserSchema, CommentSchema } from "./schema";
+export type {
+  PostSchema,
+  UserSchema,
+  CommentSchema,
+  NotificationSchema,
+} from "./schema";
 
 // Component
 export type { PostDetail } from "./component";

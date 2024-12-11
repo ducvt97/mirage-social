@@ -18,6 +18,7 @@ const Icons = {
   more: "mdi-dots-horizontal",
   edit: "material-symbols-edit-square-outline",
   delete: "material-symbols-delete-outline",
+  notification: "material-symbols-notifications-outline",
 };
 
 export default Icons;

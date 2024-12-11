@@ -3,7 +3,10 @@
     <ULink to="/" class="h-12">
       <AppIcon :name="Icons.logo" size="2xl" />
     </ULink>
-    <UButton v-if="token" @click="onclickLogout">Logout</UButton>
+    <div class="flex gap-x-3">
+      <AppNotification />
+      <UButton v-if="token" @click="onclickLogout">Logout</UButton>
+    </div>
   </div>
 </template>
 

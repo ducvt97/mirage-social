@@ -1,54 +1,77 @@
 <template>
-  <UAlert
-    variant="outline"
-    :title="props.message"
-    :icon="icon"
-    :color="color"
-  />
+  <UDropdown :items="notifications" :popper="{ placement: 'bottom-end' }">
+    <AppIcon :name="Icons.notification" />
+  </UDropdown>
 </template>
 
 <script setup lang="ts">
+import { io } from "socket.io-client";
+import type { DropdownItem } from "#ui/types";
 import Icons from "~/common/constants/icons";
+import type { NotificationSchema } from "~/common/interfaces";
+import type { GetNotificationsByUserResponse } from "~/common/interfaces/response";
+import { NotificationType } from "~/common/constants/enums";
 
-interface Props {
-  type?: "success" | "error" | "warning";
-  message?: string;
-  hasIcon?: boolean;
-}
+const notifications = reactive<DropdownItem[][]>([[], [], []]);
+const isLoadingNotifications = ref(false);
 
-const props = withDefaults(defineProps<Props>(), {
-  type: "success",
-  message: "Message",
-  hasIcon: false,
+const { $api, $config } = useNuxtApp();
+const { user } = storeToRefs(useAuth());
+
+const socket = io(`${$config.public.serverEndpoint}`, {
+  query: { userId: user.value._id },
 });
 
-const icon = computed(() => {
-  if (!props.hasIcon) {
-    return "";
-  }
+const setupSocket = (onNotification: Function) => {
+  socket.on("notification", (message) => {
+    onNotification(message);
+  });
 
-  switch (props.type) {
-    case "success":
-      return Icons.success;
-    case "error":
-      return Icons.error;
-    case "warning":
-      return Icons.warning;
-    default:
-      break;
+  return socket;
+};
+
+onBeforeMount(async () => {
+  const params = {
+    page: 0,
+    pageSize: 10,
+  };
+  try {
+    const response = await $api<GetNotificationsByUserResponse>(
+      "notification/getByCurrentUser",
+      { method: "get", params }
+    );
+
+    if (!response?.success) {
+      showError(response?.error || "");
+      return;
+    }
+
+    if (response.data) {
+      for (const notification of response.data) {
+        notifications[0].push(convertNotificationToDropdownItem(notification));
+      }
+    }
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    isLoadingNotifications.value = false;
   }
 });
 
-const color = computed(() => {
-  switch (props.type) {
-    case "success":
-      return "emerald";
-    case "error":
-      return "red";
-    case "warning":
-      return "yellow";
-    default:
-      break;
-  }
+const convertNotificationToDropdownItem = (
+  notification: NotificationSchema
+): DropdownItem => ({
+  label: `${notification.usersActionNumber}`,
+  icon:
+    notification.type === NotificationType.LIKE
+      ? Icons.like
+      : notification.type === NotificationType.COMMENT
+      ? Icons.comment
+      : Icons.logo,
+  to: `/post/${notification.postId}`,
+});
+
+onMounted(() => {
+  setupSocket(() => {});
 });
 </script>
