@@ -32,6 +32,8 @@ export type {
   LikeCommentResponse,
   DeleteCommentResponse,
   UpdateCommentResponse,
+  NotificationDetail,
+  GetNotificationsByUserResponse,
 } from "./response";
 
 // Schema

@@ -1,6 +1,12 @@
 <template>
   <UDropdown :items="notifications" :popper="{ placement: 'bottom-end' }">
-    <AppIcon :name="Icons.notification" />
+    <UButton
+      size="xl"
+      variant="soft"
+      :ui="{ rounded: 'rounded-full' }"
+    >
+    <AppIcon :name="Icons.notification" size="md" />
+    </UButton>
   </UDropdown>
 </template>
 
@@ -8,11 +14,13 @@
 import { io } from "socket.io-client";
 import type { DropdownItem } from "#ui/types";
 import Icons from "~/common/constants/icons";
-import type { NotificationSchema } from "~/common/interfaces";
-import type { GetNotificationsByUserResponse } from "~/common/interfaces/response";
+import type {
+  GetNotificationsByUserResponse,
+  NotificationDetail,
+} from "~/common/interfaces/response";
 import { NotificationType } from "~/common/constants/enums";
 
-const notifications = reactive<DropdownItem[][]>([[], [], []]);
+const notifications = reactive<DropdownItem[][]>([[]]);
 const isLoadingNotifications = ref(false);
 
 const { $api, $config } = useNuxtApp();
@@ -59,9 +67,9 @@ onBeforeMount(async () => {
 });
 
 const convertNotificationToDropdownItem = (
-  notification: NotificationSchema
+  notification: NotificationDetail
 ): DropdownItem => ({
-  label: `${notification.usersActionNumber}`,
+  label: `${notification}`,
   icon:
     notification.type === NotificationType.LIKE
       ? Icons.like

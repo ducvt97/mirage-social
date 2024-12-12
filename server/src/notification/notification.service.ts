@@ -18,14 +18,15 @@ export class NotificationService {
     try {
       delete notification._id;
       const existNotification = await this.notificationModel.findOne({
-        postId: notification.postId,
         type: notification.type,
+        userId: notification.userId,
+        postId: notification.postId,
+        ...(notification.commentId && { commentId: notification.commentId }),
       });
 
       if (existNotification) {
-        for (const key in notification) {
-          existNotification[key] = notification[key];
-        }
+        existNotification.userActionId = notification.userActionId;
+        existNotification.read = false;
         await existNotification.save();
         return existNotification;
       }
@@ -46,7 +47,7 @@ export class NotificationService {
       const notifications = await this.notificationModel.find(
         { userId },
         {},
-        { skip: page * pageSize, limit: pageSize },
+        { skip: page * pageSize, limit: pageSize, sort: { updatedAt: -1 } },
       );
       return notifications;
     } catch (error) {

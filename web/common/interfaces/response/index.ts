@@ -14,4 +14,7 @@ export type {
   DeleteCommentResponse,
   UpdateCommentResponse,
 } from "./comment";
-export type { GetNotificationsByUserResponse } from "./notification";
+export type {
+  NotificationDetail,
+  GetNotificationsByUserResponse,
+} from "./notification";

@@ -11,17 +11,20 @@ export class Notification {
   @Prop({ required: true, enum: NotificationType })
   type: string;
 
-  @Prop({ default: 0 })
-  usersActionNumber: number;
-
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
-  usersAction: string[];
+  @Prop({ required: true })
+  userActionId: string;
 
   @Prop({ required: true })
   userId: string;
 
   @Prop({ required: true })
   postId: string;
+
+  @Prop()
+  commentId: string;
+
+  @Prop()
+  commentContent: string;
 
   @Prop({ default: false })
   read: boolean;
