@@ -1,13 +1,11 @@
 <template>
-  <UDropdown :items="notifications" :popper="{ placement: 'bottom-end' }">
+  <UPopover :items="notifications" :popper="{ placement: 'bottom-end' }">
     <UButton
       size="xl"
       variant="soft"
-      :ui="{ rounded: 'rounded-full' }"
-    >
-    <AppIcon :name="Icons.notification" size="md" />
-    </UButton>
-  </UDropdown>
+      :ui="{ rounded: 'rounded-full', icon: { size: { xl: 'h-7 w-7' } } }"
+    />
+  </UPopover>
 </template>
 
 <script setup lang="ts">
@@ -23,30 +21,49 @@ import { NotificationType } from "~/common/constants/enums";
 const notifications = reactive<DropdownItem[][]>([[]]);
 const isLoadingNotifications = ref(false);
 
-const { $api, $config } = useNuxtApp();
+const { $config } = useNuxtApp();
 const { user } = storeToRefs(useAuth());
 
 const socket = io(`${$config.public.serverEndpoint}`, {
   query: { userId: user.value._id },
 });
 
-const setupSocket = (onNotification: Function) => {
-  socket.on("notification", (message) => {
-    onNotification(message);
-  });
+onMounted(async () => {
+  if (user) {
+    await loadNotifications();
+    connectSocket(() => {});
+  }
+});
 
+watchEffect(() => {
+  if (!user) {
+    disconnectSocket();
+  }
+});
+
+const connectSocket = (onNotification: Function) => {
+  socket.on("notification", (notification: NotificationDetail) => {
+    onNotification(notification);
+  });
   return socket;
 };
 
-onBeforeMount(async () => {
+const disconnectSocket = () => {
+  socket.on("disconnect", () => {
+    console.log(socket.id); // undefined
+  });
+};
+
+const loadNotifications = async () => {
   const params = {
     page: 0,
     pageSize: 10,
   };
   try {
-    const response = await $api<GetNotificationsByUserResponse>(
+    const response = await useApiClient<GetNotificationsByUserResponse>(
       "notification/getByCurrentUser",
-      { method: "get", params }
+      "get",
+      { params }
     );
 
     if (!response?.success) {
@@ -64,7 +81,7 @@ onBeforeMount(async () => {
   } finally {
     isLoadingNotifications.value = false;
   }
-});
+};
 
 const convertNotificationToDropdownItem = (
   notification: NotificationDetail
@@ -77,9 +94,5 @@ const convertNotificationToDropdownItem = (
       ? Icons.comment
       : Icons.logo,
   to: `/post/${notification.postId}`,
-});
-
-onMounted(() => {
-  setupSocket(() => {});
 });
 </script>
