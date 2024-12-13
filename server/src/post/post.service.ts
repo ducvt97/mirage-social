@@ -5,12 +5,16 @@ import { Post, PostDocument } from 'src/schemas/post.schema';
 import { PostCreateDTO } from './dto/post-create-dto';
 import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/post-update-dto';
 import { CommentService } from 'src/comment/comment.service';
+import { NotificationService } from 'src/notification/notification.service';
+import { Notification } from 'src/schemas/notification.schema';
+import { NotificationType } from 'src/common/constants/enums';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     private commentService: CommentService,
+    private notificationService: NotificationService,
   ) {}
 
   async createPost(userId: string, postInfo: PostCreateDTO): Promise<Post> {
@@ -127,6 +131,14 @@ export class PostService {
       }
 
       await post.save();
+
+      const notification = new Notification();
+      notification.userActionId = userId;
+      notification.userId = post.userId;
+      notification.postId = postId;
+      notification.type = NotificationType.LIKE_POST;
+      this.notificationService.addNotification(notification);
+
       return post;
     } catch (error) {
       return Promise.reject('Cannot like/unlike this post.');

@@ -8,6 +8,8 @@ import { User } from 'src/schemas/user.schema';
 import { UserService } from 'src/user/user.service';
 import { Post } from 'src/schemas/post.schema';
 import { PostService } from 'src/post/post.service';
+import { CommentService } from 'src/comment/comment.service';
+import { Comment } from 'src/schemas/comment.schema';
 
 @Controller('notification')
 export class NotificationController {
@@ -15,6 +17,7 @@ export class NotificationController {
     private notificationService: NotificationService,
     private userService: UserService,
     private postService: PostService,
+    private commentService: CommentService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -30,16 +33,24 @@ export class NotificationController {
 
       const getUsersDetails: Promise<User>[] = [];
       const getPostsDetails: Promise<Post>[] = [];
+      const getCommentsDetails: Promise<Comment>[] = [];
       for (const notification of notifications) {
         getUsersDetails.push(this.userService.getUserById(notification.userId));
         getPostsDetails.push(this.postService.getPostById(notification.postId));
+        if (notification.commentId) {
+          getCommentsDetails.push(
+            this.commentService.getCommentById(notification.commentId),
+          );
+        }
       }
 
       const usersDetailsPromise = Promise.all(getUsersDetails);
       const postsDetailsPromise = Promise.all(getPostsDetails);
-      const [usersDetails, postsDetails] = await Promise.all([
+      const commentsDetailsPromise = Promise.all(getCommentsDetails);
+      const [usersDetails, postsDetails, commentsDetails] = await Promise.all([
         usersDetailsPromise,
         postsDetailsPromise,
+        commentsDetailsPromise,
       ]);
 
       const notificationsDetails = notifications.map((item) => ({
@@ -50,6 +61,11 @@ export class NotificationController {
         postsDetails: postsDetails.find(
           (post) => String(post._id) === item.postId,
         ),
+        ...(item.commentId && {
+          commentsDetails: commentsDetails.find(
+            (comment) => String(comment._id) === item.commentId,
+          ),
+        }),
       }));
       return handleResponse(notificationsDetails);
     } catch (error) {

@@ -6,12 +6,14 @@ import {
   Notification,
   NotificationDocument,
 } from 'src/schemas/notification.schema';
+import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
+    private notificationGateway: NotificationGateway,
   ) {}
 
   async addNotification(notification: Notification): Promise<Notification> {
@@ -28,6 +30,7 @@ export class NotificationService {
         existNotification.userActionId = notification.userActionId;
         existNotification.read = false;
         await existNotification.save();
+        this.notificationGateway.sendNotification(existNotification.userId, '');
         return existNotification;
       }
 

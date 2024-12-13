@@ -1,11 +1,39 @@
 <template>
-  <UPopover :items="notifications" :popper="{ placement: 'bottom-end' }">
+  <UDropdown
+    :items="notifications"
+    :popper="{ placement: 'bottom-end' }"
+    :ui="{
+      width: 'w-60',
+      divide: 'divide-y-0',
+      item: { disabled: 'opacity-100' },
+    }"
+  >
     <UButton
       size="xl"
       variant="soft"
+      :icon="Icons.notification"
       :ui="{ rounded: 'rounded-full', icon: { size: { xl: 'h-7 w-7' } } }"
     />
-  </UPopover>
+    <template #header="{ item }">
+      <div class="flex">
+        <div>Notifications</div>
+        <UButton variant="ghost" @click="markAllNotificationsRead">
+          {{ item.label }}
+        </UButton>
+      </div>
+    </template>
+    <template v-if="notifications[1].length" #item="{ item }">
+      <AppNotificationItem
+        :icon="item.icon"
+        :label="item.label"
+        :avatar="item.avatar.src"
+        :user-fullname="item.labelClass"
+      />
+    </template>
+    <template #empty="{ item }">
+      <div class="text-center">{{ item.label }}</div>
+    </template>
+  </UDropdown>
 </template>
 
 <script setup lang="ts">
@@ -18,10 +46,27 @@ import type {
 } from "~/common/interfaces/response";
 import { NotificationType } from "~/common/constants/enums";
 
-const notifications = reactive<DropdownItem[][]>([[]]);
+const notifications = reactive<DropdownItem[][]>([
+  [
+    {
+      label: "Mark all as read",
+      slot: "header",
+      disabled: true,
+    },
+  ],
+  [],
+  [
+    {
+      label: "Your notification list is empty.",
+      slot: "empty",
+      disabled: true,
+    },
+  ],
+]);
 const isLoadingNotifications = ref(false);
 
 const { $config } = useNuxtApp();
+const { showNotification } = useToastMessage();
 const { user } = storeToRefs(useAuth());
 
 const socket = io(`${$config.public.serverEndpoint}`, {
@@ -31,7 +76,7 @@ const socket = io(`${$config.public.serverEndpoint}`, {
 onMounted(async () => {
   if (user) {
     await loadNotifications();
-    connectSocket(() => {});
+    connectSocket(pushNotification);
   }
 });
 
@@ -41,17 +86,43 @@ watchEffect(() => {
   }
 });
 
-const connectSocket = (onNotification: Function) => {
+const connectSocket = (pushNotification: Function) => {
   socket.on("notification", (notification: NotificationDetail) => {
-    onNotification(notification);
+    pushNotification(notification);
   });
   return socket;
 };
 
 const disconnectSocket = () => {
   socket.on("disconnect", () => {
-    console.log(socket.id); // undefined
+    console.log(socket.id);
   });
+};
+
+const pushNotification = async (notification: NotificationDetail) => {
+  const index = notifications[1].findIndex(
+    (item) => item.class === notification._id
+  );
+
+  if (index > -1) {
+    notifications[1].splice(index, 1);
+  }
+  await nextTick();
+  const notificationItem = convertNotificationToDropdownItem(notification);
+  notifications[1].unshift(notificationItem);
+
+  const label =
+    notification.type === NotificationType.LIKE_POST
+      ? `like your post: ${notification.postsDetails.caption}`
+      : notification.type === NotificationType.LIKE_COMMENT
+      ? `liked your comment: ${notification.commentsDetails?.caption}`
+      : notification.type === NotificationType.COMMENT_POST
+      ? `has commented on your post: ${notification.postsDetails.caption}`
+      : notification.type === NotificationType.REPLY_COMMENT
+      ? `has replied your comment: ${notification.commentsDetails?.caption}`
+      : "System notification";
+  const message = `${notificationItem.labelClass} ${label}`;
+  showNotification(message);
 };
 
 const loadNotifications = async () => {
@@ -73,7 +144,7 @@ const loadNotifications = async () => {
 
     if (response.data) {
       for (const notification of response.data) {
-        notifications[0].push(convertNotificationToDropdownItem(notification));
+        notifications[1].push(convertNotificationToDropdownItem(notification));
       }
     }
   } catch (error) {
@@ -83,16 +154,47 @@ const loadNotifications = async () => {
   }
 };
 
+const markAllNotificationsRead = async () => {};
+
 const convertNotificationToDropdownItem = (
   notification: NotificationDetail
-): DropdownItem => ({
-  label: `${notification}`,
-  icon:
-    notification.type === NotificationType.LIKE
+): DropdownItem => {
+  const label =
+    notification.type === NotificationType.LIKE_POST
+      ? notification.postsDetails.likes > 1
+        ? `and ${notification.postsDetails.likes - 1} people like your post: ${
+            notification.postsDetails.caption
+          }`
+        : `like your post: ${notification.postsDetails.caption}`
+      : notification.type === NotificationType.LIKE_COMMENT &&
+        notification.commentsDetails
+      ? notification.commentsDetails.likes > 1
+        ? `and ${
+            notification.commentsDetails.likes - 1
+          } people like your comment: ${notification.commentsDetails.caption}`
+        : `like your comment: ${notification.commentsDetails.caption}`
+      : notification.type === NotificationType.COMMENT_POST
+      ? `has commented on your post: ${notification.postsDetails.caption}`
+      : notification.type === NotificationType.REPLY_COMMENT
+      ? `has replied your comment: ${notification.commentsDetails?.caption}`
+      : "System notification";
+  const icon =
+    notification.type === NotificationType.LIKE_POST ||
+    notification.type === NotificationType.LIKE_COMMENT
       ? Icons.like
-      : notification.type === NotificationType.COMMENT
+      : notification.type === NotificationType.COMMENT_POST ||
+        notification.type === NotificationType.REPLY_COMMENT
       ? Icons.comment
-      : Icons.logo,
-  to: `/post/${notification.postId}`,
-});
+      : Icons.logo;
+  const userFullname = `${notification.usersActionDetails.firstName} ${notification.usersActionDetails.firstName}`;
+
+  return {
+    label,
+    icon,
+    to: `/post/${notification.postId}`,
+    avatar: { src: notification.usersActionDetails.avatar },
+    labelClass: userFullname, // User fullname
+    class: notification._id, // Notification id
+  };
+};
 </script>

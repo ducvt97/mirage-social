@@ -4,7 +4,9 @@ export enum PostStatusType {
 }
 
 export enum NotificationType {
-  LIKE = "LIKE",
-  COMMENT = "COMMENT",
+  LIKE_POST = "LIKE_POST",
+  COMMENT_POST = "COMMENT_POST",
+  LIKE_COMMENT = "LIKE_COMMENT",
+  REPLY_COMMENT = "REPLY_COMMENT",
   SYSTEM = "SYSTEM",
 }

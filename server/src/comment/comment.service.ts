@@ -18,6 +18,11 @@ export class CommentService {
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
+  async getCommentById(commentId: string): Promise<CommentDocument> {
+    const comment = await this.commentModel.findById(commentId);
+    return comment;
+  }
+
   async findAndCheckPermission(
     commentId: string,
     userId: string,

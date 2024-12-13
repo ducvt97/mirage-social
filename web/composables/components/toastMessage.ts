@@ -19,5 +19,13 @@ export const useToastMessage = () => {
     });
   };
 
-  return { showError, showWarning };
+  const showNotification = (message: string) => {
+    toast.add({
+      title: message,
+      icon: Icons.notification,
+      color: "gray",
+    });
+  };
+
+  return { showError, showWarning, showNotification };
 };
