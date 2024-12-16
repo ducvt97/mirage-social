@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { GetWithPagingDTO } from 'src/common/dto/get-with-paging-dto';
@@ -7,6 +7,9 @@ import {
   NotificationDocument,
 } from 'src/schemas/notification.schema';
 import { NotificationGateway } from './notification.gateway';
+import { UserService } from 'src/user/user.service';
+import { PostService } from 'src/post/post.service';
+import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class NotificationService {
@@ -14,9 +17,20 @@ export class NotificationService {
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
     private notificationGateway: NotificationGateway,
+    private userService: UserService,
+    @Inject(forwardRef(() => PostService)) private postService: PostService,
+    private commentService: CommentService,
   ) {}
 
   async addNotification(notification: Notification): Promise<Notification> {
+    if (
+      notification.userId &&
+      notification.userActionId &&
+      notification.userId === notification.userActionId
+    ) {
+      return null;
+    }
+
     try {
       delete notification._id;
       const existNotification = await this.notificationModel.findOne({
@@ -26,16 +40,41 @@ export class NotificationService {
         ...(notification.commentId && { commentId: notification.commentId }),
       });
 
+      const getUserDetails = this.userService.getUserById(
+        notification.userActionId,
+      );
+      const getPostDetails = this.postService.getPostById(notification.postId);
+      const getCommentsDetails = this.commentService.getCommentById(
+        notification.commentId,
+      );
+      const [usersDetails, postsDetails, commentsDetails] = await Promise.all([
+        getUserDetails,
+        getPostDetails,
+        getCommentsDetails,
+      ]);
+      const notificationDetails = {
+        usersDetails,
+        postsDetails,
+        commentsDetails,
+      };
+
       if (existNotification) {
         existNotification.userActionId = notification.userActionId;
         existNotification.read = false;
         await existNotification.save();
-        this.notificationGateway.sendNotification(existNotification.userId, '');
+        this.notificationGateway.sendNotification(existNotification.userId, {
+          ...existNotification['doc'],
+          ...notificationDetails,
+        });
         return existNotification;
       }
 
       const newNotification = new this.notificationModel(notification);
       await newNotification.save();
+      this.notificationGateway.sendNotification(existNotification.userId, {
+        ...newNotification['doc'],
+        ...notificationDetails,
+      });
       return newNotification;
     } catch (error) {
       return Promise.reject('Something went wrong.');

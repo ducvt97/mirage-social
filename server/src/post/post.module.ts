@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
 import { Post, PostSchema } from 'src/schemas/post.schema';
@@ -12,24 +12,19 @@ import {
   Notification,
   NotificationSchema,
 } from 'src/schemas/notification.schema';
-import { NotificationGateway } from 'src/notification/notification.gateway';
+import { NotificationModule } from 'src/notification/notification.module';
+import { UserModule } from 'src/user/user.module';
+import { CommentModule } from 'src/comment/comment.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: Post.name, schema: PostSchema },
-      { name: User.name, schema: UserSchema },
-      { name: Comment.name, schema: CommentSchema },
-      { name: Notification.name, schema: NotificationSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    forwardRef(() => UserModule),
+    forwardRef(() => CommentModule),
+    forwardRef(() => NotificationModule),
   ],
   controllers: [PostController],
-  providers: [
-    PostService,
-    UserService,
-    CommentService,
-    NotificationService,
-    NotificationGateway,
-  ],
+  providers: [PostService],
+  exports: [PostService],
 })
 export class PostModule {}

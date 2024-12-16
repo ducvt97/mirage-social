@@ -5,6 +5,7 @@ import {
 } from '@nestjs/websockets';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { NotificationDetail } from 'src/common/interfaces';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -32,10 +33,10 @@ export class NotificationGateway implements OnGatewayInit {
     }
   }
 
-  sendNotification(userId: string, message: string) {
+  sendNotification(userId: string, notification: NotificationDetail) {
     const socket = this.users[userId];
     if (socket) {
-      socket.emit('notification', message); // Send notification to specific user
+      socket.emit('notification', notification); // Send notification to specific user
     }
   }
 

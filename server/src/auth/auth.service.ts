@@ -17,20 +17,20 @@ export class AuthService {
     const { email, password } = loginDto;
 
     try {
-      const user = await this.userService.getUserByUsernameOrEmail(email);
-      
+      const user = await this.userService.getUserByEmail(email);
+
       if (!user) {
-        return handleError('Incorrect username or password.');
+        return handleError('Incorrect email or password.');
       }
 
       const isPasswordMatch = await bcrypt.compare(password, user.password);
 
       if (!isPasswordMatch) {
-        return handleError('Incorrect username or password.');
+        return handleError('Incorrect email or password.');
       }
 
       const payload: JWTPayload = {
-        username: user.email,
+        email: user.email,
         sub: user._id.toString(),
       };
       const jwt = await this.jwtService.signAsync(payload);

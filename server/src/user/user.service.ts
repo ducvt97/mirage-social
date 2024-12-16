@@ -18,7 +18,7 @@ export class UserService {
     return this.userModel.findById(id).exec();
   }
 
-  async getUserByUsernameOrEmail(email: string): Promise<User | null> {
+  async getUserByEmail(email: string): Promise<User> {
     if (!email) {
       return null;
     }
@@ -28,9 +28,7 @@ export class UserService {
 
   async createUser(userCreateDTO: UserCreateDTO) {
     try {
-      const userExist = await this.getUserByUsernameOrEmail(
-        userCreateDTO.email,
-      );
+      const userExist = await this.getUserByEmail(userCreateDTO.email);
       if (userExist) {
         return handleError({ email: 'Email already in used.' });
       }
