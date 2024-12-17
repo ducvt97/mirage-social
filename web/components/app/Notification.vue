@@ -3,26 +3,34 @@
     :items="notifications"
     :popper="{ placement: 'bottom-end' }"
     :ui="{
-      width: 'w-60',
+      width: 'w-80',
       divide: 'divide-y-0',
-      item: { disabled: 'opacity-100' },
+      item: { disabled: 'opacity-100 cursor-default select-text' },
     }"
   >
-    <UButton
-      size="xl"
-      variant="soft"
-      :icon="Icons.notification"
-      :ui="{ rounded: 'rounded-full', icon: { size: { xl: 'h-7 w-7' } } }"
-    />
+    <UChip
+      size="2xl"
+      inset
+      :text="unreadNotifications.length"
+      :show="unreadNotifications.length > 0"
+    >
+      <UButton
+        size="xl"
+        variant="outline"
+        :icon="Icons.notification"
+        :ui="{ rounded: 'rounded-full', icon: { size: { xl: 'h-7 w-7' } } }"
+      />
+    </UChip>
+
     <template #header="{ item }">
-      <div class="flex">
-        <div>Notifications</div>
+      <div class="w-full flex justify-between items-center">
+        <div class="text-lg font-bold">Notifications</div>
         <UButton variant="ghost" @click="markAllNotificationsRead">
           {{ item.label }}
         </UButton>
       </div>
     </template>
-    <template v-if="notifications[1].length" #item="{ item }">
+    <template #item="{ item }">
       <AppNotificationItem
         :icon="item.icon"
         :label="item.label"
@@ -31,7 +39,7 @@
       />
     </template>
     <template #empty="{ item }">
-      <div class="text-center">{{ item.label }}</div>
+      <div class="text-center cursor-text -mt-5 pb-3">{{ item.label }}</div>
     </template>
   </UDropdown>
 </template>
@@ -46,6 +54,12 @@ import type {
 } from "~/common/interfaces/response";
 import { NotificationType } from "~/common/constants/enums";
 
+// Composables
+const { $config } = useNuxtApp();
+const { showNotification } = useToastMessage();
+const { user } = storeToRefs(useAuth());
+
+// States
 const notifications = reactive<DropdownItem[][]>([
   [
     {
@@ -55,28 +69,43 @@ const notifications = reactive<DropdownItem[][]>([
     },
   ],
   [],
-  [
-    {
-      label: "Your notification list is empty.",
-      slot: "empty",
-      disabled: true,
-    },
-  ],
+  [],
 ]);
 const isLoadingNotifications = ref(false);
 
-const { $config } = useNuxtApp();
-const { showNotification } = useToastMessage();
-const { user } = storeToRefs(useAuth());
+// Computed
+const unreadNotifications = computed(() =>
+  notifications[1].filter((item) => item.iconClass !== "true")
+);
 
+// Constants
+const notificationEmpty = [
+  {
+    label: "Your notification list is empty.",
+    slot: "empty",
+    disabled: true,
+  },
+];
+
+// Socket
 const socket = io(`${$config.public.serverEndpoint}`, {
   query: { userId: user.value._id },
 });
 
+// Life cycles
 onMounted(async () => {
   if (user) {
     await loadNotifications();
     connectSocket(pushNotification);
+  }
+});
+
+// Watcher
+watchEffect(() => {
+  if (notifications[1].length > 0) {
+    notifications[2] = [];
+  } else {
+    notifications[2] = notificationEmpty;
   }
 });
 
@@ -86,6 +115,7 @@ watchEffect(() => {
   }
 });
 
+// Methods
 const connectSocket = (pushNotification: Function) => {
   socket.on("notification", (notification: NotificationDetail) => {
     pushNotification(notification);
@@ -113,13 +143,13 @@ const pushNotification = async (notification: NotificationDetail) => {
 
   const label =
     notification.type === NotificationType.LIKE_POST
-      ? `like your post: ${notification.postsDetails.caption}`
+      ? `like your post: ${notification.postDetails.caption}`
       : notification.type === NotificationType.LIKE_COMMENT
-      ? `liked your comment: ${notification.commentsDetails?.caption}`
+      ? `liked your comment: ${notification.commentDetails?.caption}`
       : notification.type === NotificationType.COMMENT_POST
-      ? `has commented on your post: ${notification.postsDetails.caption}`
+      ? `has commented on your post: ${notification.postDetails.caption}`
       : notification.type === NotificationType.REPLY_COMMENT
-      ? `has replied your comment: ${notification.commentsDetails?.caption}`
+      ? `has replied your comment: ${notification.commentDetails?.caption}`
       : "System notification";
   const message = `${notificationItem.labelClass} ${label}`;
   showNotification(message);
@@ -161,22 +191,22 @@ const convertNotificationToDropdownItem = (
 ): DropdownItem => {
   const label =
     notification.type === NotificationType.LIKE_POST
-      ? notification.postsDetails.likes > 1
-        ? `and ${notification.postsDetails.likes - 1} people like your post: ${
-            notification.postsDetails.caption
-          }`
-        : `like your post: ${notification.postsDetails.caption}`
-      : notification.type === NotificationType.LIKE_COMMENT &&
-        notification.commentsDetails
-      ? notification.commentsDetails.likes > 1
+      ? notification.postDetails.likes > 1
         ? `and ${
-            notification.commentsDetails.likes - 1
-          } people like your comment: ${notification.commentsDetails.caption}`
-        : `like your comment: ${notification.commentsDetails.caption}`
+            notification.postDetails.likes - 1
+          } other people like your post: "${notification.postDetails.caption}"`
+        : `like your post: ${notification.postDetails.caption}`
+      : notification.type === NotificationType.LIKE_COMMENT &&
+        notification.commentDetails
+      ? notification.commentDetails.likes > 1
+        ? `and ${
+            notification.commentDetails.likes - 1
+          } people like your comment: ${notification.commentDetails.caption}`
+        : `like your comment: ${notification.commentDetails.caption}`
       : notification.type === NotificationType.COMMENT_POST
-      ? `has commented on your post: ${notification.postsDetails.caption}`
+      ? `has commented on your post: ${notification.postDetails.caption}`
       : notification.type === NotificationType.REPLY_COMMENT
-      ? `has replied your comment: ${notification.commentsDetails?.caption}`
+      ? `has replied your comment: ${notification.commentDetails?.caption}`
       : "System notification";
   const icon =
     notification.type === NotificationType.LIKE_POST ||
@@ -186,15 +216,16 @@ const convertNotificationToDropdownItem = (
         notification.type === NotificationType.REPLY_COMMENT
       ? Icons.comment
       : Icons.logo;
-  const userFullname = `${notification.usersActionDetails.firstName} ${notification.usersActionDetails.firstName}`;
+  const userFullname = `${notification.userActionDetails.firstName} ${notification.userActionDetails.lastName}`;
 
   return {
     label,
     icon,
     to: `/post/${notification.postId}`,
-    avatar: { src: notification.usersActionDetails.avatar },
+    avatar: { src: notification.userActionDetails.avatar },
     labelClass: userFullname, // User fullname
     class: notification._id, // Notification id
+    iconClass: String(notification.read), // read status
   };
 };
 </script>

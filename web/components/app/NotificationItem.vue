@@ -21,8 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { NotificationType } from "~/common/constants/enums";
-
 interface Props {
   avatar?: string;
   userFullname?: string;

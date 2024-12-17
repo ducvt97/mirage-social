@@ -7,7 +7,7 @@ import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/post-update-dto';
 import { CommentService } from 'src/comment/comment.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { Notification } from 'src/schemas/notification.schema';
-import { NotificationType } from 'src/common/constants/enums';
+import { NotificationType, PostStatusType } from 'src/common/constants/enums';
 
 @Injectable()
 export class PostService {
@@ -116,7 +116,10 @@ export class PostService {
     try {
       const post = await this.postModel.findById(postId);
 
-      if (!post || (post.status && post.userId !== userId)) {
+      if (
+        !post ||
+        (post.status === PostStatusType.PRIVATE && post.userId !== userId)
+      ) {
         return Promise.reject('This post does not exist.');
       }
 
@@ -134,12 +137,14 @@ export class PostService {
 
       await post.save();
 
-      const notification = new Notification();
-      notification.userActionId = userId;
-      notification.userId = post.userId;
-      notification.postId = postId;
-      notification.type = NotificationType.LIKE_POST;
-      this.notificationService.addNotification(notification);
+      if (userLikeIndex === -1) {
+        const notification = new Notification();
+        notification.userActionId = userId;
+        notification.userId = post.userId;
+        notification.postId = postId;
+        notification.type = NotificationType.LIKE_POST;
+        this.notificationService.addNotification(notification);
+      }
 
       return post;
     } catch (error) {

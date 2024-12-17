@@ -55,14 +55,14 @@ export class NotificationController {
 
       const notificationsDetails = notifications.map((item) => ({
         ...item['_doc'],
-        usersActionDetails: usersDetails.find(
+        userActionDetails: usersDetails.find(
           (user) => String(user._id) === item.userId,
         ),
-        postsDetails: postsDetails.find(
+        postDetails: postsDetails.find(
           (post) => String(post._id) === item.postId,
         ),
         ...(item.commentId && {
-          commentsDetails: commentsDetails.find(
+          commentDetails: commentsDetails.find(
             (comment) => String(comment._id) === item.commentId,
           ),
         }),

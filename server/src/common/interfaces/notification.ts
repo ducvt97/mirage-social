@@ -4,7 +4,7 @@ import { Post } from 'src/schemas/post.schema';
 import { User } from 'src/schemas/user.schema';
 
 export interface NotificationDetail extends Notification {
-  usersActionDetails: User;
-  postsDetails: Post;
-  commentsDetails?: Comment;
+  userActionDetails: User;
+  postDetails: Post;
+  commentDetails?: Comment;
 }

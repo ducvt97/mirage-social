@@ -7,9 +7,9 @@ import type {
 import type { ServerResponse } from "../server-response";
 
 export interface NotificationDetail extends NotificationSchema {
-  usersActionDetails: UserSchema;
-  postsDetails: PostSchema;
-  commentsDetails?: CommentSchema;
+  userActionDetails: UserSchema;
+  postDetails: PostSchema;
+  commentDetails?: CommentSchema;
 }
 
 export interface GetNotificationsByUserResponse extends ServerResponse {

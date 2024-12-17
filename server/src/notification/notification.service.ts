@@ -44,18 +44,18 @@ export class NotificationService {
         notification.userActionId,
       );
       const getPostDetails = this.postService.getPostById(notification.postId);
-      const getCommentsDetails = this.commentService.getCommentById(
+      const getCommentDetails = this.commentService.getCommentById(
         notification.commentId,
       );
-      const [usersDetails, postsDetails, commentsDetails] = await Promise.all([
+      const [userDetails, postDetails, commentDetails] = await Promise.all([
         getUserDetails,
         getPostDetails,
-        getCommentsDetails,
+        getCommentDetails,
       ]);
       const notificationDetails = {
-        usersDetails,
-        postsDetails,
-        commentsDetails,
+        userActionDetails: userDetails,
+        postDetails,
+        commentDetails,
       };
 
       if (existNotification) {
@@ -63,7 +63,7 @@ export class NotificationService {
         existNotification.read = false;
         await existNotification.save();
         this.notificationGateway.sendNotification(existNotification.userId, {
-          ...existNotification['doc'],
+          ...existNotification['_doc'],
           ...notificationDetails,
         });
         return existNotification;
@@ -71,8 +71,8 @@ export class NotificationService {
 
       const newNotification = new this.notificationModel(notification);
       await newNotification.save();
-      this.notificationGateway.sendNotification(existNotification.userId, {
-        ...newNotification['doc'],
+      this.notificationGateway.sendNotification(newNotification.userId, {
+        ...newNotification['_doc'],
         ...notificationDetails,
       });
       return newNotification;
