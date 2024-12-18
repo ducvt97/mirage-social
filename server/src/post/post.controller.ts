@@ -21,12 +21,16 @@ import { PostService } from './post.service';
 import { LikePostDTO, PostUpdateDTO } from './dto/post-update-dto';
 import { handleError, handleResponse } from 'src/utils/response.util';
 import { UserService } from 'src/user/user.service';
+import { NotificationService } from 'src/notification/notification.service';
+import { createNotificationInstance } from 'src/utils/common.util';
+import { NotificationType } from 'src/common/constants/enums';
 
 @Controller('post')
 export class PostController {
   constructor(
     private postService: PostService,
     private userService: UserService,
+    private notificationService: NotificationService,
   ) {}
 
   @Get()
@@ -93,7 +97,21 @@ export class PostController {
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const post = await this.postService.likePost(postId, userId);
+      const { post, shouldSendNotification } = await this.postService.likePost(
+        postId,
+        userId,
+      );
+
+      if (shouldSendNotification) {
+        const notification = createNotificationInstance(
+          post.userId,
+          userId,
+          postId,
+          NotificationType.LIKE_POST,
+        );
+        this.notificationService.addNotification(notification);
+      }
+
       return handleResponse({ likes: post.likes, usersLike: post.usersLike });
     } catch (error) {
       return handleError(error);

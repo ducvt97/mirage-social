@@ -22,12 +22,17 @@ import {
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/schemas/user.schema';
 import { CommentUpdateDTO, LikeCommentDTO } from './dto/comment-update.dto';
+import { NotificationService } from 'src/notification/notification.service';
+import { Notification } from 'src/schemas/notification.schema';
+import { createNotificationInstance } from 'src/utils/common.util';
+import { NotificationType } from 'src/common/constants/enums';
 
 @Controller('comment')
 export class CommentController {
   constructor(
     private commentService: CommentService,
     private userService: UserService,
+    private notificationService: NotificationService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -41,6 +46,17 @@ export class CommentController {
       const getComment = this.commentService.createComment(userId, body);
       const getUser = this.userService.getUserById(userId);
       const [comment, user] = await Promise.all([getComment, getUser]);
+
+      const notification = createNotificationInstance(
+        comment.userId,
+        userId,
+        comment.postId,
+        comment.replyCommentId
+          ? NotificationType.REPLY_COMMENT
+          : NotificationType.COMMENT_POST,
+        comment.replyCommentId,
+      );
+      this.notificationService.addNotification(notification);
 
       return handleResponse({ ...comment['_doc'], userDetails: user });
     } catch (error) {
@@ -101,7 +117,20 @@ export class CommentController {
   ) {
     try {
       const { sub: userId } = parseJWT(token);
-      const comment = await this.commentService.likeComment(commentId, userId);
+      const { comment, shouldSendNotification } =
+        await this.commentService.likeComment(commentId, userId);
+
+      if (shouldSendNotification) {
+        const notification = createNotificationInstance(
+          comment.userId,
+          userId,
+          comment.postId,
+          NotificationType.LIKE_COMMENT,
+          commentId,
+        );
+        this.notificationService.addNotification(notification);
+      }
+
       return handleResponse({
         likes: comment.likes,
         usersLike: comment.usersLike,

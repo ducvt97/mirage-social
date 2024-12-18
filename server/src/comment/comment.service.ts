@@ -122,7 +122,10 @@ export class CommentService {
     }
   }
 
-  async likeComment(commentId: string, userId: string): Promise<Comment> {
+  async likeComment(
+    commentId: string,
+    userId: string,
+  ): Promise<{ comment: Comment; shouldSendNotification: boolean }> {
     try {
       const comment = await this.commentModel.findById(commentId);
 
@@ -143,7 +146,7 @@ export class CommentService {
       }
 
       await comment.save();
-      return comment;
+      return { comment, shouldSendNotification: userLikeIndex === -1 };
     } catch (error) {
       return Promise.reject('Cannot like/unlike this comment.');
     }

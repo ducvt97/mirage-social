@@ -23,9 +23,6 @@ export class Notification {
   @Prop()
   commentId: string;
 
-  @Prop()
-  commentContent: string;
-
   @Prop({ default: false })
   read: boolean;
 }

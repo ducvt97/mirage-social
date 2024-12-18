@@ -1,22 +1,17 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from 'src/schemas/post.schema';
 import { PostCreateDTO } from './dto/post-create-dto';
 import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/post-update-dto';
 import { CommentService } from 'src/comment/comment.service';
-import { NotificationService } from 'src/notification/notification.service';
-import { Notification } from 'src/schemas/notification.schema';
-import { NotificationType, PostStatusType } from 'src/common/constants/enums';
+import { PostStatusType } from 'src/common/constants/enums';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
-    @Inject(forwardRef(() => CommentService))
     private commentService: CommentService,
-    @Inject(forwardRef(() => NotificationService))
-    private notificationService: NotificationService,
   ) {}
 
   async createPost(userId: string, postInfo: PostCreateDTO): Promise<Post> {
@@ -112,7 +107,10 @@ export class PostService {
     }
   }
 
-  async likePost(postId: string, userId: string): Promise<Post> {
+  async likePost(
+    postId: string,
+    userId: string,
+  ): Promise<{ post: Post; shouldSendNotification: boolean }> {
     try {
       const post = await this.postModel.findById(postId);
 
@@ -136,17 +134,7 @@ export class PostService {
       }
 
       await post.save();
-
-      if (userLikeIndex === -1) {
-        const notification = new Notification();
-        notification.userActionId = userId;
-        notification.userId = post.userId;
-        notification.postId = postId;
-        notification.type = NotificationType.LIKE_POST;
-        this.notificationService.addNotification(notification);
-      }
-
-      return post;
+      return { post, shouldSendNotification: userLikeIndex === -1 };
     } catch (error) {
       return Promise.reject('Cannot like/unlike this post.');
     }
