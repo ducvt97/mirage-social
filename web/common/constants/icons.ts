@@ -19,6 +19,7 @@ const Icons = {
   edit: "material-symbols-edit-square-outline",
   delete: "material-symbols-delete-outline",
   notification: "material-symbols-notifications-outline",
+  logout: "ic-round-log-out",
 };
 
 export default Icons;

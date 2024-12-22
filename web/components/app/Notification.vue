@@ -15,10 +15,10 @@
       :show="unreadNotifications.length > 0"
     >
       <UButton
-        size="xl"
+        size="lg"
         variant="outline"
         :icon="Icons.notification"
-        :ui="{ rounded: 'rounded-full', icon: { size: { xl: 'h-7 w-7' } } }"
+        :ui="{ rounded: 'rounded-full' }"
       />
     </UChip>
 

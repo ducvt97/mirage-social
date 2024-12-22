@@ -83,16 +83,21 @@ export class NotificationService {
 
   async getNotificationByUser(
     userId: string,
-    { page, pageSize }: GetWithPagingDTO,
+    { page = 0, pageSize = 10 }: GetWithPagingDTO,
   ): Promise<Notification[]> {
     try {
+      console.log(userId);
       const notifications = await this.notificationModel.find(
         { userId },
         {},
         { skip: page * pageSize, limit: pageSize, sort: { updatedAt: -1 } },
       );
+      console.log(notifications);
+
       return notifications;
     } catch (error) {
+      console.log(error);
+
       Promise.reject('Something went wrong.');
     }
   }
