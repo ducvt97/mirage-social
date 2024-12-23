@@ -9,13 +9,15 @@
   />
   <div v-else>
     <div class="flex gap-3 items-center">
-      <UAvatar
-        size="md"
-        :src="
-          comment.userDetails.avatar ||
-          'https://avatars.githubusercontent.com/u/739984?v=4'
-        "
-      />
+      <ULink :to="`/${comment.userId}`">
+        <UAvatar
+          size="md"
+          :src="
+            comment.userDetails.avatar ||
+            'https://avatars.githubusercontent.com/u/739984?v=4'
+          "
+        />
+      </ULink>
       <div class="flex flex-1 gap-3 relative">
         <UAlert
           class="flex-1"
@@ -23,7 +25,16 @@
             comment.userDetails.firstName + ' ' + comment.userDetails.lastName
           "
           :description="comment.caption"
-        />
+        >
+          <template #title="{ title }">
+            <ULink
+              :to="`/${comment.userId}`"
+              class="font-semibold hover:underline"
+            >
+              {{ title }}
+            </ULink>
+          </template>
+        </UAlert>
         <UDropdown :items="actionItems" :popper="{ placement: 'bottom-end' }">
           <UButton variant="ghost" :icon="Icons.more" />
         </UDropdown>

@@ -1,18 +1,21 @@
 <template>
   <UCard>
     <div class="flex gap-3 items-center">
-      <UAvatar
-        size="md"
-        :src="
-          post.userDetails.avatar ||
-          'https://avatars.githubusercontent.com/u/739984?v=4'
-        "
-      />
+      <ULink :to="`/${post.userDetails._id}`">
+        <UAvatar
+          size="md"
+          :src="
+            post.userDetails.avatar ||
+            'https://avatars.githubusercontent.com/u/739984?v=4'
+          "
+        />
+      </ULink>
+
       <div class="flex-1">
-        <div class="text-sm font-semibold mb-1">
+        <ULink :to="`/${post.userDetails._id}`" class="font-semibold hover:underline">
           {{ post.userDetails.firstName }} {{ post.userDetails.lastName }}
-        </div>
-        <div class="flex items-center text-xs">
+        </ULink>
+        <div class="flex items-center text-xs mt-1">
           <AppIcon :name="statusIcon" size="xs" class="mr-1" />
           {{ post.status }}
         </div>
