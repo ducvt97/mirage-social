@@ -47,14 +47,20 @@ export class UserService {
 
   async sendFriendRequest(userId: string, friendId: string): Promise<boolean> {
     try {
-      const friend = await this.getUserById(friendId);
+      const [user, friend] = await Promise.all([
+        this.getUserById(userId),
+        this.getUserById(friendId),
+      ]);
 
-      const isFriend = friend.friends.includes(userId);
+      const isFriend =
+        user.friends.includes(friendId) || friend.friends.includes(userId);
       if (isFriend) {
         return Promise.reject('You both are already friends.');
       }
 
-      const isSentRequest = friend.friendRequests.includes(userId);
+      const isSentRequest =
+        user.friendRequestsSent.includes(friendId) ||
+        friend.friendRequests.includes(userId);
       if (isSentRequest) {
         return Promise.reject(
           'You had sent friend request to this person. Please wait to be accepted.',
@@ -62,7 +68,8 @@ export class UserService {
       }
 
       friend.friendRequests.unshift(userId);
-      await friend.save();
+      user.friendRequestsSent.unshift(friendId);
+      await Promise.all([friend.save(), user.save()]);
 
       return true;
     } catch (error) {
@@ -75,17 +82,24 @@ export class UserService {
     friendId: string,
   ): Promise<boolean> {
     try {
-      const friend = await this.getUserById(friendId);
+      const [user, friend] = await Promise.all([
+        this.getUserById(userId),
+        this.getUserById(friendId),
+      ]);
 
+      const userRequestIndex = user.friendRequestsSent.findIndex(
+        (item) => item === friendId,
+      );
       const requestIndex = friend.friendRequests.findIndex(
         (item) => item === userId,
       );
-      if (requestIndex === -1) {
+      if (userRequestIndex === -1 || requestIndex === -1) {
         return Promise.reject('You did not add this person as friend.');
       }
 
+      user.friendRequestsSent.splice(userRequestIndex, 1);
       friend.friendRequests.splice(requestIndex, 1);
-      await friend.save();
+      await Promise.all([friend.save(), user.save()]);
 
       return true;
     } catch (error) {
@@ -98,23 +112,32 @@ export class UserService {
     friendId: string,
   ): Promise<boolean> {
     try {
-      const friend = await this.getUserById(friendId);
+      const [user, friend] = await Promise.all([
+        this.getUserById(userId),
+        this.getUserById(friendId),
+      ]);
 
-      const isFriend = friend.friends.includes(userId);
+      const isFriend =
+        user.friends.includes(friendId) || friend.friends.includes(userId);
       if (isFriend) {
         return Promise.reject('You both are already friends.');
       }
 
+      const userRequestIndex = user.friendRequestsSent.findIndex(
+        (item) => item === friendId,
+      );
       const requestIndex = friend.friendRequests.findIndex(
         (item) => item === userId,
       );
-      if (requestIndex === -1) {
+      if (userRequestIndex === -1 || requestIndex === -1) {
         return Promise.reject('This person did not add you as friend.');
       }
 
+      user.friendRequestsSent.splice(userRequestIndex, 1);
+      user.friends.unshift(friendId);
       friend.friendRequests.splice(requestIndex, 1);
       friend.friends.unshift(userId);
-      await friend.save();
+      await Promise.all([friend.save(), user.save()]);
 
       return true;
     } catch (error) {
@@ -127,17 +150,48 @@ export class UserService {
     friendId: string,
   ): Promise<boolean> {
     try {
-      const friend = await this.getUserById(friendId);
+      const [user, friend] = await Promise.all([
+        this.getUserById(userId),
+        this.getUserById(friendId),
+      ]);
 
-      const isSentRequest = friend.friendRequests.includes(userId);
+      const isSentRequest =
+        user.friendRequestsSent.includes(friendId) &&
+        friend.friendRequests.includes(userId);
       if (!isSentRequest) {
         return Promise.reject('This person did not add you as friend.');
       }
 
+      user.friendRequestsSent = user.friendRequestsSent.filter(
+        (item) => item !== friendId,
+      );
       friend.friendRequests = friend.friendRequests.filter(
         (item) => item !== userId,
       );
-      await friend.save();
+      await Promise.all([friend.save(), user.save()]);
+
+      return true;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async deleteFriend(userId: string, friendId: string) {
+    try {
+      const [user, friend] = await Promise.all([
+        this.getUserById(userId),
+        this.getUserById(friendId),
+      ]);
+
+      const isFriend =
+        user.friends.includes(friendId) && friend.friends.includes(userId);
+      if (isFriend) {
+        return Promise.reject('You both are not friends.');
+      }
+
+      user.friends = user.friends.filter((item) => item !== friendId);
+      friend.friends = friend.friends.filter((item) => item !== userId);
+      await Promise.all([friend.save(), user.save()]);
 
       return true;
     } catch (error) {
