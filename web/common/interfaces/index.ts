@@ -9,12 +9,13 @@ export type {
   RegisterRequest,
   LikePostRequest,
   UpdatePostRequest,
+  GetPostsByUserRequest,
   CommentOnPostRequest,
   GetCommentsByPostRequest,
   GetCommentsByCommentRequest,
   LikeCommentRequest,
-  GetWithPaging,
   UpdateCommentRequest,
+  GetWithPaging,
 } from "./request";
 
 // Response
@@ -34,6 +35,7 @@ export type {
   UpdateCommentResponse,
   NotificationDetail,
   GetNotificationsByUserResponse,
+  GetUserInfoResponse,
 } from "./response";
 
 // Schema

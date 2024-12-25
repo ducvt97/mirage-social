@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import type {
   DeletePostResponse,
+  GetPostsByUserRequest,
   GetPostsByUserResponse,
   PostDetail,
   PostSchema,
@@ -31,6 +32,7 @@ definePageMeta({ middleware: ["auth"] });
 const { $api } = useNuxtApp();
 const { showError } = useToastMessage();
 const { startProgress, endProgress } = useLoading();
+const { user } = storeToRefs(useAuth());
 
 const postList = reactive<PostDetail[]>([]);
 const isLoadingPosts = ref(true);
@@ -40,13 +42,14 @@ const isShowDeletePostModal = ref(false);
 const postDeleteId = ref<string>("");
 
 onBeforeMount(async () => {
-  const params = {
+  const params: GetPostsByUserRequest = {
+    userId: user.value._id,
     page: 0,
     pageSize: 10,
   };
   try {
     const response = await $api<GetPostsByUserResponse>(
-      "post/getByCurrentUser",
+      "post/getByUser",
       { method: "get", params }
     );
 

@@ -1,25 +1,29 @@
 import { defineStore } from "pinia";
-import type { UserCommonInfo } from "~/common/interfaces";
+import type { UserSchema } from "~/common/interfaces";
 
-const USER_DEFAULT: UserCommonInfo = {
+const USER_DEFAULT: UserSchema = {
   _id: "",
   firstName: "",
   lastName: "",
   email: "",
   avatar: "",
+  dob: "",
+  friends: [],
+  friendRequests: [],
+  friendRequestsSent: [],
 };
 
 export const useAuth = defineStore(
   "auth",
   () => {
     const token = ref("");
-    const user = ref<UserCommonInfo>(USER_DEFAULT);
+    const user = ref<UserSchema>(USER_DEFAULT);
 
-    const updateUser = (serverUser: UserCommonInfo) => {
+    const updateUser = (serverUser: UserSchema) => {
       user.value = serverUser;
     };
 
-    const login = (serverToken: string, serverUser: UserCommonInfo) => {
+    const login = (serverToken: string, serverUser: UserSchema) => {
       token.value = serverToken;
       user.value = serverUser;
     };

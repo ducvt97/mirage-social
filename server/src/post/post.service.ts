@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from 'src/schemas/post.schema';
-import { PostCreateDTO } from './dto/post-create-dto';
-import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/post-update-dto';
+import { PostCreateDTO } from './dto/create-post.dto';
+import { PostUpdateDTO, SystemPostUpdateDTO } from './dto/update-post.dto';
 import { CommentService } from 'src/comment/comment.service';
 import { PostStatusType } from 'src/common/constants/enums';
 
@@ -93,13 +93,18 @@ export class PostService {
     userId: string,
     page: number = 0,
     pageSize: number = 10,
+    isCurrentUser?: boolean,
   ): Promise<Post[]> {
     try {
-      const posts = await this.postModel.find({ userId }, null, {
-        skip: page * pageSize,
-        limit: pageSize,
-        sort: { createdAt: -1 },
-      });
+      const posts = await this.postModel.find(
+        { userId, ...(isCurrentUser && { status: PostStatusType.PUBLIC }) },
+        null,
+        {
+          skip: page * pageSize,
+          limit: pageSize,
+          sort: { createdAt: -1 },
+        },
+      );
 
       return posts;
     } catch (error) {

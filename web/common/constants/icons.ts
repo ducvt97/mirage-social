@@ -20,6 +20,9 @@ const Icons = {
   delete: "material-symbols-delete-outline",
   notification: "material-symbols-notifications-outline",
   logout: "ic-round-log-out",
+  personCheck: "material-symbols-person-check",
+  personAdd: "material-symbols-person-add-rounded",
+  personArrow: "tdesign-user-arrow-right-filled",
 };
 
 export default Icons;

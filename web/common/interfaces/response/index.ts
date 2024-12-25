@@ -18,3 +18,4 @@ export type {
   NotificationDetail,
   GetNotificationsByUserResponse,
 } from "./notification";
+export type { GetUserInfoResponse } from "./user";

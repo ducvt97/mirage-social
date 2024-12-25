@@ -14,16 +14,17 @@ import {
   GetWithPagingDTO,
   SearchDTO,
 } from 'src/common/dto/get-with-paging-dto';
-import { PostCreateDTO } from './dto/post-create-dto';
+import { PostCreateDTO } from './dto/create-post.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
 import { PostService } from './post.service';
-import { LikePostDTO, PostUpdateDTO } from './dto/post-update-dto';
+import { LikePostDTO, PostUpdateDTO } from './dto/update-post.dto';
 import { handleError, handleResponse } from 'src/utils/response.util';
 import { UserService } from 'src/user/user.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { createNotificationInstance } from 'src/utils/common.util';
 import { NotificationType } from 'src/common/constants/enums';
+import { GetPostsByUserDTO } from './dto/get-post.dto';
 
 @Controller('post')
 export class PostController {
@@ -71,14 +72,20 @@ export class PostController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('getByCurrentUser')
-  async getByCurrentUser(
-    @Query() { page, pageSize }: GetWithPagingDTO,
+  @Get('getByUser')
+  async getByUser(
+    @Query() { userId, page, pageSize }: GetPostsByUserDTO,
     @Headers('Authorization') token: string = '',
   ) {
-    const { sub: userId } = parseJWT(token);
+    const { sub: currentUserId } = parseJWT(token);
+    const isCurrentUser = userId === currentUserId;
 
-    const getPosts = this.postService.getPostByUser(userId, page, pageSize);
+    const getPosts = this.postService.getPostByUser(
+      userId,
+      page,
+      pageSize,
+      isCurrentUser,
+    );
     const getUser = this.userService.getUserById(userId);
     const [posts, user] = await Promise.all([getPosts, getUser]);
     const postsDetails = posts.map((item) => ({

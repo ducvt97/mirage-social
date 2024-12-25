@@ -1,9 +1,9 @@
-import type { UserCommonInfo } from "../common";
+import type { UserSchema } from "../schema";
 import type { Error, ServerResponse } from "../server-response";
 
 interface LoginResponseData {
   token: string;
-  user: UserCommonInfo;
+  user: UserSchema;
 }
 
 export interface LoginResponse extends ServerResponse {

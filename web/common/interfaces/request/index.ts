@@ -2,6 +2,7 @@ export type {
   CreatePostRequest,
   LikePostRequest,
   UpdatePostRequest,
+  GetPostsByUserRequest,
 } from "./post";
 export type { LoginRequest, RegisterRequest } from "./auth";
 export type {

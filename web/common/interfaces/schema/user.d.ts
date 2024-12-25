@@ -6,5 +6,6 @@ export interface UserSchema {
   lastName: string;
   dob: string;
   friends: string[];
-  posts: string[];
+  friendRequests: string[];
+  friendRequestsSent: string[];
 }
