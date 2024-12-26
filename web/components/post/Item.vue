@@ -105,8 +105,7 @@ const emits = defineEmits<{
 const { user } = useAuth();
 const { showError } = useToastMessage();
 const { startProgress, endProgress } = useLoading();
-const { openModal: openConfirmModal, setAction: setConfirmAction } =
-  useConfirmModal();
+const { openModal: openConfirmModal } = useConfirmModal();
 
 // States
 const likeLoading = ref(false);
@@ -145,11 +144,11 @@ const actionItems = computed(() => [
       iconClass: "text-red-600",
       click: () => {
         if (deletePost) {
-          setConfirmAction(() => {
-            deletePost(post.value._id);
-          });
           openConfirmModal({
             content: "Do you want to delete this post? This cannot be undone.",
+            onAction: () => {
+              deletePost(post.value._id);
+            },
           });
         }
       },

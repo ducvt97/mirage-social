@@ -97,7 +97,7 @@ export class PostService {
   ): Promise<Post[]> {
     try {
       const posts = await this.postModel.find(
-        { userId, ...(isCurrentUser && { status: PostStatusType.PUBLIC }) },
+        { userId, ...(!isCurrentUser && { status: PostStatusType.PUBLIC }) },
         null,
         {
           skip: page * pageSize,

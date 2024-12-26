@@ -37,8 +37,6 @@ export class NotificationGateway implements OnGatewayInit {
     const socket = this.users[userId];
     if (socket) {
       socket.emit('notification', notification); // Send notification to specific user
-      console.log(notification);
-      
     }
   }
 

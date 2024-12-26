@@ -1,4 +1,3 @@
-import type { ModalProps } from "~/common/interfaces";
 import type { ConfirmModalProps } from "~/common/interfaces";
 
 const defaultState: ConfirmModalProps = {
@@ -14,22 +13,16 @@ const defaultState: ConfirmModalProps = {
   showCloseIcon: true,
   showHeader: true,
   showFooter: true,
-  onAction: Function,
-  onClose: Function,
 };
 
 export const useConfirmModal = () => {
   const isOpen = useState("isConfirmModalOpen", () => false);
   const state = useState<ConfirmModalProps>("confirmState", () => defaultState);
-  let action = () => {};
-  let cancelAction = () => {};
 
   watchEffect(async () => {
     if (!isOpen.value) {
       setTimeout(() => {
         state.value = defaultState;
-        action = () => {};
-        cancelAction = () => {};
       }, 200);
     }
   });
@@ -43,13 +36,5 @@ export const useConfirmModal = () => {
     isOpen.value = false;
   };
 
-  const setAction = (actionFunction: { (): void }) => {
-    action = actionFunction;
-  };
-
-  const setCancelAction = (actionFunction: { (): void }) => {
-    cancelAction = actionFunction;
-  };
-
-  return { isOpen, state, openModal, closeModal, setAction, setCancelAction };
+  return { isOpen, state, openModal, closeModal };
 };

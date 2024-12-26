@@ -91,12 +91,9 @@ export class NotificationService {
         {},
         { skip: page * pageSize, limit: pageSize, sort: { updatedAt: -1 } },
       );
-      console.log(notifications);
 
       return notifications;
     } catch (error) {
-      console.log(error);
-
       Promise.reject('Something went wrong.');
     }
   }
