@@ -6,13 +6,6 @@
     />
     <PostList v-model:list="postList" :loading="isLoadingPosts" class="mt-4" />
 
-    <!-- Confirm Delete Post Modal -->
-    <ModalConfirm
-      v-model="isShowDeletePostModal"
-      content="Do you want to delete this post? This cannot be undone."
-      @on-action="deletePost"
-      @on-close="postDeleteId = ''"
-    />
     <!-- Create/Edit Post Modal -->
     <ModalCreateUpdatePost
       v-model="isShowEditPostModal"
@@ -48,8 +41,6 @@ const postList = reactive<PostDetail[]>([]);
 const isLoadingPosts = ref(true);
 const isShowEditPostModal = ref(false);
 const postEditing = ref<PostDetail | undefined>(undefined);
-const isShowDeletePostModal = ref(false);
-const postDeleteId = ref<string>("");
 
 const isMyProfile = computed(() => user.value._id === route.params.id);
 
@@ -92,11 +83,11 @@ const updatePostSuccess = (post: PostSchema) => {
   }
 };
 
-const deletePost = async () => {
+const deletePost = async (postId: string) => {
   try {
     startProgress();
     const res = await useApiClient<DeletePostResponse>(
-      `post/${postDeleteId.value}`,
+      `post/${postId}`,
       "delete"
     );
 
@@ -105,7 +96,7 @@ const deletePost = async () => {
       return;
     }
 
-    const index = postList.findIndex((item) => item._id === postDeleteId.value);
+    const index = postList.findIndex((item) => item._id === postId);
     if (index >= 0) {
       postList.splice(index, 1);
     }
@@ -121,11 +112,6 @@ const toggleEditPostModal = (isShow: boolean, postId: string) => {
   isShowEditPostModal.value = isShow;
 };
 
-const toggleDeleteModal = (isShow: boolean, postId: string) => {
-  postDeleteId.value = postId;
-  isShowDeletePostModal.value = isShow;
-};
-
 provide("toggleEditPostModal", toggleEditPostModal);
-provide("toggleDeleteModal", toggleDeleteModal);
+provide("deletePost", deletePost);
 </script>

@@ -12,3 +12,8 @@ export interface ModalProps {
   showHeader?: boolean;
   showFooter?: boolean;
 }
+
+export interface ConfirmModalProps extends ModalProps {
+  onAction?: Function;
+  onClose?: Function;
+}

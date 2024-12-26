@@ -1,30 +1,30 @@
 <template>
   <UModal v-model="isOpen">
     <UCard>
-      <template v-if="showHeader" #header>
+      <template v-if="state.showHeader" #header>
         <slot name="header">
           <ModalHeader
-            :title="title"
-            :show-close-icon="showCloseIcon"
-            @on-close="closeModal"
+            :title="state.title"
+            :show-close-icon="state.showCloseIcon"
+            @on-close="onCloseModal"
           />
         </slot>
       </template>
 
       <slot>
-        <div>{{ content }}</div>
+        <div>{{ state.content }}</div>
       </slot>
 
-      <template v-if="showFooter" #footer>
+      <template v-if="state.showFooter" #footer>
         <slot name="footer">
           <ModalFooter
-            :btnCancelText="btnCancelText"
-            :btnActionText="btnActionText"
-            :disabledBtnAction="disabledBtnAction"
-            :showBtnCancel="showBtnCancel"
-            :showBtnAction="showBtnAction"
+            :btnCancelText="state.btnCancelText"
+            :btnActionText="state.btnActionText"
+            :disabledBtnAction="state.disabledBtnAction"
+            :showBtnCancel="state.showBtnCancel"
+            :showBtnAction="state.showBtnAction"
             @on-action="performAction"
-            @on-close="closeModal"
+            @on-close="onCloseModal"
           />
         </slot>
       </template>
@@ -33,64 +33,20 @@
 </template>
 
 <script setup lang="ts">
-interface ModalProps {
-  title?: string;
-  content?: string;
-  btnCancelClasses?: string;
-  btnActionClasses?: string;
-  btnCancelText?: string;
-  btnActionText?: string;
-  disabledBtnAction?: boolean;
-  showBtnCancel?: boolean;
-  showBtnAction?: boolean;
-  showCloseIcon?: boolean;
-  showHeader?: boolean;
-  showFooter?: boolean;
-}
-
-// Props
-const props = withDefaults(defineProps<ModalProps>(), {
-  title: "Confirm",
-  content: "Do you want to perform this action?",
-  btnCancelText: "Cancel",
-  btnActionText: "OK",
-  disabledBtnAction: false,
-  showBtnCancel: true,
-  showBtnAction: true,
-  showCloseIcon: true,
-  showHeader: true,
-  showFooter: true,
-});
-const {
-  title,
-  content,
-  btnCancelText,
-  btnActionText,
-  disabledBtnAction,
-  showBtnCancel,
-  showBtnAction,
-  showCloseIcon,
-  showHeader,
-  showFooter,
-} = toRefs(props);
-
-// v-model
-const isOpen = defineModel({ required: true, default: false });
-
-// Events
-const emits = defineEmits<{
-  (e: "on-close"): any;
-  (e: "on-action"): any;
-}>();
+const { isOpen, state, closeModal } = useConfirmModal();
 
 // Methods
 const performAction = async () => {
-  await emits("on-action");
-  isOpen.value = false;
+  if (state.value.onAction) {
+    await state.value.onAction();
+  }
+  closeModal();
 };
 
-const closeModal = async () => {
-  await emits("on-close");
-  isOpen.value = false;
+const onCloseModal = async () => {
+  if (state.value.onClose) {
+    await state.value.onClose();
+  }
+  closeModal();
 };
 </script>

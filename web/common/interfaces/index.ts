@@ -50,4 +50,4 @@ export type {
 export type { PostDetail } from "./component";
 
 // Properties
-export type { ModalProps } from "./properties";
+export type { ModalProps, ConfirmModalProps } from "./properties";

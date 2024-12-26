@@ -1,1 +1,1 @@
-export type { ModalProps } from "./modal";
+export type { ModalProps, ConfirmModalProps } from "./modal";

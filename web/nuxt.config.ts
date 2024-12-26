@@ -10,4 +10,5 @@ export default defineNuxtConfig({
       serverEndpoint: "",
     },
   },
+  experimental: { renderJsonPayloads: false },
 });

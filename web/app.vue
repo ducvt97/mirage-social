@@ -5,6 +5,7 @@
     </NuxtLayout>
     <UNotifications />
     <AppLoading />
+    <ModalConfirm />
   </div>
 </template>
 

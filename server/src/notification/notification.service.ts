@@ -86,7 +86,6 @@ export class NotificationService {
     { page = 0, pageSize = 10 }: GetWithPagingDTO,
   ): Promise<Notification[]> {
     try {
-      console.log(userId);
       const notifications = await this.notificationModel.find(
         { userId },
         {},

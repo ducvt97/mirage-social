@@ -12,7 +12,10 @@
       </ULink>
 
       <div class="flex-1">
-        <ULink :to="`/${post.userDetails._id}`" class="font-semibold hover:underline">
+        <ULink
+          :to="`/${post.userDetails._id}`"
+          class="font-semibold hover:underline"
+        >
           {{ post.userDetails.firstName }} {{ post.userDetails.lastName }}
         </ULink>
         <div class="flex items-center text-xs mt-1">
@@ -66,12 +69,6 @@
       </div>
     </template>
   </UCard>
-  <!-- Modal Confirm Delete Comment -->
-  <ModalConfirm
-    v-model="isShowModalConfirmDeleteComment"
-    content="Do you want to delete this comment? This cannot be undone."
-    @on-action="deleteComment"
-  />
 </template>
 
 <script setup lang="ts">
@@ -108,6 +105,8 @@ const emits = defineEmits<{
 const { user } = useAuth();
 const { showError } = useToastMessage();
 const { startProgress, endProgress } = useLoading();
+const { openModal: openConfirmModal, setAction: setConfirmAction } =
+  useConfirmModal();
 
 // States
 const likeLoading = ref(false);
@@ -116,8 +115,6 @@ const getCommentsLoading = ref(false);
 const focusAddComment = ref(false);
 const commentList = reactive<CommentDetail[]>([]);
 const commentListPage = ref<number>(0);
-const isShowModalConfirmDeleteComment = ref(false);
-const commentDeleteId = ref<string>("");
 
 // Computed
 const statusIcon = computed(() =>
@@ -147,8 +144,13 @@ const actionItems = computed(() => [
       class: "text-red-600",
       iconClass: "text-red-600",
       click: () => {
-        if (toggleDeleteModal) {
-          toggleDeleteModal(true, post.value._id);
+        if (deletePost) {
+          setConfirmAction(() => {
+            deletePost(post.value._id);
+          });
+          openConfirmModal({
+            content: "Do you want to delete this post? This cannot be undone.",
+          });
         }
       },
     },
@@ -222,11 +224,11 @@ const onPressLike = async () => {
   }
 };
 
-const deleteComment = async () => {
+const deleteComment = async (commentId: string) => {
   try {
     startProgress();
     const res = await useApiClient<DeleteCommentResponse>(
-      `comment/${commentDeleteId.value}`,
+      `comment/${commentId}`,
       "delete"
     );
 
@@ -235,9 +237,7 @@ const deleteComment = async () => {
       return;
     }
 
-    const index = commentList.findIndex(
-      (item) => item._id === commentDeleteId.value
-    );
+    const index = commentList.findIndex((item) => item._id === commentId);
     if (index >= 0) {
       commentList.splice(index, 1);
     }
@@ -262,18 +262,10 @@ const onAddCommentSuccess = (comment: CommentDetail) => {
   commentList.push(comment);
 };
 
-const toggleModalConfirmDeleteComment = (
-  isShow: boolean,
-  commentId: string
-) => {
-  commentDeleteId.value = commentId;
-  isShowModalConfirmDeleteComment.value = isShow;
-};
-
 // Provides
-provide("toggleModalConfirmDeleteComment", toggleModalConfirmDeleteComment);
+provide("deleteComment", deleteComment);
 
 // Injects
 const toggleEditPostModal = inject<Function>("toggleEditPostModal");
-const toggleDeleteModal = inject<Function>("toggleDeleteModal");
+const deletePost = inject<Function>("deletePost");
 </script>

@@ -115,6 +115,8 @@ const emits = defineEmits<{
 // Composables
 const { user } = useAuth();
 const { showError } = useToastMessage();
+const { openModal: openConfirmModal, setAction: setConfirmAction } =
+  useConfirmModal();
 
 // Refs
 const isEdit = ref(false);
@@ -150,8 +152,14 @@ const actionItems = computed(() => [
       class: "text-red-600",
       iconClass: "text-red-600",
       click: () => {
-        if (toggleModalConfirmDeleteComment) {
-          toggleModalConfirmDeleteComment(true, comment.value._id);
+        if (deleteComment) {
+          setConfirmAction(() => {
+            deleteComment(comment.value._id);
+          });
+          openConfirmModal({
+            content:
+              "Do you want to delete this comment? This cannot be undone.",
+          });
         }
       },
     },
@@ -245,7 +253,5 @@ const editCommentSuccess = (comment: CommentSchema) => {
 };
 
 // Injects
-const toggleModalConfirmDeleteComment = inject<Function>(
-  "toggleModalConfirmDeleteComment"
-);
+const deleteComment = inject<Function>("deleteComment");
 </script>
