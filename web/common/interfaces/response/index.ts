@@ -3,7 +3,6 @@ export type {
   PostCreateResponse,
   GetPostsByUserResponse,
   LikePostResponse,
-  DeletePostResponse,
   PostUpdateResponse,
 } from "./post";
 export type {
@@ -11,7 +10,6 @@ export type {
   GetCommentsByPostResponse,
   GetCommentsByCommentResponse,
   LikeCommentResponse,
-  DeleteCommentResponse,
   UpdateCommentResponse,
 } from "./comment";
 export type {

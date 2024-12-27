@@ -25,11 +25,6 @@ export interface LikeCommentResponse extends ServerResponse {
   error?: string;
 }
 
-export interface DeleteCommentResponse extends ServerResponse {
-  data?: boolean;
-  error?: string;
-}
-
 export interface UpdateCommentResponse extends ServerResponse {
   data?: CommentSchema;
   error?: string;

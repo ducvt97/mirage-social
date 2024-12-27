@@ -30,3 +30,9 @@ export class UserUpdateDTO {
   @IsDateString()
   dob?: string;
 }
+
+export class UserUpdateFriendDTO {
+  @IsString()
+  @IsNotEmpty()
+  friendId: string;
+}

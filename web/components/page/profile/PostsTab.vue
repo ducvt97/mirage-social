@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import type {
-  DeletePostResponse,
+  BooleanDataResponse,
   GetPostsByUserRequest,
   GetPostsByUserResponse,
   PostDetail,
@@ -86,7 +86,7 @@ const updatePostSuccess = (post: PostSchema) => {
 const deletePost = async (postId: string) => {
   try {
     startProgress();
-    const res = await useApiClient<DeletePostResponse>(
+    const res = await useApiClient<BooleanDataResponse>(
       `post/${postId}`,
       "delete"
     );

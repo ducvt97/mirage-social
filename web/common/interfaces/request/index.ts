@@ -12,4 +12,5 @@ export type {
   LikeCommentRequest,
   UpdateCommentRequest,
 } from "./comment";
+export type { UserFriendRequest } from "./user";
 export type { GetWithPaging } from "./common";

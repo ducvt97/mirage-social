@@ -22,7 +22,9 @@ const Icons = {
   logout: "ic-round-log-out",
   personCheck: "material-symbols-person-check",
   personAdd: "material-symbols-person-add-rounded",
-  personArrow: "tdesign-user-arrow-right-filled",
+  personCancel: "material-symbols-person-cancel",
+  personArrowRight: "tdesign-user-arrow-right-filled",
+  personArrowLeft: "tdesign-user-arrow-left-filled",
 };
 
 export default Icons;

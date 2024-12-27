@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   Post,
   UseGuards,
@@ -12,6 +13,7 @@ import { UserService } from 'src/user/user.service';
 import { UserCreateDTO } from 'src/user/dto/user-create-dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { handleResponse } from 'src/utils/response.util';
+import { parseJWT } from 'src/utils/jwt.util';
 
 @Controller('auth')
 export class AuthController {
@@ -34,7 +36,9 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('verifyToken')
   @HttpCode(200)
-  verifyToken() {
-    return handleResponse();
+  async verifyToken(@Headers('Authorization') token: string = '') {
+    const { sub: userId } = parseJWT(token);
+    const user = await this.userService.getUserById(userId);
+    return handleResponse(user);
   }
 }

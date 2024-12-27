@@ -75,7 +75,7 @@
 import { PostStatusType } from "~/common/constants/enums";
 import Icons from "~/common/constants/icons";
 import type {
-  DeleteCommentResponse,
+  BooleanDataResponse,
   GetCommentsByPostRequest,
   GetCommentsByPostResponse,
   LikePostRequest,
@@ -226,7 +226,7 @@ const onPressLike = async () => {
 const deleteComment = async (commentId: string) => {
   try {
     startProgress();
-    const res = await useApiClient<DeleteCommentResponse>(
+    const res = await useApiClient<BooleanDataResponse>(
       `comment/${commentId}`,
       "delete"
     );

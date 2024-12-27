@@ -9,3 +9,8 @@ export interface ServerResponse {
   data?: any;
   error?: string | Error | null;
 }
+
+export interface BooleanDataResponse extends ServerResponse {
+  data?: boolean;
+  error?: string;
+}

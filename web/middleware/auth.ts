@@ -1,12 +1,19 @@
+import type { GetUserInfoResponse } from "~/common/interfaces";
+
 export default defineNuxtRouteMiddleware(async () => {
   const { $api } = useNuxtApp();
-  const { token, logout } = useAuth();
+  const { token, logout, updateUser } = useAuth();
 
   if (!token) {
     return navigateTo("/login");
   } else {
     try {
-      await $api("auth/verifyToken", { method: "get" });
+      const res = await $api<GetUserInfoResponse>("auth/verifyToken", {
+        method: "get",
+      });
+      if (res?.success && res.data) {
+        updateUser(res.data);
+      }
     } catch (error) {
       if (error.statusCode === 401) {
         logout();

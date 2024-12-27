@@ -1,6 +1,10 @@
 // Common
 export type { UserCommonInfo } from "./common";
-export type { Error, ServerResponse } from "./server-response";
+export type {
+  Error,
+  ServerResponse,
+  BooleanDataResponse,
+} from "./server-response";
 
 // Request
 export type {
@@ -15,6 +19,7 @@ export type {
   GetCommentsByCommentRequest,
   LikeCommentRequest,
   UpdateCommentRequest,
+  UserFriendRequest,
   GetWithPaging,
 } from "./request";
 
@@ -25,13 +30,11 @@ export type {
   PostCreateResponse,
   GetPostsByUserResponse,
   LikePostResponse,
-  DeletePostResponse,
   PostUpdateResponse,
   CommentOnPostResponse,
   GetCommentsByPostResponse,
   GetCommentsByCommentResponse,
   LikeCommentResponse,
-  DeleteCommentResponse,
   UpdateCommentResponse,
   NotificationDetail,
   GetNotificationsByUserResponse,

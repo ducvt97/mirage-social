@@ -31,11 +31,6 @@ export interface LikePostResponse extends ServerResponse {
   error?: string;
 }
 
-export interface DeletePostResponse extends ServerResponse {
-  data?: boolean;
-  error?: string;
-}
-
 export interface PostUpdateResponse extends ServerResponse {
   data?: PostSchema;
   error?: string;
