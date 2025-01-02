@@ -13,7 +13,10 @@ export default defineNuxtRouteMiddleware(async () => {
       });
       if (res?.success && res.data) {
         updateUser(res.data);
+        return;
       }
+      logout();
+      return navigateTo("/login");
     } catch (error) {
       if (error.statusCode === 401) {
         logout();

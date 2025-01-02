@@ -3,19 +3,21 @@
     <USkeleton class="h-40 w-full" />
     <div class="relative flex justify-between items-center pl-36 pr-3 py-4">
       <div class="h-28 w-28 p-1 bg-white rounded-full absolute -top-14 left-6">
-        <UAvatar
-          :src="user?.avatar || currentUser.avatar"
-          size="3xl"
+        <USkeleton
+          v-if="isLoading"
           class="h-full w-full"
+          :ui="{ rounded: 'rounded-full' }"
+        />
+        <UAvatar
+          v-else
+          :src="user.avatar"
+          size="3xl"
           :ui="{ size: { '3xl': 'h-full w-full' } }"
         />
       </div>
-      <div class="text-2xl">
-        {{
-          user
-            ? `${user.firstName} ${user.lastName}`
-            : `${currentUser.firstName} ${currentUser.lastName}`
-        }}
+      <USkeleton v-if="isLoading" class="h-6 w-48" />
+      <div v-else class="text-2xl">
+        {{ `${user?.firstName} ${user?.lastName}` }}
       </div>
       <ButtonAddFriend v-if="!isCurrentUser" :friend-id="userId" />
     </div>
@@ -41,7 +43,8 @@
     >
       <template #posts>
         <PageProfilePostsTab
-          :user="user || currentUser"
+          v-show="!isLoading"
+          :user="user"
           :is-current-user="isCurrentUser"
         />
       </template>
@@ -52,8 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import Icons from "~/common/constants/icons";
-import type { GetUserInfoResponse, UserSchema } from "~/common/interfaces";
+import type { GetUserInfoResponse } from "~/common/interfaces";
 
 definePageMeta({ middleware: ["auth"] });
 
@@ -75,26 +77,28 @@ const userId = useRoute().params.id as string;
 
 const { $api } = useNuxtApp();
 
-const user = ref<UserSchema>();
-
 const { user: currentUser } = storeToRefs(useAuth());
+const user = ref(currentUser.value);
+const isLoading = ref(true);
 const isCurrentUser = computed(() => currentUser.value._id === userId);
 
 onBeforeMount(async () => {
   try {
-    if (!isCurrentUser) {
+    if (!isCurrentUser.value) {
       const response = await $api<GetUserInfoResponse>(`user/${userId}`, {
         method: "get",
       });
 
-      if (!response?.success) {
-        showError(response?.error || "");
+      if (!response?.success || !response.data) {
+        useError();
         return;
       }
       user.value = response.data;
     }
   } catch (error) {
-    showError(error.message);
+    showError(error);
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>

@@ -28,8 +28,13 @@ export class UserController {
   }
 
   @Get(':id')
-  getById(@Param('id') id: string): Promise<User> {
-    return this.userService.getUserById(id);
+  async getById(@Param('id') id: string) {
+    try {
+      const user = await this.userService.getUserById(id);
+      return handleResponse(user);
+    } catch (error) {
+      return handleError(error);
+    }
   }
 
   @Post()

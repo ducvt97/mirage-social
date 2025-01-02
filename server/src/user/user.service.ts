@@ -15,7 +15,12 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id).exec();
+    try {
+      const user = await this.userModel.findById(id);
+      return user;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   async getUserByEmail(email: string): Promise<User> {
@@ -53,14 +58,15 @@ export class UserService {
       ]);
 
       const isFriend =
-        user.friends.includes(friendId) || friend.friends.includes(userId);
+        user.friends.find((item) => String(item) === friendId) ||
+        friend.friends.find((item) => String(item) === userId);
       if (isFriend) {
         return Promise.reject('You both are already friends.');
       }
 
       const isSentRequest =
-        user.friendRequestsSent.includes(friendId) ||
-        friend.friendRequests.includes(userId);
+        user.friendRequestsSent.find((item) => String(item) === friendId) ||
+        friend.friendRequests.find((item) => String(item) === userId);
       if (isSentRequest) {
         return Promise.reject(
           'You had sent friend request to this person. Please wait to be accepted.',
@@ -88,10 +94,10 @@ export class UserService {
       ]);
 
       const userRequestIndex = user.friendRequestsSent.findIndex(
-        (item) => item === friendId,
+        (item) => String(item) === friendId,
       );
       const requestIndex = friend.friendRequests.findIndex(
-        (item) => item === userId,
+        (item) => String(item) === userId,
       );
       if (userRequestIndex === -1 || requestIndex === -1) {
         return Promise.reject('You did not add this person as friend.');
@@ -123,19 +129,19 @@ export class UserService {
         return Promise.reject('You both are already friends.');
       }
 
-      const userRequestIndex = user.friendRequestsSent.findIndex(
-        (item) => item === friendId,
+      const userRequestIndex = user.friendRequests.findIndex(
+        (item) => String(item) === friendId,
       );
-      const requestIndex = friend.friendRequests.findIndex(
-        (item) => item === userId,
+      const requestIndex = friend.friendRequestsSent.findIndex(
+        (item) => String(item) === userId,
       );
       if (userRequestIndex === -1 || requestIndex === -1) {
         return Promise.reject('This person did not add you as friend.');
       }
 
-      user.friendRequestsSent.splice(userRequestIndex, 1);
+      user.friendRequests.splice(userRequestIndex, 1);
       user.friends.unshift(friendId);
-      friend.friendRequests.splice(requestIndex, 1);
+      friend.friendRequestsSent.splice(requestIndex, 1);
       friend.friends.unshift(userId);
       await Promise.all([friend.save(), user.save()]);
 
@@ -155,19 +161,18 @@ export class UserService {
         this.getUserById(friendId),
       ]);
 
-      const isSentRequest =
-        user.friendRequestsSent.includes(friendId) &&
-        friend.friendRequests.includes(userId);
-      if (!isSentRequest) {
+      const userRequestIndex = user.friendRequests.findIndex(
+        (item) => String(item) === friendId,
+      );
+      const requestIndex = friend.friendRequestsSent.findIndex(
+        (item) => String(item) === userId,
+      );
+      if (userRequestIndex === -1 || requestIndex === -1) {
         return Promise.reject('This person did not add you as friend.');
       }
 
-      user.friendRequestsSent = user.friendRequestsSent.filter(
-        (item) => item !== friendId,
-      );
-      friend.friendRequests = friend.friendRequests.filter(
-        (item) => item !== userId,
-      );
+      user.friendRequests.splice(userRequestIndex, 1);
+      friend.friendRequestsSent.splice(requestIndex, 1);
       await Promise.all([friend.save(), user.save()]);
 
       return true;
@@ -183,14 +188,18 @@ export class UserService {
         this.getUserById(friendId),
       ]);
 
-      const isFriend =
-        user.friends.includes(friendId) && friend.friends.includes(userId);
-      if (isFriend) {
+      const userFriendIndex = user.friends.findIndex(
+        (item) => String(item) === friendId,
+      );
+      const friendUserIndex = friend.friends.findIndex(
+        (item) => String(item) === userId,
+      );
+      if (userFriendIndex === -1 || friendUserIndex === -1) {
         return Promise.reject('You both are not friends.');
       }
 
-      user.friends = user.friends.filter((item) => item !== friendId);
-      friend.friends = friend.friends.filter((item) => item !== userId);
+      user.friends.splice(userFriendIndex, 1);
+      friend.friends.splice(friendUserIndex, 1);
       await Promise.all([friend.save(), user.save()]);
 
       return true;
