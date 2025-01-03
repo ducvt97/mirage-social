@@ -19,7 +19,7 @@
       <div v-else class="text-2xl">
         {{ `${user?.firstName} ${user?.lastName}` }}
       </div>
-      <ButtonAddFriend v-if="!isCurrentUser && !isLoading" :friend="user" />
+      <ButtonAddFriend v-if="!isCurrentUser" :friend-id="userId" />
     </div>
     <UDivider class="my-3" />
     <UTabs

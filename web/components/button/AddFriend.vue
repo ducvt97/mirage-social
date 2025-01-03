@@ -46,17 +46,12 @@ import type {
   BooleanDataResponse,
   GetUserInfoResponse,
   UserFriendRequest,
-  UserSchema,
 } from "~/common/interfaces";
 
 interface Props {
-  friend: UserSchema;
+  friendId: string;
 }
 const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  (e: "action-success", newFriend: UserSchema): any;
-}>();
 
 const { updateUser } = useAuth();
 const { showError } = useToastMessage();
@@ -91,25 +86,25 @@ const replyRequestActions: DropdownItem[][] = [
   ],
 ];
 
-const { friend } = toRefs(props);
+const { friendId } = toRefs(props);
 const { user: currentUser } = storeToRefs(useAuth());
 const isLoading = ref(false);
 
 const isFriend = computed(() =>
-  friend.value.friends.includes(currentUser.value._id)
+  currentUser.value.friends.includes(friendId.value)
 );
 const isSentFriendRequest = computed(() =>
-  friend.value.friendRequests.includes(currentUser.value._id)
+  currentUser.value.friendRequestsSent.includes(friendId.value)
 );
 const isWaitingForAcceptFriendRequest = computed(() =>
-  friend.value.friendRequestsSent.includes(currentUser.value._id)
+  currentUser.value.friendRequests.includes(friendId.value)
 );
 
 const execAction = async (actionUrl: string) => {
   try {
     isLoading.value = true;
     const reqBody: UserFriendRequest = {
-      friendId: friend.value._id,
+      friendId: friendId.value,
     };
 
     const res = await useApiClient<BooleanDataResponse>(
@@ -134,7 +129,7 @@ const execAction = async (actionUrl: string) => {
 const fetchUserInfo = async () => {
   try {
     const response = await useApiClient<GetUserInfoResponse>(
-      `user/${friend.value._id}`,
+      `user/${currentUser.value._id}`,
       "get"
     );
 
@@ -145,7 +140,12 @@ const fetchUserInfo = async () => {
 
     if (response.data) {
       const user = response.data;
-      emit("action-success", user);
+      updateUser({
+        ...currentUser.value,
+        friends: user.friends,
+        friendRequests: user.friendRequests,
+        friendRequestsSent: user.friendRequestsSent,
+      });
     }
   } catch (error) {
     showError(error.message);
