@@ -46,12 +46,17 @@ import type {
   BooleanDataResponse,
   GetUserInfoResponse,
   UserFriendRequest,
+  UserSchema,
 } from "~/common/interfaces";
 
 interface Props {
-  friendId: string;
+  friend: UserSchema;
 }
 const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  (e: "action-success", newFriend: UserSchema): any;
+}>();
 
 const { updateUser } = useAuth();
 const { showError } = useToastMessage();
@@ -86,25 +91,25 @@ const replyRequestActions: DropdownItem[][] = [
   ],
 ];
 
-const { friendId } = toRefs(props);
+const { friend } = toRefs(props);
 const { user: currentUser } = storeToRefs(useAuth());
 const isLoading = ref(false);
 
 const isFriend = computed(() =>
-  currentUser.value.friends.includes(friendId.value)
+  friend.value.friends.includes(currentUser.value._id)
 );
 const isSentFriendRequest = computed(() =>
-  currentUser.value.friendRequestsSent.includes(friendId.value)
+  friend.value.friendRequests.includes(currentUser.value._id)
 );
 const isWaitingForAcceptFriendRequest = computed(() =>
-  currentUser.value.friendRequests.includes(friendId.value)
+  friend.value.friendRequestsSent.includes(currentUser.value._id)
 );
 
 const execAction = async (actionUrl: string) => {
   try {
     isLoading.value = true;
     const reqBody: UserFriendRequest = {
-      friendId: friendId.value,
+      friendId: friend.value._id,
     };
 
     const res = await useApiClient<BooleanDataResponse>(
@@ -129,7 +134,7 @@ const execAction = async (actionUrl: string) => {
 const fetchUserInfo = async () => {
   try {
     const response = await useApiClient<GetUserInfoResponse>(
-      `user/${currentUser.value._id}`,
+      `user/${friend.value._id}`,
       "get"
     );
 
@@ -140,12 +145,7 @@ const fetchUserInfo = async () => {
 
     if (response.data) {
       const user = response.data;
-      updateUser({
-        ...currentUser.value,
-        friends: user.friends,
-        friendRequests: user.friendRequests,
-        friendRequestsSent: user.friendRequestsSent,
-      });
+      emit("action-success", user);
     }
   } catch (error) {
     showError(error.message);
