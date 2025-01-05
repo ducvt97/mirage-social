@@ -1,23 +1,33 @@
 <template>
   <UCard>
     <div class="flex gap-3 items-center">
-      <ULink :to="`/${post.userDetails._id}`">
-        <UAvatar
-          size="md"
-          :src="
-            post.userDetails.avatar ||
-            'https://avatars.githubusercontent.com/u/739984?v=4'
-          "
-        />
-      </ULink>
+      <UPopover mode="hover">
+        <ULink :to="`/${post.userDetails._id}`">
+          <UAvatar
+            size="md"
+            :src="
+              post.userDetails.avatar ||
+              'https://avatars.githubusercontent.com/u/739984?v=4'
+            "
+          />
+        </ULink>
+        <template #panel>
+          <CardFriendPopover :user="post.userDetails" />
+        </template>
+      </UPopover>
 
       <div class="flex-1">
-        <ULink
-          :to="`/${post.userDetails._id}`"
-          class="font-semibold hover:underline"
-        >
-          {{ post.userDetails.firstName }} {{ post.userDetails.lastName }}
-        </ULink>
+        <UPopover mode="hover">
+          <ULink
+            :to="`/${post.userDetails._id}`"
+            class="font-semibold hover:underline"
+          >
+            {{ post.userDetails.firstName }} {{ post.userDetails.lastName }}
+          </ULink>
+          <template #panel>
+            <CardFriendPopover :user="post.userDetails" />
+          </template>
+        </UPopover>
         <div class="flex items-center text-xs mt-1">
           <AppIcon :name="statusIcon" size="xs" class="mr-1" />
           {{ post.status }}

@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   dev: true,
   runtimeConfig: {
     public: {
-      serverEndpoint: "",
+      serverEndpoint: process.env.NUXT_SERVER_ENDPOINT,
     },
   },
 });

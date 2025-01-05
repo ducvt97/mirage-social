@@ -25,6 +25,7 @@ const Icons = {
   personCancel: "material-symbols-person-cancel",
   personArrowRight: "tdesign-user-arrow-right-filled",
   personArrowLeft: "tdesign-user-arrow-left-filled",
+  message: "mdi-facebook-messenger",
 };
 
 export default Icons;

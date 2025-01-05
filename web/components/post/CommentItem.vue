@@ -9,15 +9,20 @@
   />
   <div v-else>
     <div class="flex gap-3 items-center">
-      <ULink :to="`/${comment.userId}`">
-        <UAvatar
-          size="md"
-          :src="
-            comment.userDetails.avatar ||
-            'https://avatars.githubusercontent.com/u/739984?v=4'
-          "
-        />
-      </ULink>
+      <UPopover mode="hover">
+        <ULink :to="`/${comment.userId}`">
+          <UAvatar
+            size="md"
+            :src="
+              comment.userDetails.avatar ||
+              'https://avatars.githubusercontent.com/u/739984?v=4'
+            "
+          />
+        </ULink>
+        <template #panel>
+          <CardFriendPopover :user="comment.userDetails" />
+        </template>
+      </UPopover>
       <div class="flex flex-1 gap-3 relative">
         <UAlert
           class="flex-1"
@@ -27,12 +32,17 @@
           :description="comment.caption"
         >
           <template #title="{ title }">
-            <ULink
-              :to="`/${comment.userId}`"
-              class="font-semibold hover:underline"
-            >
-              {{ title }}
-            </ULink>
+            <UPopover mode="hover">
+              <ULink
+                :to="`/${comment.userId}`"
+                class="font-semibold hover:underline"
+              >
+                {{ title }}
+              </ULink>
+              <template #panel>
+                <CardFriendPopover :user="comment.userDetails" />
+              </template>
+            </UPopover>
           </template>
         </UAlert>
         <UDropdown :items="actionItems" :popper="{ placement: 'bottom-end' }">
