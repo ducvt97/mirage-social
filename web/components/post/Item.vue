@@ -1,7 +1,7 @@
 <template>
   <UCard>
     <div class="flex gap-3 items-center">
-      <UPopover mode="hover">
+      <UPopover mode="hover" :popper="{ placement: 'bottom-start' }">
         <ULink :to="`/${post.userDetails._id}`">
           <UAvatar
             size="md"
@@ -16,8 +16,8 @@
         </template>
       </UPopover>
 
-      <div class="flex-1">
-        <UPopover mode="hover">
+      <div>
+        <UPopover mode="hover" :popper="{ placement: 'bottom-start' }">
           <ULink
             :to="`/${post.userDetails._id}`"
             class="font-semibold hover:underline"
@@ -33,7 +33,11 @@
           {{ post.status }}
         </div>
       </div>
-      <UDropdown :items="actionItems" :popper="{ placement: 'bottom-end' }">
+      <UDropdown
+        class="ml-auto"
+        :items="actionItems"
+        :popper="{ placement: 'bottom-end' }"
+      >
         <UButton variant="ghost" :icon="Icons.more" />
       </UDropdown>
     </div>

@@ -9,7 +9,7 @@
   />
   <div v-else>
     <div class="flex gap-3 items-center">
-      <UPopover mode="hover">
+      <UPopover mode="hover" :popper="{ placement: 'bottom-start' }">
         <ULink :to="`/${comment.userId}`">
           <UAvatar
             size="md"
@@ -30,9 +30,10 @@
             comment.userDetails.firstName + ' ' + comment.userDetails.lastName
           "
           :description="comment.caption"
+          :ui="{ title: 'w-fit' }"
         >
           <template #title="{ title }">
-            <UPopover mode="hover">
+            <UPopover mode="hover" :popper="{ placement: 'bottom-start' }">
               <ULink
                 :to="`/${comment.userId}`"
                 class="font-semibold hover:underline"

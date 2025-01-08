@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { Post } from './post.schema';
 import { IsDateString, IsEmail, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcrypt';
 

@@ -1,6 +1,6 @@
 <template>
   <div class="w-80 p-3">
-    <div class="flex w-full">
+    <div class="flex w-full gap-x-3">
       <ULink :to="`/${user._id}`">
         <UAvatar
           size="md"
@@ -19,11 +19,11 @@
           {{ user.firstName }} {{ user.lastName }}
         </ULink>
         <div class="flex items-center text-xs mt-1">
-          sdsdfsdfdsfdsfdsf
+          Information
         </div>
       </div>
     </div>
-    <div class="flex w-full gap-x-4">
+    <div class="flex w-full gap-x-4 mt-3 justify-end">
       <ButtonAddFriend :friend-id="user._id" />
       <UButton label="Message" :icon="Icons.message" />
     </div>

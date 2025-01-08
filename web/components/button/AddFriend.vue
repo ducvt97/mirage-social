@@ -107,17 +107,11 @@ const execAction = async (actionUrl: string) => {
       friendId: friendId.value,
     };
 
-    const res = await useApiClient<BooleanDataResponse>(
+    await useApiClient<BooleanDataResponse>(
       `user/${actionUrl}`,
       "post",
       { body: reqBody }
     );
-
-    if (!res?.success || !res.data) {
-      showError(res?.error || "");
-      return;
-    }
-
     await fetchUserInfo();
   } catch (error) {
     showError(error);
