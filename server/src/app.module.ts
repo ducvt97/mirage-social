@@ -9,6 +9,7 @@ import { PostModule } from './post/post.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommentModule } from './comment/comment.module';
 import { NotificationModule } from './notification/notification.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotificationModule } from './notification/notification.module';
     PostModule,
     CommentModule,
     NotificationModule,
+    MessageModule,
     MongooseModule.forRoot('mongodb://localhost:27017/mirage'),
   ],
   controllers: [AppController],
