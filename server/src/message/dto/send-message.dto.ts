@@ -8,8 +8,9 @@ export class SendMessageDTO {
   @IsOptional()
   content?: string;
 
+  @IsOptional()
   @IsMongoId()
-  senderId: string;
+  senderId?: string;
 
   @IsOptional()
   @IsMongoId()
