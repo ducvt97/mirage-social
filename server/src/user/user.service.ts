@@ -207,4 +207,33 @@ export class UserService {
       return Promise.reject(error);
     }
   }
+
+  async addNewMessage(userId: string, conversationId: string): Promise<User> {
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        return Promise.reject('User not found.');
+      }
+
+      const conversationIndex = user.conversations.findIndex(
+        (item) => String(item) === conversationId,
+      );
+      if (conversationIndex !== -1) {
+        user.conversations.splice(conversationIndex, 1);
+      }
+      user.conversations.unshift(conversationId);
+
+      const isConversationUnread = user.unreadConversations.find(
+        (item) => String(item) === conversationId,
+      );
+      if (!isConversationUnread) {
+        user.unreadConversations.push(conversationId);
+      }
+
+      await user.save();
+      return user;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 }

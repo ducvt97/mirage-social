@@ -35,15 +35,15 @@ export class MessageController {
           const conversation = await this.messageService.findDirectConversation(
             [userId, receiverId],
           );
+          let message: any = {};
 
           if (conversation) {
-            const message = await this.messageService.addMessage({
+            message = await this.messageService.addMessage({
               text,
               content,
               senderId: userId,
               conversationId: String(conversation._id),
             });
-            return handleResponse(message);
           } else {
             const receiver = await this.userService.getUserById(receiverId);
             if (!receiver) {
@@ -58,14 +58,20 @@ export class MessageController {
                 members: [userId, receiverId],
               });
 
-            const message = await this.messageService.addMessage({
+            message = await this.messageService.addMessage({
               text,
               content,
               senderId: userId,
               conversationId: String(newConversation._id),
             });
-            return handleResponse(message);
           }
+
+          const [user] = await Promise.all([
+            this.userService.addNewMessage(userId, message.conversationId),
+            this.userService.addNewMessage(receiverId, message.conversationId),
+          ]);
+
+          return handleResponse({ message, user });
         }
 
         return handleError('Something went wrong.');

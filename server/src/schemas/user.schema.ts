@@ -52,6 +52,18 @@ export class User {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   })
   friendRequestsSent: string[];
+
+  @Prop({
+    default: [],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' }],
+  })
+  conversations: string[];
+
+  @Prop({
+    default: [],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' }],
+  })
+  unreadConversations: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
