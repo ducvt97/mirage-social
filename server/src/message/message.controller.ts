@@ -6,13 +6,14 @@ import { handleResponse, handleError } from 'src/utils/response.util';
 import { SendMessageDTO } from './dto/send-message.dto';
 import { MessageService } from './message.service';
 import { UserService } from 'src/user/user.service';
+import { NotificationGateway } from 'src/notification/notification.gateway';
 
 @Controller('message')
 export class MessageController {
   constructor(
     private messageService: MessageService,
     private userService: UserService,
-    private notificationService: NotificationService,
+    private notificationGateway: NotificationGateway,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -71,6 +72,7 @@ export class MessageController {
             this.userService.addNewMessage(receiverId, message.conversationId),
           ]);
 
+          this.notificationGateway.sendMessageNotification(receiverId, message);
           return handleResponse({ message, user });
         }
 
