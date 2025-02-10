@@ -8,6 +8,7 @@ import {
   ConversationDocument,
 } from 'src/schemas/conversation.schema';
 import { CreateConversationDTO } from './dto/conversation.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class MessageService {
@@ -15,6 +16,7 @@ export class MessageService {
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(Conversation.name)
     private conversationModel: Model<ConversationDocument>,
+    private userService: UserService,
   ) {}
 
   /*** Conversation Services Start ***/
@@ -36,6 +38,27 @@ export class MessageService {
     try {
       const conversation =
         await this.conversationModel.findById(conversationId);
+      return conversation;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async userGetConversationById(
+    userId: string,
+    conversationId: string,
+  ): Promise<Conversation> {
+    try {
+      const conversation =
+        await this.conversationModel.findById(conversationId);
+      if (!conversation.isGroup) {
+        const friendId = conversation.members.find(
+          (item) => String(item) !== userId,
+        );
+        const friend = await this.userService.getUserById(friendId);
+        conversation.name = `${friend.firstName} ${friend.lastName}`;
+        conversation.avatar = friend.avatar;
+      }
       return conversation;
     } catch (error) {
       return Promise.reject(error);

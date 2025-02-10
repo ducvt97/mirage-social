@@ -8,25 +8,20 @@
       :ui="{ base: '-mx-2 rounded-none ring-0', background: '' }"
     >
       <UAvatar :src="avatar" size="lg" />
-      <template #content>
-        <AppIcon :name="icon" />
-      </template>
     </UChip>
-    <AppIcon v-else :name="icon" />
     <div class="line-clamp-2">
-      <span v-if="userFullname" class="font-bold">{{ userFullname }} </span>
-      {{ label }}
+      <div v-if="name" class="font-bold mb-1">{{ name }}</div>
+      <div>{{ message }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 interface Props {
-  avatar?: string;
-  userFullname?: string;
-  label: string;
-  icon: string;
+  avatar: string;
+  name: string;
+  message: string;
 }
 const props = defineProps<Props>();
-const { avatar, userFullname, label, icon } = toRefs(props);
+const { avatar, name, message } = toRefs(props);
 </script>

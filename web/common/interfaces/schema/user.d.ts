@@ -8,4 +8,6 @@ export interface UserSchema {
   friends: string[];
   friendRequests: string[];
   friendRequestsSent: string[];
+  conversations: string[];
+  unreadConversations: string[];
 }

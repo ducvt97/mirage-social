@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards, Headers } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Headers,
+  Get,
+  Query,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { NotificationService } from 'src/notification/notification.service';
 import { parseJWT } from 'src/utils/jwt.util';
@@ -7,6 +15,7 @@ import { SendMessageDTO } from './dto/send-message.dto';
 import { MessageService } from './message.service';
 import { UserService } from 'src/user/user.service';
 import { NotificationGateway } from 'src/notification/notification.gateway';
+import { GetWithPagingDTO } from 'src/common/dto/get-with-paging-dto';
 
 @Controller('message')
 export class MessageController {
@@ -81,5 +90,20 @@ export class MessageController {
     } catch (error) {
       return handleError(error);
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('getUserConversations')
+  async getUserConversations(
+    @Query() { page = 1, pageSize = 10 }: GetWithPagingDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
+    const user = await this.userService.getUserById(userId);
+    if (!user) {
+      return handleError('User does not exist.');
+    }
+    try {
+    } catch (error) {}
   }
 }

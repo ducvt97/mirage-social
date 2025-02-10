@@ -17,7 +17,7 @@
       <UButton
         size="lg"
         variant="outline"
-        :icon="Icons.notification"
+        :icon="Icons.message"
         :ui="{ rounded: 'rounded-full' }"
       />
     </UChip>
@@ -31,11 +31,10 @@
       </div>
     </template>
     <template #item="{ item }">
-      <AppNotificationItem
-        :icon="item.icon"
-        :label="item.label"
+      <AppMessageItem
+        :name="item.icon"
+        :message="item.label"
         :avatar="item.avatar.src"
-        :user-fullname="item.labelClass"
       />
     </template>
     <template #empty="{ item }">
@@ -53,6 +52,7 @@ import type {
   NotificationDetail,
 } from "~/common/interfaces/response";
 import { NotificationType } from "~/common/constants/enums";
+import { AppMessageItem } from "#build/components";
 
 // Composables
 const { $config } = useNuxtApp();
