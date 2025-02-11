@@ -90,4 +90,24 @@ export class MessageService {
       return Promise.reject(error);
     }
   }
+
+  async getMessageById(messageId: string): Promise<MessageDocument> {
+    try {
+      const message = await this.messageModel.findById(messageId);
+      return message;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getLastMessageOfConversation(
+    conversationId: string,
+  ): Promise<Message> {
+    try {
+      const message = await this.messageModel.findOne({ conversationId });
+      return message;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 }

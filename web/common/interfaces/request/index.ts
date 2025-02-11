@@ -14,3 +14,4 @@ export type {
 } from "./comment";
 export type { UserFriendRequest } from "./user";
 export type { GetWithPaging } from "./common";
+export type { SendMessageRequest } from "./message";

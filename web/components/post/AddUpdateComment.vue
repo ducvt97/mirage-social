@@ -46,8 +46,8 @@ import type {
   CommentSchema,
   UpdateCommentRequest,
   UpdateCommentResponse,
+  CommentDetail,
 } from "~/common/interfaces";
-import type { CommentDetail } from "~/common/interfaces/component";
 
 interface Props {
   postId: string;

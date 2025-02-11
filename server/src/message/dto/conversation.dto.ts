@@ -1,16 +1,17 @@
-import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateConversationDTO {
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
 
-  @IsNotEmpty()
-  avatar: string;
+  @IsString()
+  @IsOptional()
+  avatar?: string;
 
   @IsOptional()
   isGroup: boolean = false;
 
-  @IsOptional()
+  @IsArray()
   members: string[] = [];
 }

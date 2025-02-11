@@ -7,10 +7,10 @@ export type ConversationDocument = mongoose.HydratedDocument<Conversation>;
 export class Conversation {
   _id: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   avatar: string;
 
   @Prop({ default: false })

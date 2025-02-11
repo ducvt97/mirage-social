@@ -95,8 +95,8 @@ import type {
   LikePostRequest,
   LikePostResponse,
   PostDetail,
+  CommentDetail,
 } from "~/common/interfaces";
-import type { CommentDetail } from "~/common/interfaces/component";
 
 // Props
 interface Props {

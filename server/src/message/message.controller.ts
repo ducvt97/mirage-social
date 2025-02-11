@@ -16,6 +16,8 @@ import { MessageService } from './message.service';
 import { UserService } from 'src/user/user.service';
 import { NotificationGateway } from 'src/notification/notification.gateway';
 import { GetWithPagingDTO } from 'src/common/dto/get-with-paging-dto';
+import { Conversation } from 'src/schemas/conversation.schema';
+import { Message } from 'src/schemas/message.schema';
 
 @Controller('message')
 export class MessageController {
@@ -62,8 +64,6 @@ export class MessageController {
 
             const newConversation =
               await this.messageService.createConversation({
-                name: `${receiver.firstName} ${receiver.lastName}`,
-                avatar: receiver.avatar,
                 isGroup: false,
                 members: [userId, receiverId],
               });
@@ -95,15 +95,50 @@ export class MessageController {
   @UseGuards(JwtAuthGuard)
   @Get('getUserConversations')
   async getUserConversations(
-    @Query() { page = 1, pageSize = 10 }: GetWithPagingDTO,
+    @Query() { page = 0, pageSize = 10 }: GetWithPagingDTO,
     @Headers('Authorization') token: string = '',
   ) {
     const { sub: userId } = parseJWT(token);
-    const user = await this.userService.getUserById(userId);
-    if (!user) {
-      return handleError('User does not exist.');
-    }
     try {
-    } catch (error) {}
+      const user = await this.userService.getUserById(userId);
+      if (!user) {
+        return handleError('User does not exist.');
+      }
+
+      const fromIndex = page * pageSize;
+      if (fromIndex >= user.conversations.length) {
+        return handleResponse([]);
+      }
+
+      const conversationIds = user.conversations.slice(
+        fromIndex,
+        fromIndex + pageSize,
+      );
+      const getMessages: Promise<Message>[] = [];
+      const getConversationsDetails: Promise<Conversation>[] = [];
+
+      for (const conversationId of conversationIds) {
+        getMessages.push(
+          this.messageService.getLastMessageOfConversation(conversationId),
+        );
+        getConversationsDetails.push(
+          this.messageService.findConversationById(conversationId),
+        );
+      }
+
+      const messages = await Promise.all(getMessages);
+      const conversationsDetails = await Promise.all(getConversationsDetails);
+
+      const dataResponse = conversationsDetails.map((item) => ({
+        ...item['_doc'],
+        message: messages.find(
+          (message) => String(message.conversationId) === String(item._id),
+        ),
+      }));
+
+      return handleResponse(dataResponse);
+    } catch (error) {
+      return handleError(error);
+    }
   }
 }

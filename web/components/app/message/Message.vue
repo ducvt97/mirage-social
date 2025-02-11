@@ -48,11 +48,12 @@ import { io } from "socket.io-client";
 import type { DropdownItem } from "#ui/types";
 import Icons from "~/common/constants/icons";
 import type {
-  GetNotificationsByUserResponse,
+  GetUserConversationsResponse,
   NotificationDetail,
 } from "~/common/interfaces/response";
 import { NotificationType } from "~/common/constants/enums";
 import { AppMessageItem } from "#build/components";
+import type { ConversationDetail } from "~/common/interfaces";
 
 // Composables
 const { $config } = useNuxtApp();
@@ -81,7 +82,7 @@ const unreadNotifications = computed(() =>
 // Constants
 const notificationEmpty = [
   {
-    label: "Your notification list is empty.",
+    label: "Your message list is empty.",
     slot: "empty",
     disabled: true,
   },
@@ -156,13 +157,10 @@ const pushNotification = async (notification: NotificationDetail) => {
 };
 
 const loadNotifications = async () => {
-  const params = {
-    page: 0,
-    pageSize: 10,
-  };
+  const params = { page: 0 };
   try {
-    const response = await useApiClient<GetNotificationsByUserResponse>(
-      "notification/getByCurrentUser",
+    const response = await useApiClient<GetUserConversationsResponse>(
+      "message/getUserConversations",
       "get",
       { params }
     );
@@ -173,8 +171,8 @@ const loadNotifications = async () => {
     }
 
     if (response.data) {
-      for (const notification of response.data) {
-        notifications[1].push(convertNotificationToDropdownItem(notification));
+      for (const conversation of response.data) {
+        notifications[1].push(convertNotificationToDropdownItem(conversation));
       }
     }
   } catch (error) {
@@ -187,7 +185,7 @@ const loadNotifications = async () => {
 const markAllNotificationsRead = async () => {};
 
 const convertNotificationToDropdownItem = (
-  notification: NotificationDetail
+  notification: ConversationDetail
 ): DropdownItem => {
   const label =
     notification.type === NotificationType.LIKE_POST

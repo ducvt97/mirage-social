@@ -15,8 +15,7 @@
 
 <script setup lang="ts">
 import Icons from "~/common/constants/icons";
-import type { CommentSchema } from "~/common/interfaces";
-import type { CommentDetail } from "~/common/interfaces/component";
+import type { CommentSchema, CommentDetail } from "~/common/interfaces";
 
 interface Props {
   loading?: boolean;

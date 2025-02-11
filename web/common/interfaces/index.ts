@@ -21,6 +21,7 @@ export type {
   UpdateCommentRequest,
   UserFriendRequest,
   GetWithPaging,
+  SendMessageRequest,
 } from "./request";
 
 // Response
@@ -39,6 +40,8 @@ export type {
   NotificationDetail,
   GetNotificationsByUserResponse,
   GetUserInfoResponse,
+  SendMessageResponse,
+  GetUserConversationsResponse,
 } from "./response";
 
 // Schema
@@ -47,10 +50,16 @@ export type {
   UserSchema,
   CommentSchema,
   NotificationSchema,
+  ConversationSchema,
+  MessageSchema,
 } from "./schema";
 
 // Component
-export type { PostDetail } from "./component";
+export type {
+  PostDetail,
+  CommentDetail,
+  ConversationDetail,
+} from "./component";
 
 // Properties
 export type { ModalProps, ConfirmModalProps } from "./properties";

@@ -102,8 +102,8 @@ import type {
   GetCommentsByCommentResponse,
   LikeCommentRequest,
   LikeCommentResponse,
+  CommentDetail,
 } from "~/common/interfaces";
-import type { CommentDetail } from "~/common/interfaces/component";
 
 // Props
 interface Props {
