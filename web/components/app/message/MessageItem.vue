@@ -18,6 +18,7 @@
 
 <script setup lang="ts">
 interface Props {
+  messageId: string;
   avatar: string;
   name: string;
   message: string;

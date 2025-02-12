@@ -4,6 +4,7 @@
       <AppIcon :name="Icons.logo" size="2xl" />
     </ULink>
     <div v-if="token" class="flex gap-x-3">
+      <AppMessage />
       <AppNotification />
       <UDropdown
         :items="actionItems"

@@ -18,7 +18,6 @@ export class AuthService {
 
     try {
       const user = await this.userService.getUserByEmail(email);
-console.log(user);
 
       if (!user) {
         return handleError('Incorrect email or password.');
