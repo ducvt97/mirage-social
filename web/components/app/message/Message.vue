@@ -25,9 +25,18 @@
     <template #header="{ item }">
       <div class="w-full flex justify-between items-center">
         <div class="text-lg font-bold">Chats</div>
-        <UButton variant="ghost" @click="markAllConversationsRead">
-          {{ item.label }}
-        </UButton>
+        <UTooltip
+          :text="item.label"
+          :popper="{ offsetDistance: 4, placement: 'bottom-end' }"
+        >
+          <UButton
+            size="sm"
+            variant="ghost"
+            :icon="Icons.message"
+            :ui="{ rounded: 'rounded-full' }"
+            @click=""
+          />
+        </UTooltip>
       </div>
     </template>
     <template #item="{ item }">
@@ -59,7 +68,7 @@ const { user } = storeToRefs(useAuth());
 const conversations = reactive<DropdownItem[][]>([
   [
     {
-      label: "Mark all as read",
+      label: "New message",
       slot: "header",
       disabled: true,
     },
@@ -149,8 +158,6 @@ const loadConversations = async () => {
 };
 
 const handleMessageComing = async () => {};
-
-const markAllConversationsRead = async () => {};
 
 const convertConversationToDropdownItem = (
   conversation: ConversationDetail

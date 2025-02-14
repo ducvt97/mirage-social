@@ -81,6 +81,7 @@ export class MessageService {
   }
   /*** Conversation Services End ***/
 
+  /*** Conversation Services Start ***/
   async addMessage(messageInfo: SendMessageDTO): Promise<Message> {
     try {
       const newMessage = new this.messageModel({ ...messageInfo });
@@ -110,4 +111,5 @@ export class MessageService {
       return Promise.reject(error);
     }
   }
+  /*** Conversation Services End ***/
 }

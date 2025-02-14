@@ -11,6 +11,8 @@ const USER_DEFAULT: UserSchema = {
   friends: [],
   friendRequests: [],
   friendRequestsSent: [],
+  conversations: [],
+  unreadConversations: [],
 };
 
 export const useAuth = defineStore(
