@@ -34,9 +34,9 @@
 import type { MessageSchema } from "~/common/interfaces";
 
 interface Props {
-  conversationId: string;
-  avatar: string;
-  name: string;
+  conversationId?: string;
+  avatar?: string;
+  name?: string;
 }
 const props = defineProps<Props>();
 const { avatar, name } = toRefs(props);

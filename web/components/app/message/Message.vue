@@ -32,7 +32,7 @@
           <UButton
             size="sm"
             variant="ghost"
-            :icon="Icons.message"
+            :icon="Icons.edit"
             :ui="{ rounded: 'rounded-full' }"
             @click=""
           />
@@ -45,12 +45,16 @@
         :name="item.label"
         :message="item.labelClass"
         :avatar="item.avatar.src"
+        @click="openMessageBox(item.id)"
       />
     </template>
     <template #empty="{ item }">
       <div class="text-center cursor-text -mt-5 pb-3">{{ item.label }}</div>
     </template>
   </UDropdown>
+  <div class="message-box-list">
+    <AppMessageBox v-for="item in messageBoxList" :conversation-id="item" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -63,6 +67,8 @@ import type { ConversationDetail, MessageSchema } from "~/common/interfaces";
 // Composables
 const { $config } = useNuxtApp();
 const { user } = storeToRefs(useAuth());
+const { messageBoxList } = storeToRefs(useMessageBox());
+const { openMessageBox } = useMessageBox();
 
 // States
 const conversations = reactive<DropdownItem[][]>([
@@ -170,3 +176,16 @@ const convertConversationToDropdownItem = (
   };
 };
 </script>
+
+<style scoped>
+.message-box-list {
+  position: fixed;
+  bottom: 72px;
+  right: 32px;
+  display: flex;
+  gap: 0 16px;
+  height: 0;
+  width: max-content;
+  overflow: hidden visible;
+}
+</style>

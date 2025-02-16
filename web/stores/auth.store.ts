@@ -18,6 +18,8 @@ const USER_DEFAULT: UserSchema = {
 export const useAuth = defineStore(
   "auth",
   () => {
+    const { clearAllOpenMessageBoxes } = useMessageBox();
+
     const token = ref("");
     const user = ref<UserSchema>(USER_DEFAULT);
 
@@ -33,6 +35,7 @@ export const useAuth = defineStore(
     const logout = () => {
       token.value = "";
       user.value = USER_DEFAULT;
+      clearAllOpenMessageBoxes();
     };
 
     return { token, user, updateUser, login, logout };
