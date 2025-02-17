@@ -81,7 +81,7 @@ export class MessageService {
   }
   /*** Conversation Services End ***/
 
-  /*** Conversation Services Start ***/
+  /*** Message Services Start ***/
   async addMessage(messageInfo: SendMessageDTO): Promise<Message> {
     try {
       const newMessage = new this.messageModel({ ...messageInfo });
@@ -101,9 +101,22 @@ export class MessageService {
     }
   }
 
-  async getLastMessageOfConversation(
+  async getMessagesByConversation(
     conversationId: string,
-  ): Promise<Message> {
+    page: number = 0,
+  ): Promise<Message[]> {
+    try {
+      const messages = await this.messageModel.find({ conversationId }, null, {
+        skip: page * 20,
+        limit: 20,
+      });
+      return messages;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getLastMessageOfConversation(conversationId: string): Promise<Message> {
     try {
       const message = await this.messageModel.findOne({ conversationId });
       return message;
@@ -111,5 +124,5 @@ export class MessageService {
       return Promise.reject(error);
     }
   }
-  /*** Conversation Services End ***/
+  /*** Message Services End ***/
 }

@@ -20,4 +20,6 @@ export type { GetUserInfoResponse } from "./user";
 export type {
   SendMessageResponse,
   GetUserConversationsResponse,
+  GetConversationDetailResponse,
+  GetConversationMessagesResponse,
 } from "./message";

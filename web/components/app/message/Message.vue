@@ -1,59 +1,61 @@
 <template>
-  <UDropdown
-    :items="conversations"
-    :popper="{ placement: 'bottom-end' }"
-    :ui="{
-      width: 'w-80',
-      divide: 'divide-y-0',
-      item: { disabled: 'opacity-100 cursor-default select-text' },
-    }"
-  >
-    <UChip
-      size="2xl"
-      inset
-      :text="user.unreadConversations.length"
-      :show="user.unreadConversations.length > 0"
+  <div>
+    <UDropdown
+      :items="conversations"
+      :popper="{ placement: 'bottom-end' }"
+      :ui="{
+        width: 'w-80',
+        divide: 'divide-y-0',
+        item: { disabled: 'opacity-100 cursor-default select-text' },
+      }"
     >
-      <UButton
-        size="lg"
-        variant="outline"
-        :icon="Icons.message"
-        :ui="{ rounded: 'rounded-full' }"
-      />
-    </UChip>
+      <UChip
+        size="2xl"
+        inset
+        :text="user.unreadConversations.length"
+        :show="user.unreadConversations.length > 0"
+      >
+        <UButton
+          size="lg"
+          variant="outline"
+          :icon="Icons.message"
+          :ui="{ rounded: 'rounded-full' }"
+        />
+      </UChip>
 
-    <template #header="{ item }">
-      <div class="w-full flex justify-between items-center">
-        <div class="text-lg font-bold">Chats</div>
-        <UTooltip
-          :text="item.label"
-          :popper="{ offsetDistance: 4, placement: 'bottom-end' }"
-        >
-          <UButton
-            size="sm"
-            variant="ghost"
-            :icon="Icons.edit"
-            :ui="{ rounded: 'rounded-full' }"
-            @click=""
-          />
-        </UTooltip>
-      </div>
-    </template>
-    <template #item="{ item }">
-      <AppMessageItem
-        :message-id="item.class"
-        :name="item.label"
-        :message="item.labelClass"
-        :avatar="item.avatar.src"
-        @click="openMessageBox(item.id)"
-      />
-    </template>
-    <template #empty="{ item }">
-      <div class="text-center cursor-text -mt-5 pb-3">{{ item.label }}</div>
-    </template>
-  </UDropdown>
-  <div class="message-box-list">
-    <AppMessageBox v-for="item in messageBoxList" :conversation-id="item" />
+      <template #header="{ item }">
+        <div class="w-full flex justify-between items-center">
+          <div class="text-lg font-bold">Chats</div>
+          <UTooltip
+            :text="item.label"
+            :popper="{ offsetDistance: 4, placement: 'bottom-end' }"
+          >
+            <UButton
+              size="sm"
+              variant="ghost"
+              :icon="Icons.edit"
+              :ui="{ rounded: 'rounded-full' }"
+              @click="openMessageBox()"
+            />
+          </UTooltip>
+        </div>
+      </template>
+      <template #item="{ item }">
+        <AppMessageItem
+          :message-id="item.class"
+          :name="item.label"
+          :message="item.labelClass"
+          :avatar="item.avatar.src"
+          @click="openMessageBox(item.id)"
+        />
+      </template>
+      <template #empty="{ item }">
+        <div class="text-center cursor-text -mt-5 pb-3">{{ item.label }}</div>
+      </template>
+    </UDropdown>
+    <div class="message-box-list">
+      <AppMessageBox v-for="item in messageBoxList" :conversation-id="item" />
+    </div>
   </div>
 </template>
 

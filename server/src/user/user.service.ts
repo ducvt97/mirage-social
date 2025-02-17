@@ -23,6 +23,15 @@ export class UserService {
     }
   }
 
+  async getUsersById(ids: string[]): Promise<UserDocument[]> {
+    try {
+      const users = await this.userModel.find({ id: { $in: ids } });
+      return users;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async getUserByEmail(email: string): Promise<User> {
     if (!email) {
       return null;

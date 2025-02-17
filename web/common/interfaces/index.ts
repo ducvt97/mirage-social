@@ -22,6 +22,8 @@ export type {
   UserFriendRequest,
   GetWithPaging,
   SendMessageRequest,
+  GetConversationDetailRequest,
+  GetConversationMessagesRequest,
 } from "./request";
 
 // Response
@@ -42,6 +44,8 @@ export type {
   GetUserInfoResponse,
   SendMessageResponse,
   GetUserConversationsResponse,
+  GetConversationDetailResponse,
+  GetConversationMessagesResponse,
 } from "./response";
 
 // Schema

@@ -11,7 +11,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { NotificationService } from 'src/notification/notification.service';
 import { parseJWT } from 'src/utils/jwt.util';
 import { handleResponse, handleError } from 'src/utils/response.util';
-import { SendMessageDTO } from './dto/send-message.dto';
+import { GetMessagesDTO, SendMessageDTO } from './dto/send-message.dto';
 import { MessageService } from './message.service';
 import { UserService } from 'src/user/user.service';
 import { NotificationGateway } from 'src/notification/notification.gateway';
@@ -42,6 +42,33 @@ export class MessageController {
         if (!conversation) {
           return handleError('Conversation does not exist.');
         }
+
+        const message = await this.messageService.addMessage({
+          text,
+          content,
+          senderId: userId,
+          conversationId: String(conversation._id),
+        });
+
+        conversation.members.forEach((item) => {
+          const receiverId = String(item);
+          if (receiverId !== userId) {
+            this.userService.addNewMessage(
+              receiverId,
+              String(conversation._id),
+            );
+            this.notificationGateway.sendMessageNotification(
+              receiverId,
+              message,
+            );
+          }
+        });
+
+        const user = await this.userService.addNewMessage(
+          userId,
+          String(conversation._id),
+        );
+        return handleResponse({ message, user });
       } else {
         if (receiverId) {
           const conversation = await this.messageService.findDirectConversation(
@@ -87,6 +114,37 @@ export class MessageController {
 
         return handleError('Something went wrong.');
       }
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('getConversationMessages')
+  async getConversationMessages(
+    @Query() { conversationId, page = 0 }: GetMessagesDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
+    try {
+      const conversation =
+        await this.messageService.findConversationById(conversationId);
+      if (!conversation) {
+        return handleError('Conversation does not exist.');
+      }
+
+      const isMember = conversation.members.find(
+        (item) => String(item) === userId,
+      );
+      if (!isMember) {
+        return handleError('Permission denied.');
+      }
+
+      const messages = await this.messageService.getMessagesByConversation(
+        conversationId,
+        page,
+      );
+
+      return handleResponse(messages);
     } catch (error) {
       return handleError(error);
     }
@@ -137,6 +195,34 @@ export class MessageController {
       }));
 
       return handleResponse(dataResponse);
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('getConversationDetail')
+  async getConversationDetail(
+    @Query() { conversationId }: GetMessagesDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
+    try {
+      const conversation =
+        await this.messageService.findConversationById(conversationId);
+      if (!conversation) {
+        return handleError('Conversation does not exist.');
+      }
+
+      const isMember = conversation.members.find(
+        (item) => String(item) === userId,
+      );
+      if (!isMember) {
+        return handleError('Permission denied.');
+      }
+
+      const membersDetail = this.userService.getUsersById(conversation.members);
+      return handleResponse({ conversation, membersDetail });
     } catch (error) {
       return handleError(error);
     }

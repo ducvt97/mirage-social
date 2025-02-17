@@ -1,4 +1,5 @@
 import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { GetWithPagingDTO } from 'src/common/dto/get-with-paging-dto';
 
 export class SendMessageDTO {
   @IsString()
@@ -19,4 +20,9 @@ export class SendMessageDTO {
   @IsOptional()
   @IsMongoId()
   conversationId?: string;
+}
+
+export class GetMessagesDTO extends GetWithPagingDTO {
+  @IsMongoId()
+  conversationId: string;
 }
