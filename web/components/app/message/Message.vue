@@ -24,20 +24,33 @@
       </UChip>
 
       <template #header="{ item }">
-        <div class="w-full flex justify-between items-center">
-          <div class="text-lg font-bold">Chats</div>
-          <UTooltip
-            :text="item.label"
-            :popper="{ offsetDistance: 4, placement: 'bottom-end' }"
-          >
+        <div class="w-full flex flex-row">
+          <div class="w-full flex justify-between items-center">
+            <div class="text-lg font-bold">Chats</div>
+            <UTooltip
+              :text="item.label"
+              :popper="{ offsetDistance: 4, placement: 'bottom-end' }"
+            >
+              <UButton
+                size="sm"
+                variant="ghost"
+                :icon="Icons.edit"
+                :ui="{ rounded: 'rounded-full' }"
+                @click="openMessageBox('new')"
+              />
+            </UTooltip>
+          </div>
+          <div>
             <UButton
-              size="sm"
-              variant="ghost"
-              :icon="Icons.edit"
+              v-show="isSearching"
+              size="md"
+              variant="outline"
+              :icon="Icons.arrowLeft"
               :ui="{ rounded: 'rounded-full' }"
-              @click="openMessageBox()"
+              @click="isSearching = false"
             />
-          </UTooltip>
+            <UInput v-model="searchText" @focus="isSearching = true" />
+          </div>
         </div>
       </template>
       <template #item="{ item }">
@@ -54,7 +67,12 @@
       </template>
     </UDropdown>
     <div class="message-box-list">
-      <AppMessageBox v-for="item in messageBoxList" :conversation-id="item" />
+      <AppMessageBox
+        v-for="(item, index) in messageBoxList"
+        v-show="index < 3"
+        :conversation-id="item"
+        :key="item"
+      />
     </div>
   </div>
 </template>
@@ -85,6 +103,8 @@ const conversations = reactive<DropdownItem[][]>([
   [],
 ]);
 const isLoadingConversations = ref(false);
+const isSearching = ref(false);
+const searchText = ref("");
 
 // Computed
 

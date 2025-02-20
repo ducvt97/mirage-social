@@ -1,4 +1,10 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateConversationDTO {
   @IsString()
@@ -14,4 +20,10 @@ export class CreateConversationDTO {
 
   @IsArray()
   members: string[] = [];
+}
+
+export class GetDirectConversationDTO {
+  @IsMongoId()
+  @IsNotEmpty()
+  receiverId?: string;
 }

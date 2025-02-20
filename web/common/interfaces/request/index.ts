@@ -18,4 +18,5 @@ export type {
   SendMessageRequest,
   GetConversationDetailRequest,
   GetConversationMessagesRequest,
+  GetDirectConversationsRequest,
 } from "./message";

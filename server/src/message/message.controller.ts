@@ -18,6 +18,7 @@ import { NotificationGateway } from 'src/notification/notification.gateway';
 import { GetWithPagingDTO } from 'src/common/dto/get-with-paging-dto';
 import { Conversation } from 'src/schemas/conversation.schema';
 import { Message } from 'src/schemas/message.schema';
+import { GetDirectConversationDTO } from './dto/conversation.dto';
 
 @Controller('message')
 export class MessageController {
@@ -26,7 +27,7 @@ export class MessageController {
     private userService: UserService,
     private notificationGateway: NotificationGateway,
   ) {}
-
+  // Message APIs
   @UseGuards(JwtAuthGuard)
   @Post('sendMessage')
   async sendMessage(
@@ -150,6 +151,7 @@ export class MessageController {
     }
   }
 
+  // Conversation APIs
   @UseGuards(JwtAuthGuard)
   @Get('getUserConversations')
   async getUserConversations(
@@ -221,7 +223,31 @@ export class MessageController {
         return handleError('Permission denied.');
       }
 
-      const membersDetail = this.userService.getUsersById(conversation.members);
+      const membersDetail = await this.userService.getUsersById(conversation.members);
+      return handleResponse({ conversation, membersDetail });
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('getDirectConversations')
+  async getDirectConversations(
+    @Query() { receiverId }: GetDirectConversationDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
+    try {
+      const conversation = await this.messageService.findDirectConversation([
+        userId,
+        receiverId,
+      ]);
+
+      if (!conversation) {
+        return handleResponse(null);
+      }
+
+      const membersDetail = await this.userService.getUsersById(conversation.members);
       return handleResponse({ conversation, membersDetail });
     } catch (error) {
       return handleError(error);

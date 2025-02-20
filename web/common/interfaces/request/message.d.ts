@@ -14,3 +14,7 @@ export interface GetConversationDetailRequest {
 export interface GetConversationMessagesRequest extends GetWithPaging {
   conversationId: string;
 }
+
+export interface GetDirectConversationsRequest {
+  receiverId: string;
+}

@@ -24,5 +24,6 @@ export class SendMessageDTO {
 
 export class GetMessagesDTO extends GetWithPagingDTO {
   @IsMongoId()
+  @IsNotEmpty()
   conversationId: string;
 }
