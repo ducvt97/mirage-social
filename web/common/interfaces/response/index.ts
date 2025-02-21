@@ -16,7 +16,7 @@ export type {
   NotificationDetail,
   GetNotificationsByUserResponse,
 } from "./notification";
-export type { GetUserInfoResponse } from "./user";
+export type { GetUserInfoResponse, SearchUserResponse } from "./user";
 export type {
   SendMessageResponse,
   GetUserConversationsResponse,

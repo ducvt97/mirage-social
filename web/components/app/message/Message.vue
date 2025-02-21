@@ -24,7 +24,7 @@
       </UChip>
 
       <template #header="{ item }">
-        <div class="w-full flex flex-row">
+        <div class="w-full flex flex-col">
           <div class="w-full flex justify-between items-center">
             <div class="text-lg font-bold">Chats</div>
             <UTooltip
@@ -40,20 +40,35 @@
               />
             </UTooltip>
           </div>
-          <div>
+          <div class="w-full flex items-center gap-x-2">
             <UButton
               v-show="isSearching"
               size="md"
-              variant="outline"
+              variant="ghost"
               :icon="Icons.arrowLeft"
               :ui="{ rounded: 'rounded-full' }"
               @click="isSearching = false"
             />
-            <UInput v-model="searchText" @focus="isSearching = true" />
+            <UInput
+              v-model="searchText"
+              placeholder="Search people"
+              class="flex-1"
+              :loading="isLoading"
+              @change="debounce(searchPeople, 500)"
+              @focus="isSearching = true"
+            />
           </div>
         </div>
       </template>
-      <template #item="{ item }">
+      <template v-if="isSearching" #item="{ item }">
+        <div class="flex gap-x-3 items-center">
+          <UAvatar :src="item.avatar.src" size="lg" />
+          <div class="line-clamp-2">
+            <div class="font-bold mb-1">{{ item.label }}</div>
+          </div>
+        </div>
+      </template>
+      <template v-else #item="{ item }">
         <AppMessageItem
           :message-id="item.class"
           :name="item.label"
@@ -81,8 +96,17 @@
 import { io } from "socket.io-client";
 import type { DropdownItem } from "#ui/types";
 import Icons from "~/common/constants/icons";
-import type { GetUserConversationsResponse } from "~/common/interfaces/response";
-import type { ConversationDetail, MessageSchema } from "~/common/interfaces";
+import type {
+  GetUserConversationsResponse,
+  SearchUserResponse,
+} from "~/common/interfaces/response";
+import type {
+  ConversationDetail,
+  MessageSchema,
+  SearchRequest,
+  UserSchema,
+} from "~/common/interfaces";
+import { debounce } from "~/common/utils";
 
 // Composables
 const { $config } = useNuxtApp();
@@ -102,16 +126,24 @@ const conversations = reactive<DropdownItem[][]>([
   [],
   [],
 ]);
-const isLoadingConversations = ref(false);
+const isLoading = ref(false);
 const isSearching = ref(false);
 const searchText = ref("");
 
 // Computed
 
 // Constants
+let itemsCachedData: DropdownItem[] = [];
 const conversationEmpty = [
   {
     label: "Your message list is empty.",
+    slot: "empty",
+    disabled: true,
+  },
+];
+const searchResultsEmpty = [
+  {
+    label: "No users found.",
     slot: "empty",
     disabled: true,
   },
@@ -145,6 +177,20 @@ watchEffect(() => {
   }
 });
 
+watch(isSearching, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    if (newValue) {
+      itemsCachedData = [...conversations[1]];
+      conversations[1] = [];
+      conversations[2] = searchResultsEmpty;
+    } else {
+      conversations[1] = [...itemsCachedData];
+      conversations[2] = conversationEmpty;
+      itemsCachedData = [];
+    }
+  }
+});
+
 // Methods
 const connectSocket = (handleMessageComing: Function) => {
   socket.on("message", (message: MessageSchema) => {
@@ -160,6 +206,7 @@ const disconnectSocket = () => {
 };
 
 const loadConversations = async () => {
+  isLoading.value = true;
   const params = { page: 0 };
   try {
     const response = await useApiClient<GetUserConversationsResponse>(
@@ -181,7 +228,37 @@ const loadConversations = async () => {
   } catch (error) {
     showError(error.message);
   } finally {
-    isLoadingConversations.value = false;
+    isLoading.value = false;
+  }
+};
+
+const searchPeople = async () => {
+  isLoading.value = true;
+  const query: SearchRequest = {
+    searchText: searchText.value,
+  };
+
+  try {
+    const response = await useApiClient<SearchUserResponse>(
+      "user/searchUser",
+      "get",
+      { query }
+    );
+
+    if (!response?.success) {
+      showError(response?.error || "");
+      return;
+    }
+
+    if (response.data) {
+      for (const user of response.data) {
+        conversations[1].push(convertSearchUserToDropdownItem(user));
+      }
+    }
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -195,6 +272,13 @@ const convertConversationToDropdownItem = (
     avatar: { src: conversation.avatar },
     labelClass: conversation.message.text, // Last message
     class: conversation._id, // Conversation id
+  };
+};
+
+const convertSearchUserToDropdownItem = (user: UserSchema): DropdownItem => {
+  return {
+    label: `${user.firstName} ${user.lastName}`,
+    avatar: { src: user.avatar },
   };
 };
 </script>

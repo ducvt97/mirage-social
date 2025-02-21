@@ -17,3 +17,13 @@ export const transformErrorObject = (errorObj?: Error): FormError[] => {
 
   return errorArray;
 };
+
+export const debounce = (callback: Function, delay: number) => {
+  let timer: any;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      callback();
+    }, delay);
+  };
+};

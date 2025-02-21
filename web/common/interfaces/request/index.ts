@@ -13,7 +13,7 @@ export type {
   UpdateCommentRequest,
 } from "./comment";
 export type { UserFriendRequest } from "./user";
-export type { GetWithPaging } from "./common";
+export type { GetWithPaging, SearchRequest } from "./common";
 export type {
   SendMessageRequest,
   GetConversationDetailRequest,

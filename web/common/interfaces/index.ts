@@ -8,41 +8,55 @@ export type {
 
 // Request
 export type {
-  CreatePostRequest,
+  // Auth
   LoginRequest,
   RegisterRequest,
+  // Post
+  CreatePostRequest,
   LikePostRequest,
   UpdatePostRequest,
   GetPostsByUserRequest,
+  // Comment
   CommentOnPostRequest,
   GetCommentsByPostRequest,
   GetCommentsByCommentRequest,
   LikeCommentRequest,
   UpdateCommentRequest,
+  // User
   UserFriendRequest,
-  GetWithPaging,
+  // Message
   SendMessageRequest,
   GetConversationDetailRequest,
   GetConversationMessagesRequest,
   GetDirectConversationsRequest,
+  // Common
+  GetWithPaging,
+  SearchRequest,
 } from "./request";
 
 // Response
 export type {
+  // Auth
   LoginResponse,
   RegisterResponse,
+  // Post
   PostCreateResponse,
   GetPostsByUserResponse,
   LikePostResponse,
   PostUpdateResponse,
+  // Comment
   CommentOnPostResponse,
   GetCommentsByPostResponse,
   GetCommentsByCommentResponse,
   LikeCommentResponse,
   UpdateCommentResponse,
+  // Notification
   NotificationDetail,
   GetNotificationsByUserResponse,
+  // User
   GetUserInfoResponse,
+  SearchUserResponse,
+  // Message
   SendMessageResponse,
   GetUserConversationsResponse,
   GetConversationDetailResponse,
