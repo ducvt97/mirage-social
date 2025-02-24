@@ -7,11 +7,16 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserCreateDTO } from './dto/user-create-dto';
 import { User } from 'src/schemas/user.schema';
-import { UserUpdateDTO, UserUpdateFriendDTO } from './dto/user-update-dto';
+import {
+  UserSearchDTO,
+  UserUpdateDTO,
+  UserUpdateFriendDTO,
+} from './dto/user-update-dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
@@ -27,11 +32,11 @@ export class UserController {
     return this.userService.getAllUser();
   }
 
-  @Get(':id')
-  async getById(@Param('id') id: string) {
+  @Get('searchUser')
+  async searchUser(@Query() { searchText }: UserSearchDTO) {
     try {
-      const user = await this.userService.getUserById(id);
-      return handleResponse(user);
+      const users = await this.userService.searchUser(searchText);
+      return handleResponse(users);
     } catch (error) {
       return handleError(error);
     }
@@ -120,6 +125,16 @@ export class UserController {
       const { sub: userId } = parseJWT(token);
       const res = await this.userService.deleteFriend(userId, friendId);
       return handleResponse(res);
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @Get(':id')
+  async getById(@Param('id') id: string) {
+    try {
+      const user = await this.userService.getUserById(id);
+      return handleResponse(user);
     } catch (error) {
       return handleError(error);
     }

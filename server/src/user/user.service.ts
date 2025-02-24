@@ -32,6 +32,33 @@ export class UserService {
     }
   }
 
+  async searchUser(
+    searchText: string,
+    page: number = 0,
+    pageSize: number = 20,
+  ): Promise<UserDocument[]> {
+    try {
+      if (!searchText) {
+        return [];
+      }
+
+      const users = await this.userModel.find(
+        {
+          $or: [
+            { email: { $regex: searchText, $options: 'i' } },
+            { firstName: { $regex: searchText, $options: 'i' } },
+            { lastName: { $regex: searchText, $options: 'i' } },
+          ],
+        },
+        null,
+        { skip: page, limit: pageSize },
+      );
+      return users;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async getUserByEmail(email: string): Promise<User> {
     if (!email) {
       return null;

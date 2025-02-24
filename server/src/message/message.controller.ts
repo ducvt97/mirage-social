@@ -19,6 +19,7 @@ import { GetWithPagingDTO } from 'src/common/dto/get-with-paging-dto';
 import { Conversation } from 'src/schemas/conversation.schema';
 import { Message } from 'src/schemas/message.schema';
 import { GetDirectConversationDTO } from './dto/conversation.dto';
+import { User } from 'src/schemas/user.schema';
 
 @Controller('message')
 export class MessageController {
@@ -223,7 +224,9 @@ export class MessageController {
         return handleError('Permission denied.');
       }
 
-      const membersDetail = await this.userService.getUsersById(conversation.members);
+      const membersDetail = await this.userService.getUsersById(
+        conversation.members,
+      );
       return handleResponse({ conversation, membersDetail });
     } catch (error) {
       return handleError(error);
@@ -243,11 +246,15 @@ export class MessageController {
         receiverId,
       ]);
 
-      if (!conversation) {
-        return handleResponse(null);
+      let membersDetail: User[] = [];
+      if (conversation) {
+        membersDetail = await this.userService.getUsersById(
+          conversation.members,
+        );
+      } else {
+        membersDetail.push(await this.userService.getUserById(receiverId));
       }
 
-      const membersDetail = await this.userService.getUsersById(conversation.members);
       return handleResponse({ conversation, membersDetail });
     } catch (error) {
       return handleError(error);

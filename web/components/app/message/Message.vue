@@ -54,7 +54,7 @@
               placeholder="Search people"
               class="flex-1"
               :loading="isLoading"
-              @change="debounce(searchPeople, 500)"
+              @input="searchUser"
               @focus="isSearching = true"
             />
           </div>
@@ -74,7 +74,6 @@
           :name="item.label"
           :message="item.labelClass"
           :avatar="item.avatar.src"
-          @click="openMessageBox(item.id)"
         />
       </template>
       <template #empty="{ item }">
@@ -134,21 +133,16 @@ const searchText = ref("");
 
 // Constants
 let itemsCachedData: DropdownItem[] = [];
-const conversationEmpty = [
-  {
-    label: "Your message list is empty.",
-    slot: "empty",
-    disabled: true,
-  },
-];
-const searchResultsEmpty = [
-  {
-    label: "No users found.",
-    slot: "empty",
-    disabled: true,
-  },
-];
-
+const conversationEmpty = {
+  label: "Your message list is empty.",
+  slot: "empty",
+  disabled: true,
+};
+const searchResultsEmpty = {
+  label: "No users found.",
+  slot: "empty",
+  disabled: true,
+};
 // Socket
 const socket = io(`${$config.public.serverEndpoint}`, {
   query: { userId: user.value._id },
@@ -165,9 +159,12 @@ onMounted(async () => {
 // Watcher
 watchEffect(() => {
   if (conversations[1].length > 0) {
-    conversations[2] = [];
+    conversations[2].length = 0;
   } else {
-    conversations[2] = conversationEmpty;
+    conversations[2].length = 0;
+    conversations[2].push(
+      isSearching.value ? searchResultsEmpty : conversationEmpty
+    );
   }
 });
 
@@ -181,12 +178,11 @@ watch(isSearching, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     if (newValue) {
       itemsCachedData = [...conversations[1]];
-      conversations[1] = [];
-      conversations[2] = searchResultsEmpty;
+      conversations[1].length = 0;
     } else {
       conversations[1] = [...itemsCachedData];
-      conversations[2] = conversationEmpty;
       itemsCachedData = [];
+      searchText.value = "";
     }
   }
 });
@@ -232,11 +228,9 @@ const loadConversations = async () => {
   }
 };
 
-const searchPeople = async () => {
+const searchUser = debounce(async () => {
   isLoading.value = true;
-  const query: SearchRequest = {
-    searchText: searchText.value,
-  };
+  const query: SearchRequest = { searchText: searchText.value };
 
   try {
     const response = await useApiClient<SearchUserResponse>(
@@ -250,17 +244,20 @@ const searchPeople = async () => {
       return;
     }
 
+    const dropdownItems = [];
     if (response.data) {
       for (const user of response.data) {
-        conversations[1].push(convertSearchUserToDropdownItem(user));
+        dropdownItems.push(convertSearchUserToDropdownItem(user));
       }
     }
+
+    conversations[1] = dropdownItems;
   } catch (error) {
     showError(error.message);
   } finally {
     isLoading.value = false;
   }
-};
+}, 500);
 
 const handleMessageComing = async () => {};
 
@@ -272,6 +269,9 @@ const convertConversationToDropdownItem = (
     avatar: { src: conversation.avatar },
     labelClass: conversation.message.text, // Last message
     class: conversation._id, // Conversation id
+    click: () => {
+      openMessageBox(conversation._id);
+    },
   };
 };
 
@@ -279,6 +279,9 @@ const convertSearchUserToDropdownItem = (user: UserSchema): DropdownItem => {
   return {
     label: `${user.firstName} ${user.lastName}`,
     avatar: { src: user.avatar },
+    click: () => {
+      openMessageBox("new_" + user._id);
+    },
   };
 };
 </script>
@@ -286,12 +289,13 @@ const convertSearchUserToDropdownItem = (user: UserSchema): DropdownItem => {
 <style scoped>
 .message-box-list {
   position: fixed;
-  bottom: 72px;
-  right: 32px;
+  bottom: 400px;
+  right: 16px;
   display: flex;
   gap: 0 16px;
   height: 0;
   width: max-content;
-  overflow: hidden visible;
+  overflow: visible;
+  z-index: 1000;
 }
 </style>

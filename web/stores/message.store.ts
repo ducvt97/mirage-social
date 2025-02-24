@@ -7,10 +7,13 @@ export const useMessageBox = defineStore(
 
     const openMessageBox = (id: string) => {
       const chatIndex = messageBoxList.findIndex((item) => item === id);
+      if (chatIndex === 0) {
+        return;
+      }
       if (chatIndex > 0) {
         messageBoxList.splice(chatIndex);
-        messageBoxList.unshift(id);
       }
+      messageBoxList.unshift(id);
     };
 
     const closeMessageBox = (id: string) => {

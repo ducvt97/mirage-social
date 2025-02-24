@@ -36,3 +36,9 @@ export class UserUpdateFriendDTO {
   @IsNotEmpty()
   friendId: string;
 }
+
+export class UserSearchDTO {
+  @IsOptional()
+  @IsString()
+  searchText?: string;
+}
