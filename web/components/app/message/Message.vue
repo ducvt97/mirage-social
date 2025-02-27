@@ -84,15 +84,7 @@
         </div>
       </template>
     </UDropdown>
-    <div class="message-box-list">
-      <AppMessageBox
-        v-for="(item, index) in messageBoxList"
-        ref="messageBoxRefs"
-        v-show="index < 3"
-        :conversation-id="item"
-        :key="item"
-      />
-    </div>
+    <AppMessageBoxList ref="messageBoxListRef" />
   </div>
 </template>
 
@@ -119,11 +111,10 @@ import { debounce } from "~/common/utils";
 const { $config } = useNuxtApp();
 const { user } = storeToRefs(useAuth());
 const { updateUser } = useAuth();
-const { messageBoxList } = storeToRefs(useMessageBox());
 const { openMessageBox } = useMessageBox();
 
 // Refs
-const messageBoxRefs = useTemplateRef("messageBoxRefs");
+const messageBoxListRef = useTemplateRef("messageBoxListRef");
 
 // States
 const dropdownItems = reactive<DropdownItem[][]>([
@@ -303,17 +294,7 @@ const handleMessageComing = async (message: MessageSchema) => {
   fetchUserInfo();
 
   // Add new message to Opening MessageBox
-  if (messageBoxRefs.value) {
-    for (const messageBox of messageBoxRefs.value) {
-      if (
-        messageBox?.conversationId === message.conversationId ||
-        messageBox?.conversationId === "new_" + message.senderId
-      ) {
-        messageBox?.handleMessageComing(message);
-        break;
-      }
-    }
-  }
+  messageBoxListRef.value?.handleMessageComing(message);
 
   // Add new message to Conversation List
   const conversationIndex = conversationList.findIndex(
@@ -371,17 +352,3 @@ const convertSearchUserToDropdownItem = (user: UserSchema): DropdownItem => {
   };
 };
 </script>
-
-<style scoped>
-.message-box-list {
-  position: fixed;
-  bottom: 400px;
-  right: 16px;
-  display: flex;
-  gap: 0 16px;
-  height: 0;
-  width: max-content;
-  overflow: visible;
-  z-index: 1000;
-}
-</style>

@@ -2,8 +2,8 @@
   <UCard
     class="w-72 h-80 flex flex-col"
     :ui="{
-      header: { base: 'h-12', padding: 'py-2' },
-      body: { base: 'h-[272px]', padding: 'px-0 py-2' },
+      header: { base: 'h-12', padding: 'py-2 sm:px-4' },
+      body: { base: 'h-[272px]', padding: 'px-0 py-2 sm:px-0 sm:py-2' },
     }"
   >
     <template #header>
@@ -25,7 +25,10 @@
     </template>
 
     <div class="flex flex-col h-full">
-      <div class="flex flex-col flex-1 px-2 gap-y-0.5 overflow-y-auto">
+      <div
+        class="flex flex-col flex-1 px-3 gap-y-0.5 overflow-y-auto"
+        ref="messageViewRef"
+      >
         <div v-if="isNewConversation && !showErrorLoadMessage">
           No messages in this chat.
         </div>
@@ -59,7 +62,7 @@
         </div>
       </div>
 
-      <div class="mt-2.5 px-2">
+      <div class="mt-2.5 px-3">
         <UTextarea
           autofocus
           v-model.trim="messageText"
@@ -98,6 +101,9 @@ interface Props {
 }
 const props = defineProps<Props>();
 const { closeMessageBox } = useMessageBox();
+
+// Refs
+const messageViewRef = useTemplateRef("messageViewRef");
 
 // States
 const conversationInfo = ref<ConversationSchema>({
@@ -303,6 +309,7 @@ const setConversationInfo = (
 const handleMessageComing = (message: MessageSchema) => {
   if (message.conversationId === conversationInfo.value._id) {
     messageList.push(convertMessageToMessageDetail(message));
+    messageViewRef.value?.scrollIntoView({ behavior: "smooth" });
   }
 };
 
@@ -322,5 +329,6 @@ const closeBox = () => {
   closeMessageBox(props.conversationId);
 };
 
+// Expose
 defineExpose({ handleMessageComing, conversationId: props.conversationId });
 </script>
