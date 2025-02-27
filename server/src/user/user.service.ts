@@ -25,7 +25,9 @@ export class UserService {
 
   async getUsersById(ids: string[]): Promise<UserDocument[]> {
     try {
-      const users = await this.userModel.find({ id: { $in: ids } });
+      const usersPromise: Promise<UserDocument>[] = [];
+      ids.forEach((item) => usersPromise.push(this.getUserById(item)));
+      const users = await Promise.all(usersPromise);
       return users;
     } catch (error) {
       return Promise.reject(error);

@@ -51,13 +51,36 @@ export class MessageService {
     try {
       const conversation =
         await this.conversationModel.findById(conversationId);
-      if (!conversation.isGroup) {
-        const friendId = conversation.members.find(
-          (item) => String(item) !== userId,
-        );
-        const friend = await this.userService.getUserById(friendId);
-        conversation.name = `${friend.firstName} ${friend.lastName}`;
-        conversation.avatar = friend.avatar;
+      if (conversation.isGroup) {
+        if (!conversation.name) {
+          const memberId = conversation.members.find(
+            (item) => String(item) !== userId,
+          );
+
+          const member = await this.userService.getUserById(memberId);
+
+          if (member) {
+            conversation.name = `You, ${member.lastName}${
+              conversation.members.length > 2 &&
+              'and ' + (conversation.members.length - 2) + ' other(s)'
+            }`;
+          }
+        }
+        if (!conversation.avatar) {
+          conversation.avatar =
+            'https://avatars.githubusercontent.com/u/739984?v=4';
+        }
+      } else {
+        const friendId =
+          conversation.members.length === 1
+            ? conversation.members[0]
+            : conversation.members.find((item) => String(item) !== userId);
+
+        if (friendId) {
+          const friend = await this.userService.getUserById(friendId);
+          conversation.name = `${friend.firstName} ${friend.lastName}`;
+          conversation.avatar = friend.avatar;
+        }
       }
       return conversation;
     } catch (error) {
@@ -67,12 +90,13 @@ export class MessageService {
 
   async findDirectConversation(userIds: string[]): Promise<Conversation> {
     try {
-      if (userIds.length !== 2) {
-        return undefined;
+      if (!userIds.length) {
+        return null;
       }
+
       const conversation = await this.conversationModel.findOne({
         isGroup: false,
-        members: { $size: 2, $all: userIds },
+        members: { $size: userIds.length, $all: userIds },
       });
       return conversation;
     } catch (error) {

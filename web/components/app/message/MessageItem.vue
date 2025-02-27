@@ -11,7 +11,7 @@
     </UChip>
     <div class="line-clamp-2">
       <div v-if="name" class="font-bold mb-1">{{ name }}</div>
-      <div>{{ message }}</div>
+      <div class="text-left text-xs">{{ message }}</div>
     </div>
   </div>
 </template>

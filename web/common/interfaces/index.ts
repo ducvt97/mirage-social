@@ -59,6 +59,7 @@ export type {
   // Message
   SendMessageResponse,
   GetUserConversationsResponse,
+  GetUserConversationByIdResponse,
   GetConversationDetailResponse,
   GetConversationMessagesResponse,
 } from "./response";
@@ -78,6 +79,7 @@ export type {
   PostDetail,
   CommentDetail,
   ConversationDetail,
+  MessageDetail,
 } from "./component";
 
 // Properties

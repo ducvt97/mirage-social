@@ -1,10 +1,9 @@
 <template>
   <UCard
-    class="w-72 h-80"
+    class="w-72 h-80 flex flex-col"
     :ui="{
-      base: 'flex flex-col',
-      header: { padding: 'py-3' },
-      body: { base: 'flex-1', padding: 'py-3' },
+      header: { base: 'h-12', padding: 'py-2' },
+      body: { base: 'h-[272px]', padding: 'px-0 py-2' },
     }"
   >
     <template #header>
@@ -26,32 +25,50 @@
     </template>
 
     <div class="flex flex-col h-full">
-      <div class="flex flex-row flex-1">
+      <div class="flex flex-col flex-1 px-2 gap-y-0.5 overflow-y-auto">
         <div v-if="isNewConversation && !showErrorLoadMessage">
           No messages in this chat.
         </div>
         <div v-if="showErrorLoadMessage">Failed to load messages.</div>
         <div
-          v-for="item in messageList"
+          v-for="(item, index) in messageList"
           :key="item._id"
-          class="flex gap-3 items-center w-2/3"
+          class="flex gap-x-2 items-center w-2/3"
+          :class="{
+            'flex-row-reverse self-end': item.senderId === user._id,
+            'pl-10':
+              item.senderId !== user._id &&
+              messageList[index - 1]?.senderId === item.senderId,
+            'pr-10':
+              item.senderId === user._id &&
+              messageList[index - 1]?.senderId === item.senderId,
+          }"
         >
-          <UAvatar size="md" :src="conversationInfo.avatar" />
-          <div class="text-sm font-semibold mb-1">
+          <UAvatar
+            v-if="
+              index === 0 || messageList[index - 1]?.senderId !== item.senderId
+            "
+            size="sm"
+            :src="item.senderAvatar"
+          />
+          <div
+            class="text-sm rounded-lg border border-primary px-3 py-2 whitespace-break-spaces"
+          >
             {{ item.text }}
           </div>
         </div>
       </div>
 
-      <UTextarea
-        autofocus
-        class="mt-3"
-        v-model.trim="messageText"
-        size="xs"
-        :rows="2"
-        placeholder="Type your message here"
-        @keyup.enter="sendMessage"
-      />
+      <div class="mt-2.5 px-2">
+        <UTextarea
+          autofocus
+          v-model.trim="messageText"
+          size="xs"
+          :rows="2"
+          placeholder="Type your message here"
+          @keydown.enter="sendMessage"
+        />
+      </div>
     </div>
   </UCard>
 </template>
@@ -65,11 +82,13 @@ import type {
   GetConversationMessagesRequest,
   GetConversationMessagesResponse,
   GetDirectConversationsRequest,
+  MessageDetail,
   MessageSchema,
   SendMessageRequest,
   SendMessageResponse,
   UserSchema,
 } from "~/common/interfaces";
+import { removeLineBreaks } from "~/common/utils";
 
 // Props
 interface Props {
@@ -90,7 +109,7 @@ const conversationInfo = ref<ConversationSchema>({
 });
 const membersInfo = ref<UserSchema[]>([]);
 const messageText = ref<string>("");
-const messageList = reactive<MessageSchema[]>([]);
+const messageList = reactive<MessageDetail[]>([]);
 const showErrorLoadMessage = ref(false);
 const isAllMessageLoaded = ref(false);
 const { user } = storeToRefs(useAuth());
@@ -140,8 +159,8 @@ const getDirectConversation = async (receiverId: string) => {
     }
 
     const { conversation, membersDetail } = res.data;
-    conversationInfo.value = conversation;
     membersInfo.value = membersDetail;
+    setConversationInfo(conversation, membersDetail);
 
     await nextTick();
     loadMessages();
@@ -166,8 +185,8 @@ const loadConversationDetail = async () => {
     }
 
     const { conversation, membersDetail } = res.data;
-    conversationInfo.value = conversation;
     membersInfo.value = membersDetail;
+    setConversationInfo(conversation, membersDetail);
   } catch (error) {
     showErrorLoadMessage.value = true;
   }
@@ -197,16 +216,30 @@ const loadMessages = async () => {
       return;
     }
 
-    messageList.unshift(...(res.data || []));
+    const messages: MessageDetail[] = res.data.map((item) => {
+      return convertMessageToMessageDetail(item);
+    });
+
+    messageList.unshift(...messages);
   } catch (error) {
     showErrorLoadMessage.value = true;
   }
 };
 
-const sendMessage = async () => {
+const sendMessage = async (event: any) => {
+  if (event?.shiftKey) {
+    return;
+  }
+
+  event.preventDefault();
+  if (!messageText.value) {
+    return;
+  }
+
   try {
+    const text = removeLineBreaks(messageText.value);
     const body: SendMessageRequest = {
-      text: messageText.value,
+      text,
       ...(isNewConversation.value
         ? { receiverId: conversationInfo.value._id.replace("new_", "") }
         : { conversationId: conversationInfo.value._id }),
@@ -227,13 +260,67 @@ const sendMessage = async () => {
     const { message } = res.data;
     conversationInfo.value._id = message.conversationId;
     messageText.value = "";
-    messageList.push(message);
+
+    await loadConversationDetail();
+    messageList.push(convertMessageToMessageDetail(message));
   } catch (error) {
     showErrorLoadMessage.value = true;
   }
 };
 
-const closeBox = () => {
-  closeMessageBox(conversationInfo.value._id);
+const setConversationInfo = (
+  conversation: ConversationSchema,
+  members: UserSchema[]
+) => {
+  conversationInfo.value = { ...conversation };
+  if (conversation.isGroup) {
+    if (!conversation.name) {
+      const member = members.find((item) => item._id !== user.value._id);
+      if (member) {
+        conversationInfo.value.name = `You, ${member.lastName}${
+          members.length > 2 && "and " + (members.length - 2) + " other(s)"
+        }`;
+      }
+    }
+
+    if (!conversation.avatar) {
+      conversationInfo.value.avatar =
+        "https://avatars.githubusercontent.com/u/739984?v=4";
+    }
+  } else {
+    const receiver =
+      members.length === 1
+        ? members[0]
+        : members.find((item) => item._id !== user.value._id);
+
+    if (receiver) {
+      conversationInfo.value.name = `${receiver.firstName} ${receiver.lastName}`;
+      conversationInfo.value.avatar = receiver.avatar;
+    }
+  }
 };
+
+const handleMessageComing = (message: MessageSchema) => {
+  if (message.conversationId === conversationInfo.value._id) {
+    messageList.push(convertMessageToMessageDetail(message));
+  }
+};
+
+const convertMessageToMessageDetail = (message: MessageSchema) => {
+  const sender = membersInfo.value.find(
+    (item) => item._id === message.senderId
+  );
+
+  return {
+    ...message,
+    senderName: `${sender?.firstName} ${sender?.lastName}`,
+    senderAvatar: sender?.avatar,
+  };
+};
+
+const closeBox = () => {
+  closeMessageBox(props.conversationId);
+};
+
+defineExpose({ handleMessageComing, conversationId: props.conversationId });
 </script>

@@ -1,3 +1,9 @@
+@import "tailwindcss/base";
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
+
 html,
 body {
   width: 100%;
@@ -9,4 +15,27 @@ body {
 
 #__nuxt {
   height: 100%;
+}
+
+/* Custom scroll bar */
+/* width */
+::-webkit-scrollbar {
+  background-color: transparent;
+  height: 0.6em;
+  width: 0.6em;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background-color: var(--color-gray-800);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-600);
 }

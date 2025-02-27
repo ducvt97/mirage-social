@@ -27,3 +27,7 @@ export const debounce = (callback: Function, delay: number) => {
     }, delay);
   };
 };
+
+export const removeLineBreaks = (str: string) => {
+  return str.replace(/^[\n\r]+|[\n\r]+$/g, "");
+};

@@ -22,6 +22,11 @@ export interface GetUserConversationsResponse extends ServerResponse {
   error?: string;
 }
 
+export interface GetUserConversationByIdResponse extends ServerResponse {
+  data?: ConversationDetail;
+  error?: string;
+}
+
 export interface GetConversationDetailResponse extends ServerResponse {
   data?: GetConversationDetailResponseData;
   error?: string;

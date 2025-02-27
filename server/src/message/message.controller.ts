@@ -8,7 +8,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { NotificationService } from 'src/notification/notification.service';
 import { parseJWT } from 'src/utils/jwt.util';
 import { handleResponse, handleError } from 'src/utils/response.util';
 import { GetMessagesDTO, SendMessageDTO } from './dto/send-message.dto';
@@ -73,8 +72,9 @@ export class MessageController {
         return handleResponse({ message, user });
       } else {
         if (receiverId) {
+          const isSentYourself = userId === receiverId;
           const conversation = await this.messageService.findDirectConversation(
-            [userId, receiverId],
+            [userId, ...(isSentYourself ? [] : [receiverId])],
           );
           let message: any = {};
 
@@ -94,7 +94,7 @@ export class MessageController {
             const newConversation =
               await this.messageService.createConversation({
                 isGroup: false,
-                members: [userId, receiverId],
+                members: [userId, ...(isSentYourself ? [] : [receiverId])],
               });
 
             message = await this.messageService.addMessage({
@@ -107,10 +107,23 @@ export class MessageController {
 
           const [user] = await Promise.all([
             this.userService.addNewMessage(userId, message.conversationId),
-            this.userService.addNewMessage(receiverId, message.conversationId),
+            ...(isSentYourself
+              ? []
+              : [
+                  this.userService.addNewMessage(
+                    receiverId,
+                    message.conversationId,
+                  ),
+                ]),
           ]);
 
-          this.notificationGateway.sendMessageNotification(receiverId, message);
+          if (!isSentYourself) {
+            this.notificationGateway.sendMessageNotification(
+              receiverId,
+              message,
+            );
+          }
+
           return handleResponse({ message, user });
         }
 
@@ -183,12 +196,14 @@ export class MessageController {
           this.messageService.getLastMessageOfConversation(conversationId),
         );
         getConversationsDetails.push(
-          this.messageService.findConversationById(conversationId),
+          this.messageService.userGetConversationById(userId, conversationId),
         );
       }
 
-      const messages = await Promise.all(getMessages);
-      const conversationsDetails = await Promise.all(getConversationsDetails);
+      let messages = await Promise.all(getMessages);
+      messages = messages.filter((item) => !!item);
+      let conversationsDetails = await Promise.all(getConversationsDetails);
+      conversationsDetails = conversationsDetails.filter((item) => !!item);
 
       const dataResponse = conversationsDetails.map((item) => ({
         ...item['_doc'],
@@ -196,6 +211,49 @@ export class MessageController {
           (message) => String(message.conversationId) === String(item._id),
         ),
       }));
+
+      return handleResponse(dataResponse);
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('getUserConversationById')
+  async getUserConversationById(
+    @Query() { conversationId }: GetMessagesDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
+    try {
+      const user = await this.userService.getUserById(userId);
+      if (!user) {
+        return handleError('User does not exist.');
+      }
+
+      const isMember = user.conversations.find(
+        (item) => String(item) === conversationId,
+      );
+      if (!isMember) {
+        return handleError('Permission denied.');
+      }
+
+      const getMessages =
+        this.messageService.getLastMessageOfConversation(conversationId);
+      const getConversation = this.messageService.userGetConversationById(
+        userId,
+        conversationId,
+      );
+
+      const [message, conversation] = await Promise.all([
+        getMessages,
+        getConversation,
+      ]);
+
+      const dataResponse = {
+        ...conversation['_doc'],
+        message,
+      };
 
       return handleResponse(dataResponse);
     } catch (error) {
@@ -243,7 +301,7 @@ export class MessageController {
     try {
       const conversation = await this.messageService.findDirectConversation([
         userId,
-        receiverId,
+        ...(userId !== receiverId ? [receiverId] : []),
       ]);
 
       let membersDetail: User[] = [];
