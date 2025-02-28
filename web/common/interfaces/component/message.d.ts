@@ -1,7 +1,7 @@
 import type { MessageSchema, ConversationSchema } from "../schema";
 
 export interface ConversationDetail extends ConversationSchema {
-  message: MessageSchema;
+  message?: MessageSchema;
 }
 
 export interface MessageDetail extends MessageSchema {

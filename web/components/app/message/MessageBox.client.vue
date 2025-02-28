@@ -127,13 +127,14 @@ const isNewConversation = computed<boolean>(() =>
 );
 
 // Life-cycles
-onMounted(() => {
+onMounted(async () => {
   if (isNewConversation.value) {
     const receiverId = conversationInfo.value._id.replace("new_", "");
     getDirectConversation(receiverId);
   } else {
     loadConversationDetail();
-    loadMessages();
+    await loadMessages();
+    scrollEndMessageList();
   }
 });
 
@@ -269,6 +270,7 @@ const sendMessage = async (event: any) => {
 
     await loadConversationDetail();
     messageList.push(convertMessageToMessageDetail(message));
+    scrollEndMessageList();
   } catch (error) {
     showErrorLoadMessage.value = true;
   }
@@ -306,10 +308,10 @@ const setConversationInfo = (
   }
 };
 
-const handleMessageComing = (message: MessageSchema) => {
+const handleMessageComing = async (message: MessageSchema) => {
   if (message.conversationId === conversationInfo.value._id) {
     messageList.push(convertMessageToMessageDetail(message));
-    messageViewRef.value?.scrollIntoView({ behavior: "smooth" });
+    scrollEndMessageList();
   }
 };
 
@@ -327,6 +329,14 @@ const convertMessageToMessageDetail = (message: MessageSchema) => {
 
 const closeBox = () => {
   closeMessageBox(props.conversationId);
+};
+
+const scrollEndMessageList = async () => {
+  await nextTick();
+  if (messageViewRef.value) {
+    messageViewRef.value.scrollIntoView({ behavior: "smooth" });
+    messageViewRef.value.scrollTop = messageViewRef.value.scrollHeight;
+  }
 };
 
 // Expose

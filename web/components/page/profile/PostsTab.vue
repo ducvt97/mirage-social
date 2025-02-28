@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHomeCreatePost
-      v-if="isMyProfile"
+      v-if="isCurrentUser"
       @create-success="createPostSuccess"
     />
     <PostList v-model:list="postList" :loading="isLoadingPosts" class="mt-4" />
@@ -32,45 +32,64 @@ interface Props {
 const props = defineProps<Props>();
 const { user, isCurrentUser } = toRefs(props);
 
-const { $api } = useNuxtApp();
 const { showError } = useToastMessage();
 const { startProgress, endProgress } = useLoading();
-const route = useRoute();
 
 const postList = reactive<PostDetail[]>([]);
-const isLoadingPosts = ref(true);
+const isLoadingPosts = ref(false);
 const isShowEditPostModal = ref(false);
 const postEditing = ref<PostDetail | undefined>(undefined);
 
-const isMyProfile = computed(() => user.value._id === route.params.id);
+const pageSize = 10;
+const page = computed(() => postList.length / pageSize);
 
-onBeforeMount(async () => {
-  const params: GetPostsByUserRequest = {
-    userId: user.value._id,
-    page: 0,
-    pageSize: 10,
-  };
+// Life-cycles
+onMounted(() => {
+  fetchPosts();
+});
+
+// Watcher
+watch(user, async (newValue, oldValue) => {
+  if (newValue._id !== oldValue._id) {
+    postList.length = 0;
+    await nextTick();
+    await fetchPosts();
+  }
+});
+
+// Methods
+const fetchPosts = async () => {
+  isLoadingPosts.value = true;
   try {
-    const response = await $api<GetPostsByUserResponse>("post/getByUser", {
-      method: "get",
-      params,
-    });
+    const params: GetPostsByUserRequest = {
+      userId: user.value._id,
+      page: page.value,
+      pageSize,
+    };
+
+    const response = await useApiClient<GetPostsByUserResponse>(
+      "post/getByUser",
+      "get",
+      { params }
+    );
 
     if (!response?.success) {
       showError(response?.error || "");
       return;
     }
 
-    if (response.data) {
-      const { posts } = response.data;
-      postList.push(...(posts || []));
+    if (!response.data) {
+      return;
     }
+
+    const { posts } = response.data;
+    postList.push(...posts);
   } catch (error) {
     showError(error.message);
   } finally {
     isLoadingPosts.value = false;
   }
-});
+};
 
 const createPostSuccess = (post: PostDetail) => {
   postList.unshift(post);

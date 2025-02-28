@@ -37,7 +37,7 @@ const actionItems: DropdownItem[][] = [
     {
       label: `${user.value.firstName} ${user.value.lastName}`,
       avatar: { src: user.value.avatar },
-      to: `profile/${user.value._id}`,
+      to: `/${user.value._id}`,
     },
   ],
   [

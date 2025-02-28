@@ -3,23 +3,22 @@
     <USkeleton class="h-40 w-full" />
     <div class="relative flex justify-between items-center pl-36 pr-3 py-4">
       <div class="h-28 w-28 p-1 bg-white rounded-full absolute -top-14 left-6">
-        <USkeleton
+        <!-- <USkeleton
           v-if="isLoading"
           class="h-full w-full"
           :ui="{ rounded: 'rounded-full' }"
-        />
+        /> -->
         <UAvatar
-          v-else
           :src="user.avatar"
           size="3xl"
           :ui="{ size: { '3xl': 'h-full w-full' } }"
         />
       </div>
-      <USkeleton v-if="isLoading" class="h-6 w-48" />
-      <div v-else class="text-2xl">
+      <!-- <USkeleton v-if="isLoading" class="h-6 w-48" /> -->
+      <div class="text-2xl">
         {{ `${user?.firstName} ${user?.lastName}` }}
       </div>
-      <ButtonAddFriend v-if="!isCurrentUser" :friend-id="userId" />
+      <ButtonAddFriend v-if="!isCurrentUser" :friend-id="params.id as string" />
     </div>
     <UDivider class="my-3" />
     <UTabs
@@ -42,7 +41,7 @@
       }"
     >
       <template #posts>
-        <PageProfilePostsTab
+        <LazyPageProfilePostsTab
           v-show="!isLoading"
           :user="user"
           :is-current-user="isCurrentUser"
@@ -73,21 +72,40 @@ const tabs = [
     label: "Friends",
   },
 ];
-const userId = useRoute().params.id as string;
+const { params } = toRefs(useRoute());
 
 const { $api } = useNuxtApp();
 
 const { user: currentUser } = storeToRefs(useAuth());
 const user = ref(currentUser.value);
 const isLoading = ref(true);
-const isCurrentUser = computed(() => currentUser.value._id === userId);
+const isCurrentUser = computed(() => {
+  return currentUser.value._id === params.value.id;
+});
+
+watch(isCurrentUser, (newValue) => {
+  if (!newValue && !isLoading.value) {
+    fetchUser();
+  }
+});
 
 onBeforeMount(async () => {
+  if (!isCurrentUser.value) {
+    await fetchUser();
+  }
+  isLoading.value = false;
+});
+
+// Methods
+const fetchUser = async () => {
   try {
     if (!isCurrentUser.value) {
-      const response = await $api<GetUserInfoResponse>(`user/${userId}`, {
-        method: "get",
-      });
+      const response = await $api<GetUserInfoResponse>(
+        `user/${params.value.id}`,
+        {
+          method: "get",
+        }
+      );
 
       if (!response?.success || !response.data) {
         useError();
@@ -97,8 +115,6 @@ onBeforeMount(async () => {
     }
   } catch (error) {
     showError(error);
-  } finally {
-    isLoading.value = false;
   }
-});
+};
 </script>

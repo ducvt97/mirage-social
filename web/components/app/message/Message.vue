@@ -157,7 +157,7 @@ onMounted(async () => {
   if (user) {
     dropdownItems[1] = conversationList;
     await loadConversations();
-    connectSocket(handleMessageComing);
+    connectSocket();
   }
 });
 
@@ -191,10 +191,8 @@ watch(isSearching, (newValue, oldValue) => {
 });
 
 // Methods
-const connectSocket = (handleMessageComing: Function) => {
-  socket.on("message", (message: MessageSchema) => {
-    handleMessageComing(message);
-  });
+const connectSocket = () => {
+  socket.on("message", handleMessageComing);
   return socket;
 };
 
@@ -334,7 +332,7 @@ const convertConversationToDropdownItem = (
   return {
     label: conversation.name,
     avatar: { src: conversation.avatar },
-    labelClass: conversation.message.text, // Last message
+    labelClass: conversation.message?.text || "", // Last message
     class: conversation._id, // Conversation id
     click: () => {
       openMessageBox(conversation._id);
