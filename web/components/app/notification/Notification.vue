@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { io } from "socket.io-client";
 import type { DropdownItem } from "#ui/types";
 import Icons from "~/common/constants/icons";
 import type {
@@ -53,9 +52,10 @@ import type {
   NotificationDetail,
 } from "~/common/interfaces/response";
 import { NotificationType } from "~/common/constants/enums";
+import { useSocket } from "~/composables/components/useSocket";
 
 // Composables
-const { $config } = useNuxtApp();
+const { socket, listenSocketEvent } = useSocket();
 const { showNotification } = useToastMessage();
 const { user } = storeToRefs(useAuth());
 
@@ -87,16 +87,12 @@ const notificationEmpty = [
   },
 ];
 
-// Socket
-const socket = io(`${$config.public.serverEndpoint}`, {
-  query: { userId: user.value._id },
-});
-
 // Life cycles
 onMounted(async () => {
   if (user) {
     await loadNotifications();
-    connectSocket(pushNotification);
+    // socket.on("notification", pushNotification);
+    // listenSocketEvent("notification", pushNotification);
   }
 });
 
@@ -116,17 +112,10 @@ watchEffect(() => {
 });
 
 // Methods
-const connectSocket = (pushNotification: Function) => {
-  socket.on("notification", (notification: NotificationDetail) => {
-    pushNotification(notification);
-  });
-  return socket;
-};
-
 const disconnectSocket = () => {
-  socket.on("disconnect", () => {
-    console.log(socket.id);
-  });
+  // socket.on("disconnect", () => {
+  //   console.log(socket.id);
+  // });
 };
 
 const pushNotification = async (notification: NotificationDetail) => {

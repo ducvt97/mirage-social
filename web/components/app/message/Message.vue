@@ -106,10 +106,12 @@ import type {
   UserSchema,
 } from "~/common/interfaces";
 import { debounce } from "~/common/utils";
+import { useSocket } from "~/composables/components/useSocket";
 
 // Composables
 const { $config } = useNuxtApp();
 const { user } = storeToRefs(useAuth());
+const { socket, listenSocketEvent } = useSocket();
 const { updateUser } = useAuth();
 const { openMessageBox } = useMessageBox();
 
@@ -148,17 +150,25 @@ const searchResultsEmpty = {
   disabled: true,
 };
 // Socket
-const socket = io(`${$config.public.serverEndpoint}`, {
-  query: { userId: user.value._id },
-});
+// const socket = io(`${$config.public.serverEndpoint}`, {
+//   query: { userId: user.value._id },
+// });
 
 // Life cycles
 onMounted(async () => {
   if (user) {
     dropdownItems[1] = conversationList;
     await loadConversations();
-    connectSocket();
+    socket.on("mess", (message: MessageSchema) => {
+      // debugger;
+      handleMessageComing(message);
+    });
+    // listenSocketEvent("fdfgdfgdfgfdg", handleMessageComing);
   }
+});
+
+onBeforeUnmount(() => {
+  socket.off("mess");
 });
 
 // Watcher
@@ -174,9 +184,9 @@ watchEffect(() => {
 });
 
 watchEffect(() => {
-  if (!user) {
-    disconnectSocket();
-  }
+  // if (!user) {
+  //   disconnectSocket();
+  // }
 });
 
 watch(isSearching, (newValue, oldValue) => {
@@ -191,17 +201,6 @@ watch(isSearching, (newValue, oldValue) => {
 });
 
 // Methods
-const connectSocket = () => {
-  socket.on("message", handleMessageComing);
-  return socket;
-};
-
-const disconnectSocket = () => {
-  socket.on("disconnect", () => {
-    console.log(socket.id);
-  });
-};
-
 const loadConversations = async () => {
   isLoading.value = true;
   const params = { page: 0 };
@@ -285,6 +284,7 @@ const searchUser = debounce(async () => {
 }, 500);
 
 const handleMessageComing = async (message: MessageSchema) => {
+  debugger;
   if (!message) {
     return;
   }

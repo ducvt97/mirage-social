@@ -50,7 +50,7 @@ export class NotificationGateway implements OnGatewayInit {
   sendMessageNotification(userId: string, message: Message) {
     const socket = this.users[userId];
     if (socket) {
-      socket.emit('message', message); // Send notification to specific user
+      socket.emit('mess', message); // Send notification to specific user
     }
   }
 }

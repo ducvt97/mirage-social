@@ -34,6 +34,7 @@ export class MessageController {
     @Body() reqBody: SendMessageDTO,
     @Headers('Authorization') token: string = '',
   ) {
+    debugger;
     const { sub: userId } = parseJWT(token);
     try {
       const { text, content, conversationId, receiverId } = reqBody;

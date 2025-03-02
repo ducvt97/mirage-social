@@ -51,6 +51,11 @@ export class MessageService {
     try {
       const conversation =
         await this.conversationModel.findById(conversationId);
+
+      if (!conversation) {
+        return Promise.reject('Conversation not found.');
+      }
+
       if (conversation.isGroup) {
         if (!conversation.name) {
           const memberId = conversation.members.find(
@@ -66,6 +71,7 @@ export class MessageService {
             }`;
           }
         }
+
         if (!conversation.avatar) {
           conversation.avatar =
             'https://avatars.githubusercontent.com/u/739984?v=4';
