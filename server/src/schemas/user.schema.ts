@@ -77,16 +77,16 @@ UserSchema.methods.toJSON = function () {
   return userObject;
 };
 
-UserSchema.pre<UserDocument>('save', function (next: Function) {
-  const user = this;
+// UserSchema.pre<UserDocument>('save', function (next: Function) {
+//   const user = this;
 
-  if (user.isModified('password')) {
-    bcrypt.hash(user.password, 10, (err, hash) => {
-      if (err) {
-        return next(err);
-      }
-      user.password = hash;
-      next();
-    });
-  }
-});
+//   if (user.isModified('password')) {
+//     bcrypt.hash(user.password, 10, (err, hash) => {
+//       if (err) {
+//         return next(err);
+//       }
+//       user.password = hash;
+//       next();
+//     });
+//   }
+// });

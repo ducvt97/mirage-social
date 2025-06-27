@@ -32,7 +32,7 @@ const authStore = useAuth();
 const { token, user } = storeToRefs(authStore);
 const { logout } = authStore;
 
-const actionItems: DropdownItem[][] = [
+const actionItems = computed<DropdownItem[][]>(() => [
   [
     {
       label: `${user.value.firstName} ${user.value.lastName}`,
@@ -47,7 +47,7 @@ const actionItems: DropdownItem[][] = [
       click: () => onclickLogout(),
     },
   ],
-];
+]);
 
 const onclickLogout = () => {
   logout();

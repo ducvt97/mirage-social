@@ -55,7 +55,7 @@ import { NotificationType } from "~/common/constants/enums";
 import { useSocket } from "~/composables/components/useSocket";
 
 // Composables
-const { socket, listenSocketEvent } = useSocket();
+const { listenSocketEvent, disconnectSocketEvent } = useSocket();
 const { showNotification } = useToastMessage();
 const { user } = storeToRefs(useAuth());
 
@@ -91,9 +91,12 @@ const notificationEmpty = [
 onMounted(async () => {
   if (user) {
     await loadNotifications();
-    // socket.on("notification", pushNotification);
-    // listenSocketEvent("notification", pushNotification);
+    listenSocketEvent("notification", pushNotification);
   }
+});
+
+onBeforeUnmount(() => {
+  disconnectSocketEvent("notification", pushNotification);
 });
 
 // Watcher
@@ -107,17 +110,11 @@ watchEffect(() => {
 
 watchEffect(() => {
   if (!user) {
-    disconnectSocket();
+    // disconnectSocket();
   }
 });
 
 // Methods
-const disconnectSocket = () => {
-  // socket.on("disconnect", () => {
-  //   console.log(socket.id);
-  // });
-};
-
 const pushNotification = async (notification: NotificationDetail) => {
   const index = notifications[1].findIndex(
     (item) => item.class === notification._id
@@ -179,7 +176,7 @@ const convertNotificationToDropdownItem = (
   notification: NotificationDetail
 ): DropdownItem => {
   const label =
-    notification.type === NotificationType.LIKE_POST
+    notification.type === NotificationType.LIKE_POST && notification.postDetails
       ? notification.postDetails.likes > 1
         ? `and ${
             notification.postDetails.likes - 1
@@ -205,7 +202,7 @@ const convertNotificationToDropdownItem = (
         notification.type === NotificationType.REPLY_COMMENT
       ? Icons.comment
       : Icons.logo;
-  const userFullname = `${notification.userActionDetails.firstName} ${notification.userActionDetails.lastName}`;
+  const userFullname = `${notification.userActionDetails?.firstName} ${notification.userActionDetails?.lastName}`;
 
   return {
     label,

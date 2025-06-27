@@ -5,6 +5,7 @@ import { User, UserDocument } from 'src/schemas/user.schema';
 import { UserCreateDTO } from './dto/user-create-dto';
 import { UserUpdateDTO } from './dto/user-update-dto';
 import { handleError, handleResponse } from 'src/utils/response.util';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -77,6 +78,9 @@ export class UserService {
       }
 
       const newUserModel = new this.userModel(userCreateDTO);
+      const salt = bcrypt.genSaltSync(10);
+      const passwordHash = bcrypt.hashSync(newUserModel.password, salt);
+      newUserModel.password = passwordHash;
       const newUser = await newUserModel.save();
       return handleResponse(newUser);
     } catch (error) {
@@ -85,6 +89,7 @@ export class UserService {
   }
 
   async updateUser(id: string, userUpdateDTO: UserUpdateDTO) {
+    delete userUpdateDTO.password;
     return this.userModel.findByIdAndUpdate(id, userUpdateDTO);
   }
 

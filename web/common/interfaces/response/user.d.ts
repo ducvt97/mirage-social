@@ -10,3 +10,8 @@ export interface SearchUserResponse extends ServerResponse {
   data?: UserSchema[];
   error?: string;
 }
+
+export interface GetUserFriendsResponse extends ServerResponse {
+  data?: UserSchema[];
+  error?: string;
+}

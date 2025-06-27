@@ -24,6 +24,7 @@ export type {
   UpdateCommentRequest,
   // User
   UserFriendRequest,
+  GetUserFriendsRequest,
   // Message
   SendMessageRequest,
   GetConversationDetailRequest,
@@ -56,6 +57,7 @@ export type {
   // User
   GetUserInfoResponse,
   SearchUserResponse,
+  GetUserFriendsResponse,
   // Message
   SendMessageResponse,
   GetUserConversationsResponse,

@@ -14,6 +14,7 @@ import { UserCreateDTO } from 'src/user/dto/user-create-dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { handleResponse } from 'src/utils/response.util';
 import { parseJWT } from 'src/utils/jwt.util';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -33,6 +34,7 @@ export class AuthController {
     return this.authService.login(reqBody);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('verifyToken')
   @HttpCode(200)

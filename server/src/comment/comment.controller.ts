@@ -26,6 +26,7 @@ import { NotificationService } from 'src/notification/notification.service';
 import { Notification } from 'src/schemas/notification.schema';
 import { createNotificationInstance } from 'src/utils/common.util';
 import { NotificationType } from 'src/common/constants/enums';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('comment')
 export class CommentController {
@@ -35,6 +36,7 @@ export class CommentController {
     private notificationService: NotificationService,
   ) {}
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   async commentOnPost(
@@ -109,6 +111,7 @@ export class CommentController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('likeComment')
   async likeComment(
@@ -140,6 +143,7 @@ export class CommentController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteComment(
@@ -155,6 +159,7 @@ export class CommentController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch()
   async updateComment(
