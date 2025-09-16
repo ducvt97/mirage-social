@@ -41,7 +41,7 @@ const isShowEditPostModal = ref(false);
 const postEditing = ref<PostDetail | undefined>(undefined);
 
 const pageSize = 10;
-const page = computed(() => postList.length / pageSize);
+const page = computed(() => Math.floor(postList.length / pageSize));
 
 // Life-cycles
 onMounted(() => {

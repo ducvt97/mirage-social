@@ -12,7 +12,7 @@ export type {
   LikeCommentRequest,
   UpdateCommentRequest,
 } from "./comment";
-export type { UserFriendRequest } from "./user";
+export type { UserFriendRequest, GetUserFriendsRequest } from "./user";
 export type { GetWithPaging, SearchRequest } from "./common";
 export type {
   SendMessageRequest,

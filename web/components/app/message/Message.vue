@@ -89,7 +89,6 @@
 </template>
 
 <script setup lang="ts">
-import { io } from "socket.io-client";
 import type { DropdownItem } from "#ui/types";
 import Icons from "~/common/constants/icons";
 import type {
@@ -109,9 +108,8 @@ import { debounce } from "~/common/utils";
 import { useSocket } from "~/composables/components/useSocket";
 
 // Composables
-const { $config } = useNuxtApp();
 const { user } = storeToRefs(useAuth());
-const { socket, listenSocketEvent } = useSocket();
+const { listenSocketEvent, disconnectSocketEvent } = useSocket();
 const { updateUser } = useAuth();
 const { openMessageBox } = useMessageBox();
 
@@ -149,26 +147,18 @@ const searchResultsEmpty = {
   slot: "empty",
   disabled: true,
 };
-// Socket
-// const socket = io(`${$config.public.serverEndpoint}`, {
-//   query: { userId: user.value._id },
-// });
 
 // Life cycles
 onMounted(async () => {
   if (user) {
     dropdownItems[1] = conversationList;
     await loadConversations();
-    socket.on("mess", (message: MessageSchema) => {
-      // debugger;
-      handleMessageComing(message);
-    });
-    // listenSocketEvent("fdfgdfgdfgfdg", handleMessageComing);
+    listenSocketEvent("message", messageHandler);
   }
 });
 
 onBeforeUnmount(() => {
-  socket.off("mess");
+  disconnectSocketEvent("message", messageHandler);
 });
 
 // Watcher
@@ -284,7 +274,6 @@ const searchUser = debounce(async () => {
 }, 500);
 
 const handleMessageComing = async (message: MessageSchema) => {
-  debugger;
   if (!message) {
     return;
   }
@@ -311,6 +300,10 @@ const handleMessageComing = async (message: MessageSchema) => {
       conversationList.unshift(conversation[0]);
     }
   }
+};
+
+const messageHandler = (message: MessageSchema) => {
+  handleMessageComing(message);
 };
 
 const fetchUserInfo = async () => {

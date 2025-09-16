@@ -13,6 +13,7 @@ import {
 import { UserCreateDTO } from './dto/user-create-dto';
 import { User } from 'src/schemas/user.schema';
 import {
+  UserGetInfoDTO,
   UserSearchDTO,
   UserUpdateDTO,
   UserUpdateFriendDTO,
@@ -21,6 +22,7 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { parseJWT } from 'src/utils/jwt.util';
 import { handleError, handleResponse } from 'src/utils/response.util';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Injectable()
 @Controller('user')
@@ -47,11 +49,19 @@ export class UserController {
     return this.userService.createUser(reqBody);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() reqBody: UserUpdateDTO) {
+  update(
+    @Param('id') id: string,
+    @Body() reqBody: UserUpdateDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    const { sub: userId } = parseJWT(token);
     return this.userService.updateUser(id, reqBody);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('addFriend')
   async addFriend(
@@ -67,6 +77,7 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('undoAddFriend')
   async undoAddFriend(
@@ -85,6 +96,7 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('acceptFriend')
   async acceptFriend(
@@ -100,6 +112,7 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('rejectFriend')
   async rejectFriend(
@@ -115,6 +128,7 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('unfriend')
   async unfriend(
@@ -130,6 +144,28 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('getFriends')
+  async getFriends(
+    @Query() { userId, page }: UserGetInfoDTO,
+    @Headers('Authorization') token: string = '',
+  ) {
+    try {
+      const { sub: currentUserId } = parseJWT(token);
+      const user = await this.userService.getUserById(userId);
+      if (!user) {
+        return handleError('User not found.');
+      }
+
+      const res = await this.userService.getUsersById(user.friends);
+      return handleResponse(res);
+    } catch (error) {
+      return handleError(error);
+    }
+  }
+
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getById(@Param('id') id: string) {

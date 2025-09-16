@@ -10,6 +10,7 @@ import { Post } from 'src/schemas/post.schema';
 import { PostService } from 'src/post/post.service';
 import { CommentService } from 'src/comment/comment.service';
 import { Comment } from 'src/schemas/comment.schema';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('notification')
 export class NotificationController {
@@ -20,6 +21,7 @@ export class NotificationController {
     private commentService: CommentService,
   ) {}
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getByCurrentUser')
   async getNotificationsByCurrentUser(
@@ -35,7 +37,7 @@ export class NotificationController {
       const getPostsDetails: Promise<Post>[] = [];
       const getCommentsDetails: Promise<Comment>[] = [];
       for (const notification of notifications) {
-        getUsersDetails.push(this.userService.getUserById(notification.userId));
+        getUsersDetails.push(this.userService.getUserById(notification.userActionId));
         getPostsDetails.push(this.postService.getPostById(notification.postId));
         if (notification.commentId) {
           getCommentsDetails.push(
@@ -56,7 +58,7 @@ export class NotificationController {
       const notificationsDetails = notifications.map((item) => ({
         ...item['_doc'],
         userActionDetails: usersDetails.find(
-          (user) => String(user._id) === item.userId,
+          (user) => String(user._id) === item.userActionId,
         ),
         postDetails: postsDetails.find(
           (post) => String(post._id) === item.postId,

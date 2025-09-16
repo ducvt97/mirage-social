@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { STATUS_CODES } from 'http';
 
 async function bootstrap() {
@@ -29,6 +30,18 @@ async function bootstrap() {
     }),
   );
   app.enableCors();
+
+  // Swagger setup
+  // Documentation for the API
+  const config = new DocumentBuilder()
+    .setTitle('Mirage Social API')
+    .setDescription('API documentation for Mirage Social App.')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
   await app.listen(9000);
 }
 bootstrap();

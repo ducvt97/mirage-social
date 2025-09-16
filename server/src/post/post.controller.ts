@@ -25,6 +25,7 @@ import { NotificationService } from 'src/notification/notification.service';
 import { createNotificationInstance } from 'src/utils/common.util';
 import { NotificationType } from 'src/common/constants/enums';
 import { GetPostsByUserDTO } from './dto/get-post.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('post')
 export class PostController {
@@ -39,6 +40,7 @@ export class PostController {
     console.log(params);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(
@@ -56,6 +58,7 @@ export class PostController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch()
   async update(
@@ -71,6 +74,7 @@ export class PostController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getByUser')
   async getByUser(
@@ -96,6 +100,7 @@ export class PostController {
     return handleResponse({ posts: postsDetails });
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('likePost')
   async likePost(
@@ -135,6 +140,7 @@ export class PostController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteById(

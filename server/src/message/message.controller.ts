@@ -19,6 +19,7 @@ import { Conversation } from 'src/schemas/conversation.schema';
 import { Message } from 'src/schemas/message.schema';
 import { GetDirectConversationDTO } from './dto/conversation.dto';
 import { User } from 'src/schemas/user.schema';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('message')
 export class MessageController {
@@ -28,13 +29,13 @@ export class MessageController {
     private notificationGateway: NotificationGateway,
   ) {}
   // Message APIs
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('sendMessage')
   async sendMessage(
     @Body() reqBody: SendMessageDTO,
     @Headers('Authorization') token: string = '',
   ) {
-    debugger;
     const { sub: userId } = parseJWT(token);
     try {
       const { text, content, conversationId, receiverId } = reqBody;
@@ -134,6 +135,8 @@ export class MessageController {
       return handleError(error);
     }
   }
+
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getConversationMessages')
   async getConversationMessages(
@@ -167,6 +170,7 @@ export class MessageController {
   }
 
   // Conversation APIs
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getUserConversations')
   async getUserConversations(
@@ -219,6 +223,7 @@ export class MessageController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getUserConversationById')
   async getUserConversationById(
@@ -262,6 +267,7 @@ export class MessageController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getConversationDetail')
   async getConversationDetail(
@@ -292,6 +298,7 @@ export class MessageController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('getDirectConversations')
   async getDirectConversations(

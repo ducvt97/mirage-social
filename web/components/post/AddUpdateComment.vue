@@ -30,9 +30,9 @@
         <UButton variant="link" size="xs" @click="emit('cancelEdit')">
           Cancel
         </UButton>
-        <UButton size="xs" :disabled="!caption" @click="onClickSaveEdit"
-          >Save</UButton
-        >
+        <UButton size="xs" :disabled="!caption" @click="onClickSaveEdit">
+          Save
+        </UButton>
       </div>
     </div>
   </div>

@@ -3,25 +3,32 @@
     <USkeleton class="h-40 w-full" />
     <div class="relative flex justify-between items-center pl-36 pr-3 py-4">
       <div class="h-28 w-28 p-1 bg-white rounded-full absolute -top-14 left-6">
-        <!-- <USkeleton
+        <USkeleton
           v-if="isLoading"
           class="h-full w-full"
           :ui="{ rounded: 'rounded-full' }"
-        /> -->
-        <UAvatar
-          :src="user.avatar"
+        />
+        <LazyUAvatar
+          v-else
+          :src="user?.avatar"
           size="3xl"
           :ui="{ size: { '3xl': 'h-full w-full' } }"
         />
       </div>
-      <!-- <USkeleton v-if="isLoading" class="h-6 w-48" /> -->
-      <div class="text-2xl">
+      <USkeleton v-if="isLoading" class="h-6 w-48" />
+      <span v-else class="text-2xl">
         {{ `${user?.firstName} ${user?.lastName}` }}
-      </div>
-      <ButtonAddFriend v-if="!isCurrentUser" :friend-id="params.id as string" />
+      </span>
+
+      <ButtonAddFriend
+        v-if="!isCurrentUser && !isLoading"
+        :friend-id="String(params.id)"
+      />
     </div>
     <UDivider class="my-3" />
     <UTabs
+      v-if="!isLoading"
+      v-model="activeTab"
       :items="tabs"
       :ui="{
         list: {
@@ -42,23 +49,30 @@
     >
       <template #posts>
         <LazyPageProfilePostsTab
-          v-show="!isLoading"
+          v-if="activeTab === 0"
           :user="user"
           :is-current-user="isCurrentUser"
         />
       </template>
       <template #information="{ item }">{{ item.label }}</template>
-      <template #friends="{ item }">{{ item.label }}</template>
+      <template #friends>
+        <LazyPageProfileFriendsTab
+          v-if="activeTab === 2"
+          :user="user"
+          :is-current-user="isCurrentUser"
+        />
+      </template>
     </UTabs>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { GetUserInfoResponse } from "~/common/interfaces";
+import type { TabItem } from "#ui/types";
 
 definePageMeta({ middleware: ["auth"] });
 
-const tabs = [
+const tabs: TabItem[] = [
   {
     slot: "posts",
     label: "Posts",
@@ -79,6 +93,7 @@ const { $api } = useNuxtApp();
 const { user: currentUser } = storeToRefs(useAuth());
 const user = ref(currentUser.value);
 const isLoading = ref(true);
+const activeTab = ref(0);
 const isCurrentUser = computed(() => {
   return currentUser.value._id === params.value.id;
 });
@@ -90,9 +105,7 @@ watch(isCurrentUser, (newValue) => {
 });
 
 onBeforeMount(async () => {
-  if (!isCurrentUser.value) {
-    await fetchUser();
-  }
+  await fetchUser();
   isLoading.value = false;
 });
 
@@ -117,4 +130,6 @@ const fetchUser = async () => {
     showError(error);
   }
 };
+
+provide("refetchUser", fetchUser);
 </script>
