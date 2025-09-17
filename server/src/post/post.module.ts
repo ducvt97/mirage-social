@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationModule } from 'src/notification/notification.module';
 import { UserModule } from 'src/user/user.module';
 import { CommentModule } from 'src/comment/comment.module';
+import { PostResolver } from './graphql/post.resolver';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { CommentModule } from 'src/comment/comment.module';
     forwardRef(() => NotificationModule),
   ],
   controllers: [PostController],
-  providers: [PostService],
+  providers: [PostService, PostResolver],
   exports: [PostService],
 })
 export class PostModule {}

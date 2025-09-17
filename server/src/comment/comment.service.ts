@@ -23,6 +23,13 @@ export class CommentService {
     return comment;
   }
 
+  async getCommentsById(ids: string[]): Promise<CommentDocument[]> {
+    const commentsPromise: Promise<CommentDocument>[] = [];
+    ids.forEach((item) => commentsPromise.push(this.getCommentById(item)));
+    const comments = await Promise.all(commentsPromise);
+    return comments;
+  }
+
   async findAndCheckPermission(
     commentId: string,
     userId: string,

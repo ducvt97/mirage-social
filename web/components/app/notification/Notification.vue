@@ -163,7 +163,7 @@ const loadNotifications = async () => {
         notifications[1].push(convertNotificationToDropdownItem(notification));
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     showError(error.message);
   } finally {
     isLoadingNotifications.value = false;

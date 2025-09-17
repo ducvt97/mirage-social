@@ -211,7 +211,7 @@ const loadConversations = async () => {
         conversationList.push(convertConversationToDropdownItem(conversation));
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     showError(error.message);
   } finally {
     isLoading.value = false;
@@ -234,7 +234,7 @@ const getConversationById = async (conversationId: string) => {
     }
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     showError(error.message);
   } finally {
     isLoading.value = false;
@@ -266,7 +266,7 @@ const searchUser = debounce(async () => {
 
     searchList.length = 0;
     searchList.push(...items);
-  } catch (error) {
+  } catch (error: any) {
     showError(error.message);
   } finally {
     isLoading.value = false;
