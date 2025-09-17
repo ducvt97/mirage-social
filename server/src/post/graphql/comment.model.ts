@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType, ID } from '@nestjs/graphql';
 import { Post } from './post.model';
-import { User } from './user.model';
+import { User } from 'src/user/graphql/user.model';
 
 @ObjectType()
 export class Comment {

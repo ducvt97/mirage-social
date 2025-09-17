@@ -44,6 +44,17 @@ export class MessageService {
     }
   }
 
+  async findConversationsById(conversationIds: string[]): Promise<Conversation[]> {
+    try {
+      const conversations = await this.conversationModel.find({
+        _id: { $in: conversationIds },
+      });
+      return conversations;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async userGetConversationById(
     userId: string,
     conversationId: string,

@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType, ID } from '@nestjs/graphql';
+import { Conversation } from 'src/post/graphql/conversation.model';
 
 @ObjectType()
 export class User {
@@ -35,9 +36,9 @@ export class User {
   @Field((type) => [User])
   friendRequestsSent: string[];
 
-  @Field((type) => [User])
-  conversations: string[];
+  @Field((type) => [Conversation])
+  conversations: Conversation[];
 
-  @Field((type) => [User])
-  unreadConversations: string[];
+  @Field((type) => [Conversation])
+  unreadConversations: Conversation[];
 }

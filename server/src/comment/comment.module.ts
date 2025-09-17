@@ -9,7 +9,7 @@ import { NotificationModule } from 'src/notification/notification.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
-    UserModule,
+    forwardRef(() => UserModule),
     forwardRef(() => NotificationModule),
   ],
   controllers: [CommentController],

@@ -1,7 +1,7 @@
 import { PostStatusType } from 'src/common/constants/enums';
 
 import { Field, Int, ObjectType, ID } from '@nestjs/graphql';
-import { User } from './user.model';
+import { User } from 'src/user/graphql/user.model';
 import { Comment } from './comment.model';
 
 @ObjectType()
@@ -9,8 +9,11 @@ export class Post {
   @Field(type => ID)
   id: string;
 
+  @Field(type => ID)
+  userId: string;
+
   @Field(type => User)
-  userId: User;
+  author: User;
 
   @Field()
   caption: string;

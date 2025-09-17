@@ -7,19 +7,15 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
-import { PostService } from 'src/post/post.service';
-import { CommentService } from 'src/comment/comment.service';
 import { User } from './user.model';
-import { Post } from './post.model';
-import { Comment } from './comment.model';
-import { Conversation } from './conversation.model';
+import { Conversation } from 'src/post/graphql/conversation.model';
+import { MessageService } from 'src/message/message.service';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(
     private userService: UserService,
-    private postService: PostService,
-    private commentService: CommentService,
+    private messageService: MessageService,
   ) {}
 
   @Query(() => User)
@@ -52,13 +48,13 @@ export class UserResolver {
   async conversations(@Parent() conversations: Conversation[]) {
     const ids = conversations.map(({ id }) => id);
     if (!ids.length) return [];
-    return this.userService.getUsersById(ids);
+    return this.messageService.findConversationsById(ids);
   }
 
   @ResolveField()
   async unreadConversations(@Parent() unreadConversations: Conversation[]) {
     const ids = unreadConversations.map(({ id }) => id);
     if (!ids.length) return [];
-    return this.userService.getUsersById(ids);
+    return this.messageService.findConversationsById(ids);
   }
 }

@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
-import { User } from './user.model';
+import { User } from 'src/user/graphql/user.model';
 import { Conversation } from './conversation.model';
 
 @ObjectType()

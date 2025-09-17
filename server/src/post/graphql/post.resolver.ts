@@ -2,7 +2,7 @@ import { Args, Int, ResolveField, Parent, Resolver, Query, ID } from "@nestjs/gr
 import { Post } from "./post.model";
 import { UserService } from "src/user/user.service";
 import { PostService } from "../post.service";
-import { User } from "./user.model";
+import { User } from 'src/user/graphql/user.model';
 import { Comment } from "./comment.model";
 import { CommentService } from "src/comment/comment.service";
 
@@ -20,9 +20,9 @@ export class PostResolver {
   }
 
   @ResolveField()
-  async userId(@Parent() user: User) {
-    const { id } = user;
-    return this.userService.getUserById(id);
+  async author(@Parent() post: Post) {
+    const { userId } = post;
+    return this.userService.getUserById(userId);
   }
 
   @ResolveField()
