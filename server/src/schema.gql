@@ -1,0 +1,57 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Comment {
+  caption: String!
+  content: String
+  id: ID!
+  likes: Int!
+  postId: Post!
+  replies: Int!
+  replyCommentId: Comment!
+  replyComments: [Comment!]!
+  userId: User!
+  usersLike: [User!]!
+}
+
+type Conversation {
+  avatar: String!
+  id: ID!
+  isGroup: Boolean!
+  members: [User!]!
+  name: String!
+}
+
+type Post {
+  author: User!
+  caption: String!
+  comments: [Comment!]!
+  content: [String!]!
+  id: ID!
+  likes: Int!
+  status: String!
+  tags: [User!]!
+  userId: ID!
+  usersLike: [User!]!
+}
+
+type Query {
+  post(id: ID!): Post!
+  user(id: ID!): User!
+}
+
+type User {
+  avatar: String!
+  conversations: [Conversation!]!
+  dob: String!
+  email: String!
+  firstName: String!
+  friendRequests: [User!]!
+  friendRequestsSent: [User!]!
+  friends: [User!]!
+  id: ID!
+  lastName: String!
+  password: String!
+  unreadConversations: [Conversation!]!
+}
