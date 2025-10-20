@@ -1,6 +1,11 @@
+
+import { getPostsByUser } from "@/actions/post";
 import Image from "next/image";
 
-export default function Home() {
+export default async function Home() {
+  const posts = await getPostsByUser({ userId: "67c478461d6e5b8c72502f13", page: 0, pageSize: 10 });
+  console.log("Posts:", posts);
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -97,6 +102,9 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        {/* <Button variant="contained" color="primary" onClick={click}>
+          MUI Button
+        </Button> */}
       </footer>
     </div>
   );

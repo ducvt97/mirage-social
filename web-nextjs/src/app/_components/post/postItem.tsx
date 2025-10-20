@@ -27,7 +27,7 @@ type PostItemProps = {
   likePostSuccess?: (postId: string, likes: number, userLike: string[]) => void;
 };
 
-const PostItem = React.memo(({ post, likePostSuccess }: PostItemProps) => {
+const PostItem = React.memo(function PostItem ({ post, likePostSuccess }: PostItemProps) {
   const user = useAppSelector((state) => state.auth.user);
   const [showCommentPart, setShowCommentPart] = useState(false);
 

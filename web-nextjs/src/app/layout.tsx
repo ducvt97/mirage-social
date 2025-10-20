@@ -5,6 +5,8 @@ import { ThemeProvider } from '@mui/material/styles';
 
 import "./globals.css";
 import theme from "./theme";
+import AppLoading from "./_components/layout/loading";
+import { StoreProvider } from "@/stores/storeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +35,13 @@ export default function RootLayout({
       >
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
-            {children}
+            <StoreProvider>
+              {children}
+              <AppLoading />
+            </StoreProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
+        
       </body>
     </html>
   );

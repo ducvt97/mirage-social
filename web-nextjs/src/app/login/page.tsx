@@ -1,27 +1,39 @@
 "use client";
-import { login } from "@/services/auth.service";
+import { loginAction } from "@/actions/auth";
+import { updateUser } from "@/stores/features/authSlice";
 import { TextField, Button } from "@mui/material";
 import { useFormik } from "formik";
+import { useRouter } from "next/navigation";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object({
   email: Yup.string().email("Invalid email address").required("Required"),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
+    .min(5, "Password must be at least 5 characters")
     .required("Required"),
 });
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const form = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      login(values).then((data) => {
-        console.log(data);
-      });
+    onSubmit: async (values) => {
+      try {
+        const res = await loginAction(values);
+        if (!res || !res.success || !res.data?.user) {
+          throw new Error(res.message || "Login failed");
+        }
+        updateUser(res.data?.user);
+        localStorage.setItem("auth-token", res.data?.token || "");
+        router.push("/");
+      } catch (error) {
+        console.error(error);
+      }
     },
   });
 
@@ -53,13 +65,16 @@ export default function LoginPage() {
             label="Password"
             variant="outlined"
             size="small"
+            type="password"
             fullWidth
             value={form.values.password}
             onChange={form.handleChange}
             error={form.touched.password && !!form.errors.password}
           />
           {form.touched.password && form.errors.password ? (
-            <div className="text-xs text-red-600 mt-1">{form.errors.password}</div>
+            <div className="text-xs text-red-600 mt-1">
+              {form.errors.password}
+            </div>
           ) : null}
         </div>
         <Button type="submit" variant="contained" className="w-full">
