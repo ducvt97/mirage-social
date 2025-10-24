@@ -8,4 +8,8 @@ const parseJWT = (token: string): JWTPayload => {
   return payload;
 };
 
-export { parseJWT };
+const parseToken = (token: string): JWTPayload => {
+  return new JwtService().decode(token) as JWTPayload;
+}
+
+export { parseJWT, parseToken };
